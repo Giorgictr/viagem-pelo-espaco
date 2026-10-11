@@ -11,9 +11,23 @@ const LISTA = [
 ];
 const VALIDADE = 20; // dias para cada lado da data dos elementos
 
+// O CelesTrak atualiza os elementos a cada ~2 h e bloqueia quem baixa de novo antes disso: guarda no navegador
+const GUARDA = 'viagemTLE', VALE_MS = 2 * 3600 * 1000;
+async function baixar(s) {
+  let guardado = null;
+  try { guardado = JSON.parse(localStorage.getItem(GUARDA) || 'null'); } catch { /* sem armazenamento */ }
+  const g = guardado?.[s.catnr];
+  if (g && Date.now() - g.t < VALE_MS) return g.txt;
+  const txt = await fetch(`https://celestrak.org/NORAD/elements/gp.php?CATNR=${s.catnr}&FORMAT=TLE`)
+    .then((r) => (r.ok ? r.text() : '')).catch(() => '');
+  if (txt.includes('\n1 ')) {
+    try { localStorage.setItem(GUARDA, JSON.stringify({ ...guardado, [s.catnr]: { t: Date.now(), txt } })); } catch { /* sem armazenamento */ }
+    return txt;
+  }
+  return g && Date.now() - g.t < 3 * 86400000 ? g.txt : ''; // bloqueado ou sem rede: o guardado recente, senão a reserva do site (atualizada todo dia)
+}
 async function lerTLEs() {
-  const textos = await Promise.all(LISTA.map((s) => fetch(`https://celestrak.org/NORAD/elements/gp.php?CATNR=${s.catnr}&FORMAT=TLE`)
-    .then((r) => (r.ok ? r.text() : '')).catch(() => '')));
+  const textos = await Promise.all(LISTA.map(baixar));
   let reserva = null;
   return Promise.all(LISTA.map(async (s, i) => {
     let t = textos[i];

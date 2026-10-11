@@ -1,0 +1,28 @@
+# Atualiza uma vez por dia a cópia de reserva das órbitas da ISS, do Hubble e da Tiangong (CelesTrak),
+# usada quando o navegador do visitante não consegue baixar os elementos atuais.
+name: Atualizar órbitas dos satélites
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  tle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Baixar elementos
+        run: |
+          : > novo.txt
+          for n in 25544 20580 48274; do
+            curl -sf "https://celestrak.org/NORAD/elements/gp.php?CATNR=$n&FORMAT=TLE" >> novo.txt || exit 0
+          done
+          if [ "$(grep -c '^1 ' novo.txt)" = "3" ] && ! cmp -s novo.txt dados/tle_reserva.txt; then
+            mv novo.txt dados/tle_reserva.txt
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add dados/tle_reserva.txt
+            git commit -m "Órbitas dos satélites atualizadas"
+            git push
+          fi
