@@ -1,0 +1,4 @@
+Posições, tipos, tamanhos e magnitudes dos objetos de Messier extraídos do OpenNGC
+(https://github.com/mattiaverga/OpenNGC), © Mattia Verga e colaboradores, licença CC BY-SA 4.0
+(https://creativecommons.org/licenses/by-sa/4.0/). Nomes populares em português acrescentados neste projeto.
+O arquivo dados/messier.json é distribuído sob a mesma licença.

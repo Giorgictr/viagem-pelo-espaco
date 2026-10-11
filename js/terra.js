@@ -307,6 +307,16 @@ export function criarTerra(cena, S, raio) {
       }
       return Math.max(nivelMar, 0);
     },
+    // nível do ladrilho mais detalhado com relevo já carregado nessa direção
+    zAltura(dirLocal) {
+      const lat = Math.asin(Math.max(-1, Math.min(1, dirLocal.y))), lon = Math.atan2(-dirLocal.z, dirLocal.x);
+      const yf = (1 - Math.log(Math.tan(Math.PI / 4 + lat / 2)) / Math.PI) / 2;
+      for (let z = Z_MAX; z >= Z_MIN; z--) {
+        const m = 2 ** z, n = nos.get(`${z}/${Math.floor(((lon + Math.PI) / (2 * Math.PI)) * m)}/${Math.floor(yf * m)}`);
+        if (n && n.grade) return z;
+      }
+      return 0;
+    },
     carregandoAgora: () => carregando + fila.length,
   };
 }

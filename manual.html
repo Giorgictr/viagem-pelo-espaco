@@ -43,6 +43,7 @@
   @media (max-width: 860px) { .tudo { grid-template-columns: 1fr; gap: 0; padding: 20px 16px 60px; } nav { position: static; max-height: none; margin-bottom: 20px; columns: 2; } h1 { font-size: 28px; } table { font-size: 14px; } }
   @media print { nav { display: none; } .tudo { display: block; } h2 { break-after: avoid; } }
 </style>
+<script data-goatcounter="https://viagem-pelo-espaco.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 <div class="tudo">
@@ -258,6 +259,7 @@
   <li><b>Fronteiras</b>, <b>Países e mares</b>, <b>Picos e regiões</b>.</li>
   <li><b>Modo avião</b> (<kbd>Y</kbd>): voa seguindo o relevo numa altitude constante, a 900 km/h. <kbd>↑</kbd> <kbd>↓</kbd> sobem e descem, <kbd>←</kbd> <kbd>→</kbd> viram.</li>
   <li><b>Olhar para o céu daqui</b> (<kbd>Z</kbd>): veja abaixo.</li>
+  <li><b>Construções em 3D</b> (chave, ligada por padrão): abaixo de ~6 km de altitude, os prédios do OpenStreetMap aparecem como blocos com a altura registrada no mapa, num raio de alguns quilômetros. De dia, as fachadas recebem sol e sombra; à noite, janelas acesas. Onde o mapa não tem a altura, o prédio ganha dois andares. São blocos de cor uniforme, não fotos.</li>
   <li><b>Pousar numa cidade</b>: escreva o nome (a lista sugere entre 7 mil cidades, com estado e país) e clique em <b>Pousar lá</b>. A nave voa até a cidade e desce até o chão, bem no centro dela. <b>Ver o céu de lá</b> faz o mesmo e já entra no modo céu.</li>
 </ul>
 <p>À noite, as luzes das cidades vêm das imagens Black Marble da NASA. No mar aparece o reflexo do Sol.</p>
@@ -279,6 +281,9 @@
   <li><b>Desenho das constelações</b> e <b>Nomes das constelações</b>: dois botões no painel do céu (e duas caixas em "Tempo e exibição"). Ligue para se orientar; desligue para só apreciar o céu ou tentar achar as constelações sozinho. Ao entrar no modo céu, os dois começam ligados.</li>
   <li><b>Outra cidade</b>: no painel do céu, escreva outra cidade e clique em <b>Ir</b>. Você passa a olhar o céu de lá no mesmo instante (a hora local muda conforme o fuso). Serve para comparar, por exemplo, o céu de Lisboa e o de Teresina na mesma noite.</li>
   <li><b>Busca no modo céu</b>: buscar um planeta, uma estrela ou uma constelação vira a câmera para ele, em vez de viajar até lá.</li>
+  <li><b>Objetos de Messier</b> (chave no painel do céu): os 110 objetos do catálogo de Messier (nebulosas, aglomerados e galáxias), com tamanho, forma e brilho reais. Aparecem conforme o que o olho ou o telescópio alcançaria. Busque por número ("m13") ou nome ("Plêiades", "Nebulosa de Órion"); clique no nome para escolher como alvo do telescópio.</li>
+  <li><b>Poluição luminosa</b>: escolha entre céu natural (padrão), campo muito escuro, zona rural, subúrbio, cidade e centro de metrópole (escala de Bortle 1 a 9). Quanto mais luz, menos estrelas, menos objetos de Messier e um céu mais pardo-alaranjado perto do horizonte; a Via Láctea some a partir do subúrbio.</li>
+  <li><b>Refração</b> (ligada por padrão): levanta os astros perto do horizonte, como o ar faz de verdade.</li>
 </ul>
 <h3>Telescópio</h3>
 <ul>
@@ -342,6 +347,8 @@
   <tr><td>Nomes · linhas de órbita</td><td><kbd>L</kbd> · <kbd>O</kbd></td><td>ligados · desligados</td></tr>
   <tr><td>Desenho e nomes das constelações</td><td>botões no painel do céu</td><td>ligados · desligados</td></tr>
   <tr><td>Atmosfera</td><td>botão em "Tempo e exibição"</td><td>física · simples</td></tr>
+  <tr><td>Construções em 3D</td><td>painel "Terra"</td><td>ligadas · desligadas</td></tr>
+  <tr><td>Objetos de Messier · refração · poluição luminosa</td><td>painel do céu</td><td>ligados · desligados · ligada · desligada · natural a Bortle 9</td></tr>
   <tr><td>Telescópio · acompanhar as estrelas</td><td>painel do céu (roda do mouse = aumento)</td><td>ligado · desligado · acompanhar · parado</td></tr>
   <tr><td>Modo foto</td><td><kbd>Tab</kbd></td><td>painéis visíveis · escondidos</td></tr>
 </table>
@@ -454,6 +461,8 @@
   <tr><td>Buscar "atlas" leva ao cometa 3I/ATLAS</td><td>É o apelido mais comum; o nome completo também funciona.</td></tr>
   <tr><td>A Pioneer 10 continua se afastando depois de 2003</td><td>O contato foi perdido em 2003; a trajetória depois disso é calculada.</td></tr>
   <tr><td>De muito longe, o cinturão de asteroides some</td><td>Visto a dezenas de UA, ele seria invisível; a simulação o apaga aos poucos.</td></tr>
+  <tr><td>Os prédios terminam de repente a alguns quilômetros</td><td>Para não pesar, só os prédios num raio de 3 × 3 ladrilhos (de 2 a 7 km, conforme a latitude) são desenhados. Ao voar, a área acompanha.</td></tr>
+  <tr><td>Uma cidade pequena aparece só com prédios baixos, ou sem prédios</td><td>Depende do mapeamento voluntário do OpenStreetMap: em muitas cidades os contornos existem, mas sem altura (viram dois andares), e em outras ainda faltam.</td></tr>
   <tr><td>A ISS some e reaparece no céu, ou o ponto dela fica apagado</td><td>Ela só brilha quando recebe luz do Sol. Na sombra da Terra (metade de cada volta), fica escura.</td></tr>
   <tr><td>A bordo da ISS, a Terra embaixo está escura, mas o painel diz "iluminada pelo Sol"</td><td>A 420 km de altura, a estação vê o Sol antes do chão logo abaixo: amanhece lá em cima uns minutos antes.</td></tr>
   <tr><td>Satélite "fora do período", com aviso para usar "Agora"</td><td>Os elementos orbitais valem por algumas semanas. A simulação só mostra os satélites até 20 dias antes ou depois da data deles. Sem internet, usa uma cópia guardada, menos atual.</td></tr>
@@ -465,7 +474,9 @@
   <tr><th>O que você vê</th><th>Por quê</th></tr>
   <tr><td>A hora mostrada difere do relógio</td><td>Confira o seletor: em <b>hora solar</b>, a diferença para o relógio pode chegar a 1,5–3 h em alguns países, mais a equação do tempo (±16 min). Em <b>hora oficial</b>, o fuso vem da cidade mais próxima; longe de cidades, ele é estimado pela longitude.</td></tr>
   <tr><td>Netuno e Urano aparecem na lista do céu</td><td>Estão acima do horizonte, mas são fracos demais para o olho; a lista marca "só com telescópio".</td></tr>
-  <tr><td>Perto do horizonte, astros e o Sol aparecem um pouco mais baixos que nas tabelas</td><td>A simulação não inclui a refração da atmosfera, que levanta a imagem ~0,5° no horizonte. Por isso o Sol "nasce" uns 2 minutos depois do que dizem as tabelas.</td></tr>
+  <tr><td>Perto do horizonte, os astros aparecem um pouco mais altos do que a posição calculada</td><td>É a <b>refração</b>: o ar curva a luz e levanta a imagem ~0,5° no horizonte (quase nada no alto do céu). Por isso o Sol ainda aparece inteiro quando, em linha reta, já se pôs, e os horários batem com as tabelas. Dá para desligar no painel do céu.</td></tr>
+  <tr><td>Com poluição luminosa, a Via Láctea some e sobram poucas estrelas</td><td>Real: no centro de uma metrópole (Bortle 9) só as estrelas até a magnitude ~4 aparecem, e o céu fica pardo-alaranjado perto do horizonte. O padrão do modo céu é o céu natural, sem poluição.</td></tr>
+  <tr><td>Um objeto de Messier aparece no telescópio, mas não a olho nu</td><td>Quase todos são fracos e difusos: a olho nu, num céu escuro, só se veem bem Andrômeda, Órion, as Plêiades, o Presépio e alguns aglomerados. O brilho de superfície faz um objeto difuso parecer mais fraco que uma estrela da mesma magnitude.</td></tr>
   <tr><td>Depois de sair do modo céu, continuo na data antiga</td><td>De propósito: a data escolhida vale para toda a simulação. Um aviso lembra; use <b>Agora</b>.</td></tr>
   <tr><td>De dia não há estrelas</td><td>Como na realidade: o céu claro as esconde. Use "Esta noite, 22 h".</td></tr>
   <tr><td>Num lugar muito ao norte ou ao sul, o Sol não se põe (ou não nasce)</td><td>Sol da meia-noite e noite polar, perto dos polos, no verão e no inverno.</td></tr>
@@ -521,7 +532,7 @@
     <ul>
       <li>a relatividade desloca e colore, mas não deforma os planetas;</li>
       <li>a atmosfera física calcula um espalhamento por raio de luz e aproxima os demais (o crepúsculo profundo é estimado). Só a Terra e Marte têm esse cálculo; Vênus, Titã e os gigantes usam a atmosfera simples. Não há arco-íris, halos de gelo nem nuvens reais;</li>
-      <li>a refração da atmosfera não é incluída (os astros no horizonte aparecem ~0,5° mais baixos);</li>
+      <li>a refração usa a atmosfera padrão; em noites muito frias ou quentes, a real muda alguns minutos de arco;</li>
       <li>tamanho e cor das estrelas de perto são estimativas.</li>
     </ul>
   </li>
@@ -549,6 +560,9 @@
   <li><b>Sondas e cometas</b>: trajetórias do sistema JPL Horizons (NASA/JPL-Caltech).</li>
   <li><b>Luas dos outros planetas</b>: posições e velocidades do JPL Horizons (1970–2040), propagadas com o achatamento de cada planeta.</li>
   <li><b>Satélites</b>: elementos orbitais do CelesTrak (T. S. Kelso), calculados com a biblioteca satellite.js (licença MIT).</li>
+  <li><b>Construções</b>: © colaboradores do OpenStreetMap (licença ODbL), em ladrilhos do OpenFreeMap.</li>
+  <li><b>Objetos de Messier</b>: OpenNGC, © Mattia Verga e colaboradores (CC BY-SA 4.0).</li>
+  <li><b>Contador de visitas</b>: GoatCounter, sem cookies e sem dados pessoais.</li>
   <li><b>Atmosfera física</b>: coeficientes de espalhamento publicados por E. Bruneton e S. Hillaire (Terra); para Marte, valores típicos da poeira medidos pelos jipes da NASA. Aproximação de Chapman de C. Schüler.</li>
   <li><b>Fotos das missões</b>: NASA/JPL-Caltech, NASA Ames, NASA/JHUAPL/SwRI, Space Science Institute, MSSS, STScI e parceiros, conforme o crédito de cada foto (imagens da NASA, de uso livre). Duas exceções, ambas com licença aberta ou de domínio público: o cometa 67P, da câmera de navegação da Rosetta (ESA/Rosetta/NAVCAM, CC BY-SA IGO 3.0), e o Halley visto da Terra em 1986 (NASA/W. Liller, International Halley Watch).</li>
   <li><b>Linhas das constelações</b>: d3-celestial, © 2015 Olaf Frohn (licença BSD de 3 cláusulas). Nomes das constelações: União Astronômica Internacional, em português.</li>

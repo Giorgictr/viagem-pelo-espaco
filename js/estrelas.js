@@ -125,7 +125,7 @@ export function criarCeu(S) {
     uniforms: {
       camAlto: { value: new THREE.Vector3() }, camBaixo: { value: new THREE.Vector3() },
       PCKM: { value: PC }, R0: { value: 1e8 }, limite: { value: 6.5 }, limiteTam: { value: 6.5 }, escalaPx: { value: 1 }, apagar: { value: 0 },
-      ocultos: { value: new Int32Array(8).fill(-1) }, beta: { value: new THREE.Vector3() },
+      ocultos: { value: new Int32Array(8).fill(-1) }, beta: { value: new THREE.Vector3() }, zenite: { value: new THREE.Vector3(0, 1, 0) }, refr: { value: 0 },
     },
     blending: THREE.AdditiveBlending, depthWrite: false, transparent: true,
   });

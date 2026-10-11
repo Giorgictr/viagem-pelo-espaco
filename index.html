@@ -100,6 +100,8 @@
   body.modoCeu #pCeu { display: block; }
   body.modoCeu #pVel, body.modoCeu #pDest, body.modoCeu #pTerra { display: none !important; }
   input[type=date], input[type=time] { font: inherit; color: var(--texto); background: rgba(255,255,255,.06); border: 1px solid var(--borda); border-radius: 6px; padding: 3px 7px; color-scheme: dark; }
+  .messier { position: absolute; transform: translate(6px, -50%); white-space: nowrap; font-size: 11px; color: rgba(200, 225, 190, .8); text-shadow: 0 0 3px #000; cursor: pointer; }
+  .messier.alvo { color: #ffd27a; }
   .constelacao { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(140, 180, 255, .55); text-shadow: 0 0 3px #000; pointer-events: none; }
   .bussola { position: absolute; transform: translate(-50%, -100%); font-size: 15px; font-weight: 700; color: rgba(255, 220, 160, .9); text-shadow: 0 0 4px #000; pointer-events: none; }
   @media (max-width: 1000px) { #pTerra { max-width: calc(100vw - 680px); min-width: 200px; } }
@@ -156,6 +158,7 @@
   body.telescopio .painel, body.telescopio #btPaineis, body.telescopio #toque { display: none !important; }
   body.telescopio .rot.sonda, body.telescopio .rot.cometa { opacity: .8; }
 </style>
+<script data-goatcounter="https://viagem-pelo-espaco.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 <canvas id="tela"></canvas>
@@ -216,6 +219,7 @@
     <label><input type="checkbox" id="ckNomesTerra" checked> Países e mares</label>
     <label><input type="checkbox" id="ckPicos" checked> Picos e regiões</label>
   </div>
+  <div class="linha"><button id="btPredios" title="Prédios do OpenStreetMap, abaixo de 6 km de altitude"></button></div>
   <div class="linha">
     <button id="btCeu2" title="Z">Olhar para o céu daqui</button>
   </div>
@@ -297,6 +301,17 @@
     <span>No céu agora</span><span id="ceuVisiveis" style="white-space:normal">—</span>
   </div>
   <p class="sub" style="margin:8px 0 0;white-space:normal">Arraste o mouse para olhar em volta. Sem nuvens e sem luzes de cidade. Ligue o desenho e os nomes das constelações para se orientar, ou desligue para só apreciar e procurar sozinho.</p>
+  <div class="linha">
+    <select id="selPoluicao" aria-label="Poluição luminosa">
+      <option value="0">Céu natural (sem poluição luminosa)</option>
+      <option value="1">Campo muito escuro (Bortle 1)</option>
+      <option value="3">Zona rural (Bortle 3)</option>
+      <option value="5">Subúrbio (Bortle 5)</option>
+      <option value="7">Cidade (Bortle 7)</option>
+      <option value="9">Centro de metrópole (Bortle 9)</option>
+    </select>
+  </div>
+  <div class="linha"><button id="btMessier"></button><button id="btRefracao"></button></div>
   <h2 style="margin-top:10px">Telescópio</h2>
   <div class="linha" style="margin-top:0">
     <button id="btTelescopio" title="Roda do mouse muda o aumento"></button><span class="sub" id="zoomTxt"></span>
@@ -395,6 +410,7 @@
     <label title="Reduz a velocidade perto de planetas e estrelas, para não atravessá-los"><input type="checkbox" id="ckFreio" checked> Freio de proximidade</label>
   </div>
   <div class="linha"><button id="btAjuda" title="H">Controles (H)</button><a class="botao" href="manual.html" target="_blank" rel="noopener">Manual completo</a></div>
+  <div class="sub" id="visitas" hidden></div>
 </section>
 
 <section class="painel" id="ajuda">

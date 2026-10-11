@@ -6,6 +6,22 @@ const LOGF = '#include <common>\n#include <logdepthbuf_pars_fragment>\n';
 // aberração (as fontes se juntam à frente) e fator Doppler D (frequência × D; brilho ~ D³).
 const REL = /* glsl */ `
   uniform vec3 beta;
+  // refração da atmosfera (modo céu): levanta os astros perto do horizonte (~0,5° no horizonte; fórmula de Sæmundsson)
+  uniform vec3 zenite; uniform float refr;
+  vec3 refratar(vec3 p) {
+    if (refr < 0.5) return p;
+    float L = length(p);
+    vec3 n = p / L;
+    float s = dot(n, zenite);
+    float h = degrees(asin(clamp(s, -1.0, 1.0)));
+    if (h < -1.5) return p;
+    float R = min(1.02 / tan(radians(h + 10.3 / (h + 5.11))), 40.0) / 60.0; // graus
+    vec3 t = zenite - n * s;
+    float tl = length(t);
+    if (tl < 1e-6) return p;
+    float r = radians(R);
+    return (n * cos(r) + t / tl * sin(r)) * L;
+  }
   vec3 aberrar(vec3 p, out float D) {
     D = 1.0;
     float b = length(beta);
@@ -172,7 +188,7 @@ export const NUVENS_F = LOGF + /* glsl */ `
 // Atmosfera: de fora, um halo iluminado; de dentro, a cor do céu (some à noite)
 export const ATM_F = LOGF + /* glsl */ `
   uniform vec3 cor, luz, centro;
-  uniform float dentro, densidade, luar;
+  uniform float dentro, densidade, luar, urbano;
   varying vec3 vN, vMundo; varying vec2 vUv;
   void main() {
     #include <logdepthbuf_fragment>
@@ -192,7 +208,10 @@ export const ATM_F = LOGF + /* glsl */ `
       float poente = (1.0 - smoothstep(0.0, 0.35, dot(up, luz))) * pow(1.0 - alto, 3.0) * max(dot(dir, luz), 0.0);
       ceu = mix(ceu, vec3(1.0, 0.45, 0.2), clamp(poente, 0.0, 0.8));
       float claro = max(dia, luar * 0.22); // a Lua cheia clareia um pouco o céu noturno
-      gl_FragColor = vec4(ceu * (0.25 + 0.75 * dia), claro * 0.97 * densidade);
+      vec3 cc = ceu * (0.25 + 0.75 * dia);
+      float aa = claro * 0.97 * densidade;
+      float g = urbano * (0.18 + 0.82 * pow(1.0 - alto, 3.0)) * densidade; // poluição luminosa
+      gl_FragColor = vec4((cc * aa + vec3(0.30, 0.24, 0.17) * g) / max(aa + g, 1e-4), min(aa + g, 1.0));
     }
     #include <colorspace_fragment>
   }`;
@@ -203,7 +222,7 @@ export const ATM_F = LOGF + /* glsl */ `
 // está atrás: chão, estrelas).
 export const ATM_FIS_F = LOGF + /* glsl */ `
   uniform vec3 luz, centro, betaR, betaMs, betaMe, betaO, gM;
-  uniform float raioR, topo, HR, HM, intensidade, exposicao, luar, multiplo;
+  uniform float raioR, topo, HR, HM, intensidade, exposicao, luar, multiplo, urbano;
   varying vec3 vN, vMundo; varying vec2 vUv;
   vec2 esfera(vec3 o, vec3 d, float r) {
     float b = dot(o, d), c = dot(o, o) - r * r, h = b * b - c;
@@ -261,6 +280,9 @@ export const ATM_FIS_F = LOGF + /* glsl */ `
     float mx = max(max(L.r, L.g), max(L.b, 1e-6));
     vec3 cor = mix(L / mx * (1.0 - exp(-mx * exposicao)), 1.0 - exp(-L * exposicao), 0.25);
     cor += luar * 0.06 * vec3(0.35, 0.55, 1.0) * clamp((1.0 - T.b) * 4.0, 0.0, 1.0); // luar: um véu azulado fraco
+    // poluição luminosa: as luzes da cidade iluminam o ar por baixo; o brilho alaranjado cresce perto do horizonte
+    float alturaVisada = max(dot(d, normalize(o)), 0.0);
+    cor += urbano * vec3(0.30, 0.24, 0.17) * (0.18 + 0.82 * pow(1.0 - alturaVisada, 3.0));
     float a = clamp(1.0 - (T.r + T.g + T.b) / 3.0, 0.0, 1.0);
     // a soma acontece nos valores já codificados da tela: converter a luz espalhada para sRGB a exageraria (véu leitoso),
     // então ela sai direto, já comprimida pela exposição
@@ -357,7 +379,7 @@ export const CEU_V = LOGV + REL + /* glsl */ `
     float dkm = dpc * PCKM;
     float s = dkm <= R0 ? 1.0 : R0 * (1.0 + log(dkm / R0)) / dkm;
     float D;
-    rel = aberrar(rel, D);
+    rel = aberrar(refratar(rel), D);
     float m = absmag + 5.0 * log(dpc) * 0.4342945 - 5.0 - 7.5 * log(min(D, 1.4)) * 0.4342945;
     float b = pow(10.0, -0.4 * (m - limite));
     vCor = D == 1.0 ? cor : corTemp(temp * D);
@@ -449,7 +471,7 @@ export const CMB_F = LOGF + RUIDO + /* glsl */ `
 export const LINHA_CEU_V = LOGV + REL + /* glsl */ `
   void main() {
     float D;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(aberrar(position, D), 1.0);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(aberrar(refratar(position), D), 1.0);
     #include <logdepthbuf_vertex>
   }`;
 export const LINHA_CEU_F = LOGF + /* glsl */ `
@@ -536,13 +558,27 @@ export const TERRA_F = LOGF + /* glsl */ `
     // no mar, a normal é a da esfera (lisa e contínua entre ladrilhos); em terra, a do relevo
     vec3 n = normalize(vAgua > 0.5 ? vRadial : vN);
     float l = dot(n, luz);
-    vec3 c = base * (max(l, 0.0) * 1.1 + 0.015);
+    // luz do Sol nas encostas + luz difusa do céu (azulada), que clareia o lado da montanha sem Sol durante o dia;
+    // a foto de satélite já traz parte da sombra, então o contraste do relevo é um pouco suavizado
+    vec3 rad = normalize(vRadial);
+    float diaAqui = smoothstep(-0.15, 0.2, dot(rad, luz));
+    float lSol = max(mix(dot(rad, luz), l, 0.6), 0.0);
+    vec3 ceuDifuso = vec3(0.55, 0.68, 1.0) * (0.07 + 0.09 * max(dot(n, rad), 0.0)) * diaAqui;
+    vec3 c = base * (lSol * 1.05 + ceuDifuso + 0.015);
+    c -= max(c - 0.72, 0.0) * 0.6; // paredões de pedra virados para o Sol (foto esticada na encosta) não estouram em branco
     if (vAgua > 0.5 && l > 0.0) {
       vec3 h = normalize(luz + normalize(-vMundo));
       c += vec3(1.0, 0.95, 0.85) * pow(max(dot(n, h), 0.0), 140.0) * 0.7 * clamp(1.0 - length(vMundo) * kmPorUnidade / 9000.0, 0.15, 1.0); // reflexo mais discreto visto de longe
     }
     vec3 luzes = temNoiteTile > 0.5 ? texture2D(noiteTile, vUvN).rgb * 1.3 : texture2D(noite, vGlob).rgb * 0.8;
-    c += luzes * (1.0 - smoothstep(-0.12, 0.08, l)) * (1.0 - max(gelo, semLuzes)); // sem cidades na era glacial e no modo céu
+    // luzes das cidades só quando é noite no lugar (pela esfera), não nas encostas de costas para o Sol durante o dia
+    // de perto, a imagem de luzes (~600 m) viraria um lençol branco: atenua e usa a foto do dia para dar textura (ruas e quadras)
+    float dKm = length(vMundo) * kmPorUnidade;
+    float longe = smoothstep(20.0, 120.0, dKm);
+    float perto = mix(0.10, 1.0, smoothstep(4.0, 120.0, dKm));
+    float textura = mix(0.08 + 2.4 * pow(dot(base, vec3(0.333)), 1.6), 1.0, longe); // parques e água escuros, ruas e quadras claras
+    luzes *= perto * textura * mix(vec3(1.0, 0.72, 0.42), vec3(1.0), longe);     // de perto, o alaranjado da iluminação pública
+    c += luzes * (1.0 - smoothstep(-0.12, 0.08, dot(rad, luz))) * (1.0 - max(gelo, semLuzes)); // sem cidades na era glacial e no modo céu
     if (gelo > 0.5) {
       float g = geloGlacial((vGlob.y - 0.5) * 180.0, vGlob.x * 360.0 - 180.0);
       c = mix(c, vec3(0.93, 0.96, 1.0) * (max(l, 0.0) * 1.05 + 0.03), g * 0.96);
