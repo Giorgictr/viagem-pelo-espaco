@@ -1,0 +1,379 @@
+[
+ {
+  "id": "voyager1",
+  "nome": "Voyager 1",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 3822,
+    "jd0": 2443394.5,
+    "jd1": 2462499.5
+   },
+   {
+    "centro": "jupiter",
+    "gm": 126686534.0,
+    "modo": "kepler",
+    "inicio": 3822,
+    "n": 113,
+    "jd0": 2443924.5,
+    "jd1": 2443952.5
+   },
+   {
+    "centro": "saturno",
+    "gm": 37931187.0,
+    "modo": "kepler",
+    "inicio": 3935,
+    "n": 105,
+    "jd0": 2444542.5,
+    "jd1": 2444568.5
+   }
+  ]
+ },
+ {
+  "id": "voyager2",
+  "nome": "Voyager 2",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 3825,
+    "jd0": 2443378.5,
+    "jd1": 2462498.5
+   },
+   {
+    "centro": "jupiter",
+    "gm": 126686534.0,
+    "modo": "kepler",
+    "inicio": 3825,
+    "n": 121,
+    "jd0": 2444049.5,
+    "jd1": 2444079.5
+   },
+   {
+    "centro": "saturno",
+    "gm": 37931187.0,
+    "modo": "kepler",
+    "inicio": 3946,
+    "n": 109,
+    "jd0": 2444828.5,
+    "jd1": 2444855.5
+   },
+   {
+    "centro": "urano",
+    "gm": 5793939.0,
+    "modo": "kepler",
+    "inicio": 4055,
+    "n": 169,
+    "jd0": 2446444.5,
+    "jd1": 2446465.5
+   },
+   {
+    "centro": "netuno",
+    "gm": 6836529.0,
+    "modo": "kepler",
+    "inicio": 4224,
+    "n": 169,
+    "jd0": 2447753.5,
+    "jd1": 2447774.5
+   }
+  ]
+ },
+ {
+  "id": "pioneer10",
+  "nome": "Pioneer 10",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 2113,
+    "jd0": 2441381.5,
+    "jd1": 2462501.5
+   },
+   {
+    "centro": "jupiter",
+    "gm": 126686534.0,
+    "modo": "kepler",
+    "inicio": 2113,
+    "n": 113,
+    "jd0": 2442006.5,
+    "jd1": 2442034.5
+   }
+  ]
+ },
+ {
+  "id": "newhorizons",
+  "nome": "New Horizons",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 1750,
+    "jd0": 2453756.5,
+    "jd1": 2462501.5
+   },
+   {
+    "centro": "jupiter",
+    "gm": 126686534.0,
+    "modo": "kepler",
+    "inicio": 1750,
+    "n": 113,
+    "jd0": 2454146.5,
+    "jd1": 2454174.5
+   },
+   {
+    "centro": "plutao",
+    "gm": 869.6,
+    "modo": "kepler",
+    "inicio": 1863,
+    "n": 649,
+    "jd0": 2457204.5,
+    "jd1": 2457231.5
+   }
+  ]
+ },
+ {
+  "id": "cassini",
+  "nome": "Cassini",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 1210,
+    "jd0": 2450738.5,
+    "jd1": 2453156.5
+   },
+   {
+    "centro": "venus",
+    "gm": 324859.0,
+    "modo": "kepler",
+    "inicio": 1210,
+    "n": 97,
+    "jd0": 2450927.5,
+    "jd1": 2450931.5
+   },
+   {
+    "centro": "venus",
+    "gm": 324859.0,
+    "modo": "kepler",
+    "inicio": 1307,
+    "n": 97,
+    "jd0": 2451351.5,
+    "jd1": 2451355.5
+   },
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "kepler",
+    "inicio": 1404,
+    "n": 97,
+    "jd0": 2451406.5,
+    "jd1": 2451410.5
+   },
+   {
+    "centro": "jupiter",
+    "gm": 126686534.0,
+    "modo": "kepler",
+    "inicio": 1501,
+    "n": 125,
+    "jd0": 2451893.5,
+    "jd1": 2451924.5
+   },
+   {
+    "centro": "saturno",
+    "gm": 37931187.0,
+    "modo": "kepler",
+    "inicio": 1626,
+    "n": 19417,
+    "jd0": 2453157.5,
+    "jd1": 2458011.5
+   }
+  ]
+ },
+ {
+  "id": "juno",
+  "nome": "Juno",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 890,
+    "jd0": 2455780.5,
+    "jd1": 2457558.5
+   },
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "kepler",
+    "inicio": 890,
+    "n": 121,
+    "jd0": 2456572.5,
+    "jd1": 2456577.5
+   },
+   {
+    "centro": "jupiter",
+    "gm": 126686534.0,
+    "modo": "kepler",
+    "inicio": 1011,
+    "n": 15389,
+    "jd0": 2457559.5,
+    "jd1": 2461406.5
+   }
+  ]
+ },
+ {
+  "id": "parker",
+  "nome": "Parker Solar Probe",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 8317,
+    "jd0": 2458344.5,
+    "jd1": 2462502.5
+   }
+  ]
+ },
+ {
+  "id": "jwst",
+  "nome": "Telescópio James Webb",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "hermite",
+    "inicio": 0,
+    "n": 2929,
+    "jd0": 2459574.5,
+    "jd1": 2462502.5
+   }
+  ]
+ },
+ {
+  "id": "rosetta",
+  "nome": "Rosetta",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 1901,
+    "jd0": 2453069.5,
+    "jd1": 2456869.5
+   },
+   {
+    "centro": "67p",
+    "gm": 0,
+    "modo": "hermite",
+    "inicio": 1901,
+    "n": 3165,
+    "jd0": 2456870.5,
+    "jd1": 2457661.5
+   }
+  ]
+ },
+ {
+  "id": "halley",
+  "nome": "Cometa Halley",
+  "tipo": "cometa",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 3105,
+    "jd0": 2415020.5,
+    "jd1": 2477100.5
+   }
+  ]
+ },
+ {
+  "id": "halebopp",
+  "nome": "Cometa Hale-Bopp",
+  "tipo": "cometa",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 3288,
+    "jd0": 2446066.5,
+    "jd1": 2462501.5
+   }
+  ]
+ },
+ {
+  "id": "neowise",
+  "nome": "Cometa NEOWISE",
+  "tipo": "cometa",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 2558,
+    "jd0": 2457388.5,
+    "jd1": 2462502.5
+   }
+  ]
+ },
+ {
+  "id": "67p",
+  "nome": "Cometa 67P/Churyumov-Gerasimenko",
+  "tipo": "cometa",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 10959,
+    "jd0": 2451544.5,
+    "jd1": 2462502.5
+   }
+  ]
+ },
+ {
+  "id": "atlas3i",
+  "nome": "3I/ATLAS (visitante interestelar)",
+  "tipo": "cometa",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 3105,
+    "jd0": 2458119.5,
+    "jd1": 2464327.5
+   }
+  ]
+ }
+]

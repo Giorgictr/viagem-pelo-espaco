@@ -1,0 +1,2 @@
+Coloque aqui arquivos de música (MP3, M4A, OGG, WAV, AAC ou FLAC).
+Na simulação, escolha "Música: minhas músicas" para tocá-las em ordem aleatória.

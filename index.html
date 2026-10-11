@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Viagem pelo Espaço</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2710%27 fill=%27%235d8fd6%27/%3E%3Cellipse cx=%2716%27 cy=%2716%27 rx=%2715%27 ry=%274%27 fill=%27none%27 stroke=%27%23ffc27a%27 stroke-width=%272%27/%3E%3C/svg%3E">
+<style>
+  :root {
+    --painel: rgba(8, 12, 22, 0.72);
+    --borda: rgba(150, 180, 255, 0.16);
+    --texto: #dfe6f5;
+    --fraco: #8c97ad;
+    --acento: #7fb2ff;
+    --quente: #ffc27a;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+    font-size: 13px;
+    color: var(--texto);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #000; }
+  canvas#tela { display: block; width: 100vw; height: 100vh; cursor: grab; touch-action: none; }
+  canvas#tela:active { cursor: grabbing; }
+  .painel {
+    position: fixed; background: var(--painel); border: 1px solid var(--borda); border-radius: 10px;
+    padding: 10px 12px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    max-width: calc(100vw - 24px);
+  }
+  .painel h2 { margin: 0 0 6px; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--fraco); font-weight: 600; }
+  #pVel { top: 12px; left: 12px; width: 330px; }
+  #pPos { top: 12px; right: 12px; width: 300px; }
+  #pDest { bottom: 12px; left: 12px; width: 330px; }
+  #pTempo { bottom: 12px; right: 12px; width: 300px; }
+  /* em janelas baixas, cada painel fica com metade da altura e rola por dentro */
+  #pVel, #pDest, #pPos, #pTempo { max-height: calc(50vh - 18px); overflow-y: auto; }
+  .grande { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+  .sub { color: var(--fraco); font-variant-numeric: tabular-nums; min-height: 1.3em; }
+  input[type=range] { width: 100%; accent-color: var(--acento); margin: 8px 0 6px; }
+  .chips { display: flex; flex-wrap: nowrap; gap: 4px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+  .chips button { flex: none; white-space: nowrap; }
+  .chips::-webkit-scrollbar { height: 4px; }
+  .chips::-webkit-scrollbar-thumb { background: rgba(150,180,255,.25); border-radius: 4px; }
+  .chips::-webkit-scrollbar-track { background: transparent; }
+  .chips { scrollbar-color: rgba(150,180,255,.25) transparent; }
+  #detTerra summary { cursor: pointer; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--fraco); font-weight: 600; list-style: none; }
+  #detTerra summary::before { content: '▸ '; }
+  #detTerra[open] summary::before { content: '▾ '; }
+  #detTerra[open] summary { margin-bottom: 6px; }
+  button, select, input[type=number] {
+    font: inherit; color: var(--texto); background: rgba(255,255,255,.06); border: 1px solid var(--borda);
+    border-radius: 6px; padding: 3px 7px;
+  }
+  button { cursor: pointer; }
+  a.botao { font: inherit; color: var(--texto); background: rgba(255,255,255,.06); border: 1px solid var(--borda); border-radius: 6px; padding: 3px 7px; text-decoration: none; }
+  a.botao:hover { background: rgba(127,178,255,.18); }
+  button:hover { background: rgba(127,178,255,.18); }
+  button.ativo { background: rgba(127,178,255,.3); border-color: var(--acento); }
+  select { max-width: 100%; }
+  select option { background: #0b1020; }
+  .linha { display: flex; align-items: center; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .linha label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-variant-numeric: tabular-nums; }
+  .kv span:nth-child(odd) { color: var(--fraco); }
+  .status { margin-top: 6px; color: var(--quente); min-height: 1.3em; font-variant-numeric: tabular-nums; }
+  input[type=number] { width: 64px; }
+  input#busca { font: inherit; color: var(--texto); background: rgba(255,255,255,.06); border: 1px solid var(--borda); border-radius: 6px; padding: 3px 7px; }
+  #rotulos { position: fixed; inset: 0; pointer-events: none; }
+  .rot {
+    position: absolute; transform: translate(8px, -50%); white-space: nowrap; font-size: 11.5px;
+    color: rgba(225, 233, 250, .85); text-shadow: 0 0 4px #000, 0 0 2px #000; pointer-events: auto; cursor: pointer;
+    padding: 1px 3px; border-radius: 3px;
+  }
+  .rot:hover { background: rgba(127,178,255,.25); }
+  .rot.alvo { color: var(--quente); font-weight: 600; }
+  .rot.estrela, .rot.galaxia, .rot.marco { color: rgba(255, 226, 180, .9); }
+  #ajuda {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 460px; display: none; z-index: 5;
+  }
+  #ajuda.aberta { display: block; }
+  #ajuda table { border-collapse: collapse; width: 100%; }
+  #ajuda td { padding: 3px 6px; vertical-align: top; }
+  #ajuda td:first-child { color: var(--acento); white-space: nowrap; font-weight: 600; }
+  kbd { font: inherit; border: 1px solid var(--borda); border-radius: 4px; padding: 0 4px; }
+  #aviso { position: fixed; top: 22%; left: 50%; transform: translateX(-50%); color: var(--quente); font-size: 15px; text-shadow: 0 0 6px #000; pointer-events: none; text-align: center; }
+  #creditos { position: fixed; bottom: 4px; left: 50%; transform: translateX(-50%); font-size: 10px; color: rgba(220,228,245,.6); text-shadow: 0 0 3px #000; pointer-events: none; text-align: center; width: calc(100vw - 700px); min-width: 220px; }
+  @media (max-width: 1000px) { #creditos { width: 90vw; } }
+  #pTerra { top: 12px; left: 50%; transform: translateX(-50%); max-width: calc(100vw - 700px); max-height: calc(100vh - 24px); overflow-y: auto; }
+  #pCeu { top: 12px; left: 12px; width: 340px; display: none; max-height: calc(100vh - 24px); overflow-y: auto; }
+  #pMissao { bottom: 12px; left: 12px; width: 360px; display: none; max-height: calc(62vh); overflow-y: auto; }
+  body.embarcado #pMissao { display: block; }
+  body.embarcado #pDest { display: none !important; }
+  #mMomentos { display: flex; flex-direction: column; gap: 4px; }
+  .momento { text-align: left; }
+  #foto { right: 12px; top: 50%; transform: translateY(-50%); width: min(520px, 46vw); z-index: 7; }
+  #foto[hidden] { display: none; }
+  body.semPaineis #foto:not([hidden]) { display: block !important; }
+  #foto img { display: block; width: 100%; max-height: 52vh; object-fit: contain; border-radius: 6px; background: #000; }
+  .rot.sonda { color: rgba(255, 224, 160, .95); } .rot.cometa { color: rgba(200, 225, 255, .95); }
+  @media (max-width: 760px) { #pMissao { width: calc(100vw - 24px); } #foto { left: 12px; right: 12px; width: auto; top: auto; bottom: 12px; transform: none; } }
+  body.modoCeu #pCeu { display: block; }
+  body.modoCeu #pVel, body.modoCeu #pDest, body.modoCeu #pTerra { display: none !important; }
+  input[type=date], input[type=time] { font: inherit; color: var(--texto); background: rgba(255,255,255,.06); border: 1px solid var(--borda); border-radius: 6px; padding: 3px 7px; color-scheme: dark; }
+  .constelacao { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(140, 180, 255, .55); text-shadow: 0 0 3px #000; pointer-events: none; }
+  .bussola { position: absolute; transform: translate(-50%, -100%); font-size: 15px; font-weight: 700; color: rgba(255, 220, 160, .9); text-shadow: 0 0 4px #000; pointer-events: none; }
+  @media (max-width: 1000px) { #pTerra { max-width: calc(100vw - 680px); min-width: 200px; } }
+  @media (max-width: 760px) { #pTerra { top: 8px; left: 12px; right: 60px; transform: none; max-width: none; min-width: 0; } #pVel { top: 56px !important; } body.semPaineis #pTerra { display: none !important; } }
+  .lugar { position: absolute; transform: translate(7px, -50%); white-space: nowrap; font-size: 11px; color: #fff; text-shadow: 0 0 3px #000, 0 0 2px #000; pointer-events: auto; cursor: pointer; }
+  .lugar:hover { text-decoration: underline; }
+  .lugar.cidade::before { content: ""; position: absolute; left: -7px; top: 50%; width: 4px; height: 4px; margin-top: -2px; border-radius: 50%; background: #ffe7a8; box-shadow: 0 0 3px #000; }
+  .lugar.pais { transform: translate(-50%, -50%); font-size: 12px; letter-spacing: .2em; font-weight: 600; color: rgba(255,255,255,.78); }
+  .lugar.mar { transform: translate(-50%, -50%); font-style: italic; color: rgba(160,205,255,.9); letter-spacing: .05em; }
+  .lugar.pico { color: #f4e2c2; }
+  .lugar.regiao { transform: translate(-50%, -50%); font-size: 10.5px; letter-spacing: .1em; color: rgba(245,225,185,.75); }
+  #clarao { position: fixed; inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(circle at center, rgba(220,235,255,.95), rgba(120,170,255,.35) 45%, transparent 75%); }
+  #btSalvar { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); display: none; background: rgba(8,12,22,.7); }
+  body.foto .painel, body.foto #mira { display: none !important; }
+  body.foto #btSalvar { display: block; }
+  #btPaineis { position: fixed; top: 8px; right: 8px; z-index: 6; display: none; font-size: 18px; padding: 4px 10px; background: var(--painel); }
+  #toque { position: fixed; right: 12px; bottom: 20px; display: none; flex-direction: column; gap: 8px; z-index: 6; }
+  #toque button { width: 56px; height: 56px; font-size: 22px; border-radius: 50%; background: var(--painel); touch-action: none; }
+  @media (pointer: coarse) { #toque { display: flex; } }
+  @media (max-width: 760px) { #btPaineis { display: block; } body.semPaineis .painel { display: none !important; } }
+  #mira { position: fixed; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; pointer-events: none; opacity: .35; }
+  #mira::before, #mira::after { content: ""; position: absolute; background: #fff; }
+  #mira::before { left: 6px; top: 0; width: 2px; height: 14px; }
+  #mira::after { top: 6px; left: 0; height: 2px; width: 14px; }
+  @media (max-width: 760px) {
+    #pPos, #pTempo { display: none; }
+    #pVel, #pDest { width: calc(100vw - 24px); max-height: calc(45vh - 18px); }
+    #pVel { top: 48px; }
+  }
+  #ocular { position: fixed; inset: 0; pointer-events: none; z-index: 1; background: radial-gradient(circle closest-side, transparent 93%, rgba(0,0,0,.92) 99%, #000 100%); }
+  body.telescopio .rot.sonda, body.telescopio .rot.cometa { opacity: .8; }
+</style>
+</head>
+<body>
+<canvas id="tela"></canvas>
+<div id="rotulos"></div>
+<div id="mira"></div>
+<div id="aviso"></div>
+<button id="btPaineis" aria-label="Mostrar ou esconder os painéis">☰</button>
+<div id="toque">
+  <button data-tecla="KeyW" aria-label="Frente">▲</button>
+  <button data-tecla="KeyS" aria-label="Ré">▼</button>
+  <button data-acao="mais" aria-label="Mais rápido">+</button>
+  <button data-acao="menos" aria-label="Mais devagar">−</button>
+</div>
+<div id="clarao"></div>
+<div id="creditos"></div>
+<button id="btSalvar">Salvar imagem (Enter) · Tab volta</button>
+
+<section class="painel" id="pVel">
+  <h2>Velocidade escolhida</h2>
+  <div class="grande" id="velEsc">—</div>
+  <div class="sub" id="velEscSub"></div>
+  <input type="range" id="velSlider" min="-3" max="23.48" step="0.001" aria-label="Velocidade (escala logarítmica)">
+  <div class="chips" id="presets"></div>
+  <div class="linha" style="margin-top:10px"><span class="sub">Movendo agora:</span> <b id="velReal">parado</b></div>
+  <div class="sub" id="velRealSub"></div>
+  <div class="sub" id="relInfo" style="color:var(--acento)"></div>
+  <div class="linha" style="margin-top:10px">
+    <button id="btDobra" title="B"></button>
+    <button id="btSom" title="M"></button>
+    <input type="range" id="volume" min="0" max="1" step="0.01" value="0.6" style="width:80px;margin:0" aria-label="Volume">
+  </div>
+  <div class="linha">
+    <select id="selMusica" aria-label="Música">
+      <option value="gerada">Música gerada</option>
+      <option value="minhas">Minhas músicas (pasta musica)</option>
+      <option value="nenhuma">Sem música</option>
+    </select>
+    <button id="btProxima" hidden>Próxima ⏭</button>
+    <button id="btFoto" title="Tab">Modo foto</button>
+  </div>
+  <div class="sub" id="faixa"></div>
+</section>
+
+<section class="painel" id="pTerra" style="display:none">
+<details id="detTerra">
+  <summary>Terra: cidades, avião, céu, épocas</summary>
+  <div class="linha" style="margin-top:0">
+    <select id="selCidades" aria-label="Cidades">
+      <option value="nenhuma">Sem cidades</option>
+      <option value="grandes" selected>Cidades grandes (1 milhão+)</option>
+      <option value="medias">Cidades médias (100 mil+)</option>
+      <option value="todas">Todas as cidades</option>
+    </select>
+    <button id="btAviao" title="Y"></button>
+  </div>
+  <div class="linha">
+    <label><input type="checkbox" id="ckFronteiras" checked> Fronteiras</label>
+    <label><input type="checkbox" id="ckNomesTerra" checked> Países e mares</label>
+    <label><input type="checkbox" id="ckPicos" checked> Picos e regiões</label>
+  </div>
+  <div class="linha">
+    <button id="btCeu2" title="Z">Olhar para o céu daqui</button>
+  </div>
+  <h2 style="margin-top:10px">Pousar numa cidade</h2>
+  <div class="linha" style="margin-top:0">
+    <input id="cidadePouso" list="listaCidades" placeholder="Cidade (ex.: Teresina)" aria-label="Cidade para pousar" autocomplete="off">
+  </div>
+  <div class="linha">
+    <button id="btPousarCidade">Pousar lá</button><button id="btCeuCidade">Ver o céu de lá</button>
+  </div>
+  <datalist id="listaCidades"></datalist>
+  <h2 style="margin-top:10px">Terra no tempo</h2>
+  <div class="linha" style="margin-top:0">
+    <select id="selEpoca" aria-label="Época">
+      <option value="hoje">Hoje</option>
+      <option value="glacial">Era glacial (20 mil anos)</option>
+      <option value="k">Fim dos dinossauros (66 milhões)</option>
+      <option value="pangeia">Pangeia (250 milhões)</option>
+      <option value="cambriano">Cambriano (500 milhões)</option>
+      <option value="livre">Outra (linha do tempo)</option>
+    </select>
+  </div>
+  <div class="linha"><span class="sub" style="width:96px">Linha do tempo</span><input type="range" id="tempoMa" min="0" max="540" step="5" value="0" style="flex:1;margin:0" aria-label="Milhões de anos atrás"></div>
+  <div class="sub" id="tempoMaTxt">hoje</div>
+  <div class="linha"><span class="sub" style="width:96px">Nível do mar</span><input type="range" id="nivelMar" min="-130" max="100" step="1" value="0" style="flex:1;margin:0" aria-label="Nível do mar em metros"><b id="nivelMarTxt" style="width:52px;text-align:right">0 m</b></div>
+  <div class="linha"><button data-nivel="-120">−120 m (glacial)</button><button data-nivel="0">Atual</button><button data-nivel="70">+70 m (sem gelo)</button></div>
+  <div class="sub" id="textoEpoca" style="max-width:520px;white-space:normal"></div>
+  <div class="sub" id="fonteEpoca" hidden style="font-size:10.5px">Mapa: PALEOMAP PaleoDEM (Scotese & Wright, 2018, CC BY 4.0), resolução 1° (~110 km); cores ilustrativas.</div>
+</details>
+</section>
+
+<section class="painel" id="pMissao">
+  <h2>A bordo</h2>
+  <div class="grande" style="font-size:18px" id="mNome">—</div>
+  <div class="sub" id="mData"></div>
+  <div class="sub" id="mInfo" style="white-space:normal"></div>
+  <input type="range" id="mLinha" aria-label="Linha do tempo da missão">
+  <div class="linha" style="margin-top:0">
+    <button id="mPausa">Pausar</button>
+    <button data-ritmo="1">tempo real</button><button data-ritmo="86400">1 dia/s</button><button data-ritmo="2629800">1 mês/s</button><button data-ritmo="31557600">1 ano/s</button>
+    <button id="mAgora">Agora</button>
+  </div>
+  <h2 style="margin-top:10px" id="mMomentosTit">Momentos</h2>
+  <div id="mMomentos"></div>
+  <div class="sub" id="mTexto" style="white-space:normal;margin-top:6px"></div>
+  <div class="linha"><button id="mSair">Desembarcar</button></div>
+</section>
+
+<section class="painel" id="foto" hidden>
+  <img id="fotoImg" alt="">
+  <div class="grande" style="font-size:16px;margin-top:6px" id="fotoTitulo"></div>
+  <div class="sub" id="fotoTexto" style="white-space:normal"></div>
+  <div class="sub" id="fotoCredito" style="font-size:11px;white-space:normal;margin-top:4px"></div>
+  <div class="linha"><button id="fotoFechar">Fechar a foto</button></div>
+</section>
+
+<section class="painel" id="pCeu">
+  <h2>Olhando para o céu</h2>
+  <div class="grande" style="font-size:18px" id="ceuHoraLocal">—</div>
+  <div class="sub" id="ceuTipoHora">hora solar do lugar</div>
+  <div class="sub" id="ceuEstacao"></div>
+  <div class="status" id="ceuSituacao"></div>
+  <div class="linha">
+    <button id="ceuAgora">Agora</button><button id="ceuNoite">Esta noite, 22 h</button>
+    <button id="ceuMenosHora">−1 h</button><button id="ceuMaisHora">+1 h</button>
+  </div>
+  <div class="linha">
+    <button id="ceuMenosMes">−1 mês</button><button id="ceuMaisMes">+1 mês</button>
+    <button id="ceuRapido" title="10 minutos por segundo">Acelerar a noite</button>
+  </div>
+  <div class="linha">
+    <input id="ceuCidade" list="listaCidades" placeholder="Outra cidade (mesmo instante)" aria-label="Mudar de cidade" autocomplete="off"><button id="btCeuMudar">Ir</button>
+  </div>
+  <div class="linha"><input type="date" id="ceuData" aria-label="Data"><input type="time" id="ceuHora" value="22:00" aria-label="Hora local">
+    <select id="ceuModoHora" aria-label="Tipo de hora"><option value="oficial" selected>hora oficial</option><option value="solar">hora solar</option></select></div>
+  <div class="linha"><button id="btLinhasConst"></button><button id="btNomesConst"></button></div>
+  <div class="kv" style="margin-top:8px">
+    <span>Olhando para</span><span id="ceuOlhando">—</span>
+    <span>No céu agora</span><span id="ceuVisiveis" style="white-space:normal">—</span>
+  </div>
+  <p class="sub" style="margin:8px 0 0;white-space:normal">Arraste o mouse para olhar em volta. Sem nuvens e sem luzes de cidade. Ligue o desenho e os nomes das constelações para se orientar, ou desligue para só apreciar e procurar sozinho.</p>
+  <h2 style="margin-top:10px">Telescópio</h2>
+  <div class="linha" style="margin-top:0">
+    <button id="btTelescopio" title="Roda do mouse muda o aumento"></button><span class="sub" id="zoomTxt"></span>
+  </div>
+  <div class="linha" id="linhaZoom"><input type="range" id="zoomSlider" min="0" max="2.7" step="0.01" value="1" aria-label="Aumento do telescópio" style="flex:1"></div>
+  <div class="linha" id="linhaTel">
+    <button id="btRastrear"></button><button id="btApontar">Apontar para o alvo</button>
+  </div>
+  <div class="linha"><button id="btSairCeu">Sair do modo céu (Z)</button></div>
+</section>
+
+<section class="painel" id="pPos">
+  <h2>Onde estou</h2>
+  <div class="kv">
+    <span>Acompanhando</span><span id="refFrame">—</span>
+    <span>Mais perto</span><span id="maisPerto">—</span>
+    <span>Até a superfície</span><span id="altitude">—</span>
+    <span>Coordenadas</span><span id="coord">—</span>
+    <span>Da Terra</span><span id="daTerra">—</span>
+    <span>Luz da Terra</span><span id="luzTerra">—</span>
+    <span>Essa luz saiu</span><span id="luzSaiu">—</span>
+    <span></span><span id="epoca" style="color:var(--quente)"></span>
+    <span>Do Sol</span><span id="doSol">—</span>
+  </div>
+</section>
+
+<section class="painel" id="pDest">
+  <h2>Destino</h2>
+  <div class="linha" style="margin-top:0">
+    <select id="selDestino" aria-label="Destino"></select>
+    <button id="btIr">Ir</button>
+    <button id="btParar" title="Espaço">Parar</button>
+    <button id="btPousar" title="P">Pousar</button>
+    <button id="btEmbarcar" title="Escolha uma sonda ou um cometa">Embarcar</button>
+  </div>
+  <div class="linha">
+    <label><input type="radio" name="modo" value="vel" checked> na velocidade escolhida</label>
+    <label><input type="radio" name="modo" value="tempo"> chegar em <input type="number" id="segundos" value="12" min="1" max="600"> s</label>
+  </div>
+  <div class="linha"><input id="busca" list="listaEstrelas" placeholder="Buscar estrela, cidade, país, pico…" style="flex:1" aria-label="Buscar estrela ou lugar"><datalist id="listaEstrelas"></datalist></div>
+  <div class="status" id="statusViagem"></div>
+  <h2 style="margin-top:10px">Ponto de partida</h2>
+  <div class="linha" style="margin-top:0">
+    <select id="selPartida" aria-label="Ponto de partida"></select>
+    <button id="btPartir">Ir para lá agora</button>
+  </div>
+</section>
+
+<section class="painel" id="pTempo">
+  <h2>Tempo e exibição</h2>
+  <div class="grande" style="font-size:16px" id="dataSim">—</div>
+  <div class="sub" id="fusoTxt"></div>
+  <div class="sub" id="avisoData" style="color:var(--quente)"></div>
+  <div class="linha">
+    <button id="btOrbitas" class="ativo" title="T">Órbitas em movimento</button>
+    <button id="btAgora">Agora</button>
+  </div>
+  <div class="linha">
+    <button id="btRelevo" title="X"></button>
+    <button id="btAparencia" title="V"></button>
+  </div>
+  <div class="linha">
+    <button id="btNivelar" title="N"></button>
+    <button id="btGira" title="J"></button>
+  </div>
+  <div class="linha">
+    <button id="btInventado" title="I"></button>
+    <button id="btCeu" title="K"></button>
+  </div>
+  <div class="linha">
+    <button id="btIlustr" title="U"></button>
+    <button id="btAtm"></button>
+  </div>
+  <div class="linha">
+    <span class="sub">Ritmo</span>
+    <select id="selRitmo" aria-label="Ritmo do tempo">
+      <option value="1" selected>tempo real</option>
+      <option value="60">1 min por segundo</option>
+      <option value="3600">1 hora por segundo</option>
+      <option value="86400">1 dia por segundo</option>
+      <option value="604800">1 semana por segundo</option>
+      <option value="2629800">1 mês por segundo</option>
+      <option value="31557600">1 ano por segundo</option>
+      <option value="315576000">10 anos por segundo</option>
+      <option value="-86400">1 dia por segundo (para trás)</option>
+      <option value="-31557600">1 ano por segundo (para trás)</option>
+    </select>
+  </div>
+  <div class="linha">
+    <label><input type="checkbox" id="ckNomes" checked> Nomes</label>
+    <label><input type="checkbox" id="ckLinhas" checked> Órbitas</label>
+    <label><input type="checkbox" id="ckCint" checked> Cinturões</label>
+    <label><input type="checkbox" id="ckConst"> Nomes das constelações</label>
+    <label><input type="checkbox" id="ckLinhasConst"> Desenho das constelações</label>
+    <label title="Até onde chegaram as transmissões de rádio humanas"><input type="checkbox" id="ckBolha" checked> Bolha do rádio</label>
+    <label title="Reduz a velocidade perto de planetas e estrelas, para não atravessá-los"><input type="checkbox" id="ckFreio" checked> Freio de proximidade</label>
+  </div>
+  <div class="linha"><button id="btAjuda" title="H">Controles (H)</button><a class="botao" href="manual.html" target="_blank" rel="noopener">Manual completo</a></div>
+</section>
+
+<section class="painel" id="ajuda">
+  <h2>Controles</h2>
+  <table>
+    <tr><td>Arrastar o mouse</td><td>olhar em volta</td></tr>
+    <tr><td>Roda do mouse, <kbd>+</kbd> <kbd>−</kbd></td><td>aumentar / diminuir a velocidade</td></tr>
+    <tr><td><kbd>↑</kbd> <kbd>↓</kbd> ou <kbd>W</kbd> <kbd>S</kbd></td><td>ir para frente / para trás</td></tr>
+    <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>virar para os lados</td></tr>
+    <tr><td><kbd>Shift</kbd> + <kbd>↑</kbd> <kbd>↓</kbd></td><td>inclinar para cima / baixo</td></tr>
+    <tr><td><kbd>A</kbd> <kbd>D</kbd></td><td>deslizar para os lados</td></tr>
+    <tr><td><kbd>R</kbd> <kbd>F</kbd></td><td>subir / descer</td></tr>
+    <tr><td><kbd>Q</kbd> <kbd>E</kbd></td><td>girar a nave</td></tr>
+    <tr><td><kbd>C</kbd></td><td>piloto de cruzeiro (segue em frente sozinho)</td></tr>
+    <tr><td><kbd>Espaço</kbd></td><td>parar tudo</td></tr>
+    <tr><td>Clique num nome</td><td>escolher como destino · duplo clique: ir</td></tr>
+    <tr><td><kbd>G</kbd></td><td>ir até o destino escolhido</td></tr>
+    <tr><td><kbd>P</kbd></td><td>pousar no planeta ou lua mais próximo · no chão, setas andam e <kbd>R</kbd> decola</td></tr>
+    <tr><td><kbd>X</kbd> · <kbd>V</kbd></td><td>relevo real/exagerado · aparência fotos/procedural</td></tr>
+    <tr><td><kbd>N</kbd> · <kbd>J</kbd></td><td>nivelar com o horizonte · girar junto com o planeta</td></tr>
+    <tr><td><kbd>B</kbd> · <kbd>M</kbd></td><td>efeito da velocidade: dobra (cinema) / relatividade (real) / nenhum · som ligado/desligado</td></tr>
+    <tr><td><kbd>Tab</kbd></td><td>modo foto (esconde o painel; <kbd>Enter</kbd> salva a imagem)</td></tr>
+    <tr><td><kbd>Y</kbd></td><td>modo avião (perto do chão): segue o relevo; ↑↓ sobem e descem</td></tr>
+    <tr><td>Clique num lugar</td><td>voar até ele · a busca também acha cidades, países, picos e mares</td></tr>
+    <tr><td><kbd>Z</kbd></td><td>olhar para o céu do lugar onde você está na Terra (hora, data, constelações)</td></tr>
+    <tr><td>Sondas e cometas</td><td>busque "voyager 1" ou "halley", ou use Embarcar no Destino: linha do tempo, momentos e fotos reais</td></tr>
+    <tr><td><kbd>U</kbd></td><td>galáxias distantes ilustrativas / só as catalogadas</td></tr>
+    <tr><td><kbd>I</kbd> · <kbd>K</kbd></td><td>detalhe inventado do chão ligado/desligado · céu a olho nu/realçado</td></tr>
+    <tr><td><kbd>T</kbd> · <kbd>L</kbd> · <kbd>O</kbd></td><td>órbitas paradas/em movimento · nomes · linhas de órbita</td></tr>
+  </table>
+  <p class="sub" style="margin:8px 0 0">Acima da velocidade da luz a viagem é ficção (um "motor de dobra"); distâncias, posições e tempos de luz são reais.</p>
+  <div class="linha"><button id="btFecharAjuda">Fechar</button><a class="botao" href="manual.html" target="_blank" rel="noopener">Abrir o manual completo</a></div>
+</section>
+
+<script type="module" src="js/main.js"></script>
+<div id="ocular" hidden></div>
+</body>
+</html>

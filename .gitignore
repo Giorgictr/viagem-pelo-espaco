@@ -1,0 +1,5 @@
+.DS_Store
+.claude/
+dados/brutos/
+musica/*
+!musica/LEIA-ME.txt
