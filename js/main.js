@@ -730,9 +730,11 @@ function alternarAviao() {
 }
 
 // Chaves de duas posições
+const pintores = [];
 function chave(id, rotulos, ler, alternar, tecla) {
   const b = $(id);
   const pintar = () => { b.textContent = rotulos[ler() ? 0 : 1]; b.classList.toggle('ativo', !!ler()); };
+  pintores.push(pintar);
   const f = () => { alternar(); pintar(); };
   b.onclick = f;
   if (tecla) aoTeclar(tecla, f);
@@ -953,6 +955,7 @@ function olharCeu() {
   if (estado.vAntes === undefined) estado.vAntes = estado.v;
   definirV(5 / 3600);
   estado.zonaCache = null;
+  aplicarCeuPendente();
 }
 function sairDoCeu() {
   restaurarV();
@@ -1572,6 +1575,7 @@ function pousarNaCidade(txt, ceu) {
     const { norte } = eixosLocais(d);
     estado.q.setFromRotationMatrix(_m.lookAt(ORIGEM, norte.clone().multiplyScalar(Math.cos(35 * GRAU)).addScaledVector(d, Math.sin(35 * GRAU)), d));
     estado.zonaCache = null;
+    aplicarCeuPendente();
     aviso(`Céu de ${it.nome}${it.pais ? `, ${it.pais}` : ''}`);
     return;
   }
@@ -1654,11 +1658,13 @@ const luaVisivel = (c, abs) => c.tipo !== 'lua' || abs.distanceTo(c.paiObj.abs) 
 
 // ------------------------------- laço -------------------------------
 teleportar(PORID.terra);
+let veioDeRecarga = false;
 // Volta ao lugar e à data de antes, se a página acabou de recarregar por falta de memória da placa de vídeo
 try {
   const salvo = JSON.parse(sessionStorage.getItem('viagemEstado') || 'null');
   sessionStorage.removeItem('viagemEstado');
   if (salvo && Date.now() - salvo.t < 60000) {
+    veioDeRecarga = true;
     estado.jd = salvo.jd;
     estado.ref = salvo.ref ? obterCorpo(salvo.ref) : null;
     estado.local.fromArray(salvo.local);
@@ -1773,6 +1779,7 @@ function passo() {
   const dt = Math.min((agora - tAnterior) / 1000, 0.1);
   tAnterior = agora;
   quadro++;
+  vigiarDesempenho(agora);
 
   // Tempo da simulação e posições
   if (estado.orbitasMovem) estado.jd += (dt * estado.ritmo) / 86400;
@@ -2558,4 +2565,81 @@ if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
     $('visitas').hidden = false;
   }).catch(() => {});
 }
+// ------------------------------- boas-vindas e modo leve -------------------------------
+let ceuPendente = null; // data escolhida na tela de boas-vindas, aplicada quando o modo céu começar
+function aplicarCeuPendente() {
+  if (!ceuPendente) return;
+  const { ano, mes, dia, hh, mm } = ceuPendente;
+  ceuPendente = null;
+  definirHoraLocal(ano, mes, dia, hh, mm);
+  aviso(`O céu de ${String(dia).padStart(2, '0')}/${String(mes).padStart(2, '0')}/${ano}, às ${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}.`);
+}
+const lerGuardado = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch { /* sem armazenamento */ } };
+// aparelho modesto? (tela de toque, pouca memória ou poucos núcleos)
+function aparelhoModesto() {
+  if (matchMedia('(pointer: coarse)').matches) return 'parece um celular ou tablet';
+  if (navigator.deviceMemory && navigator.deviceMemory <= 4) return 'o aparelho tem pouca memória';
+  if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) return 'o processador tem poucos núcleos';
+  return '';
+}
+function aplicarLeve(ligar, motivo = '') {
+  estado.leve = ligar;
+  renderer.setPixelRatio(ligar ? 1 : Math.min(devicePixelRatio, 2));
+  estado.atmFisica = !ligar;
+  estado.predios = !ligar;
+  if (ligar) { estado.cinturoes = false; $('ckCint').checked = false; }
+  pintores.forEach((f) => f());
+  $('bvLeve').checked = ligar;
+  $('bvLeveMotivo').textContent = motivo ? `(Ligado porque ${motivo}.)` : '';
+}
+{
+  const g = lerGuardado('viagemLeve');
+  if (g !== null) aplicarLeve(g === '1');
+  else { const m = aparelhoModesto(); if (m) aplicarLeve(true, m); }
+}
+$('bvLeve').onchange = (e) => { aplicarLeve(e.target.checked); guardar('viagemLeve', e.target.checked ? '1' : '0'); };
+// se ficar lento nos primeiros segundos, liga o modo leve sozinho (só se a pessoa nunca escolheu)
+let vigia = { ini: 0, quadros: 0, feito: lerGuardado('viagemLeve') !== null };
+function vigiarDesempenho(agora) {
+  if (vigia.feito || estado.leve || document.hidden || !$('boasVindas').hidden) { vigia.ini = 0; return; }
+  if (!vigia.ini) { vigia.ini = agora; vigia.quadros = 0; return; }
+  vigia.quadros++;
+  const t = (agora - vigia.ini) / 1000;
+  if (t > 6) {
+    vigia.feito = true;
+    if (vigia.quadros / t < 22) { aplicarLeve(true, 'a simulação estava lenta neste aparelho'); aviso('Liguei o modo leve porque estava lento. Dá para desligar em "Início".'); }
+  }
+}
+function abrirBoasVindas() { $('boasVindas').hidden = false; }
+function fecharBoasVindas() { $('boasVindas').hidden = true; guardar('viagemVisitou', '1'); }
+$('btInicio').onclick = abrirBoasVindas;
+$('bvExplorar').onclick = fecharBoasVindas;
+$('bvPousar').onclick = () => { if (!cidadesLista.length) { aviso('Carregando a lista de cidades…'); return setTimeout(() => $('bvPousar').click(), 500); } const t = $('bvCidade').value; if (!acharCidade(t)) return aviso('Escolha uma cidade da lista.'); fecharBoasVindas(); pousarNaCidade(t, false); };
+$('bvCidade').onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); $('bvPousar').click(); } };
+$('bvCeu').onclick = () => {
+  if (!cidadesLista.length) { aviso('Carregando a lista de cidades…'); return setTimeout(() => $('bvCeu').click(), 500); }
+  const t = $('bvCidade2').value, d = $('bvData').value, h = $('bvHora').value || '21:00';
+  if (!acharCidade(t)) return aviso('Escolha uma cidade da lista.');
+  if (d) { const [ano, mes, dia] = d.split('-').map(Number), [hh, mm] = h.split(':').map(Number); ceuPendente = { ano, mes, dia, hh, mm }; }
+  fecharBoasVindas();
+  pousarNaCidade(t, true);
+};
+$('bvISS').onclick = () => { const o = missoes.porId.iss; if (!o) return aviso('A ISS ainda está carregando; tente de novo em alguns segundos.'); fecharBoasVindas(); embarcar(o); };
+$('bvVoyager').onclick = () => {
+  const o = missoes.porId.voyager1;
+  if (!o) return aviso('As sondas ainda estão carregando; tente de novo em alguns segundos.');
+  fecharBoasVindas(); embarcar(o);
+  const m = o.momentos.find((x) => x.titulo.includes('Pálido'));
+  if (m) irMomento(o, m);
+};
+$('bvSaturno').onclick = () => {
+  fecharBoasVindas();
+  document.querySelector('input[name=modo][value=tempo]').checked = true;
+  escolherAlvo(PORID.saturno);
+  iniciarViagem(PORID.saturno);
+  aviso('Rumo a Saturno: 1,3 bilhão de km em 12 segundos.');
+};
+$('bvPangeia').onclick = () => { fecharBoasVindas(); teleportar(PORID.terra); $('selEpoca').value = 'pangeia'; aplicarEpoca('pangeia'); };
+if (lerGuardado('viagemVisitou') === null && !veioDeRecarga) abrirBoasVindas();
 window.__sim = { predios, vr, alvoNaDirecao, textoPainelVR, satelites, embarcar: (o) => embarcar(o), estado, PORID, camAbs, cat, estrelaObj, vagas, THREE, terra, buscar, indiceBusca, missoes, atualizarPosicoes };

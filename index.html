@@ -63,7 +63,7 @@
   .kv span:nth-child(odd) { color: var(--fraco); }
   .status { margin-top: 6px; color: var(--quente); min-height: 1.3em; font-variant-numeric: tabular-nums; }
   input[type=number] { width: 64px; }
-  input#busca { font: inherit; color: var(--texto); background: rgba(255,255,255,.06); border: 1px solid var(--borda); border-radius: 6px; padding: 3px 7px; }
+  input#busca, input#cidadePouso, input#ceuCidade, .bvCartao input[type=text], .bvCartao input:not([type]) { font: inherit; color: var(--texto); background: rgba(255,255,255,.06); border: 1px solid var(--borda); border-radius: 6px; padding: 3px 7px; }
   #rotulos { position: fixed; inset: 0; pointer-events: none; }
   .rot {
     position: absolute; transform: translate(8px, -50%); white-space: nowrap; font-size: 11.5px;
@@ -157,6 +157,23 @@
   }
   body.telescopio .painel, body.telescopio #btPaineis, body.telescopio #toque { display: none !important; }
   body.telescopio .rot.sonda, body.telescopio .rot.cometa { opacity: .8; }
+  #boasVindas { position: fixed; inset: 0; z-index: 9; background: rgba(2, 4, 10, .72); backdrop-filter: blur(3px); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 4vh 16px; }
+  #boasVindas[hidden] { display: none; }
+  .bvCaixa { max-width: 860px; width: 100%; background: var(--painel); border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 22px; }
+  .bvCaixa h1 { margin: 0 0 6px; font-size: 26px; font-weight: 600; letter-spacing: .02em; }
+  .bvSub { margin: 0 0 16px; color: #b9c3d3; line-height: 1.45; }
+  .bvGrade { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+  .bvCartao { display: flex; flex-direction: column; gap: 7px; text-align: left; padding: 12px; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); color: inherit; font: inherit; }
+  .bvCartao h3 { margin: 0; font-size: 15px; color: #fff; }
+  .bvCartao p { margin: 0; font-size: 13px; color: #aab4c4; line-height: 1.4; }
+  .bvAtalho { cursor: pointer; }
+  .bvAtalho:hover { background: rgba(120,160,255,.12); border-color: rgba(140,180,255,.4); }
+  .bvCartao input { width: 100%; box-sizing: border-box; }
+  .bvLinha { display: flex; gap: 8px; flex-wrap: wrap; }
+  .bvLinha input { flex: 1; min-width: 0; }
+  .bvLeve { display: flex; gap: 8px; align-items: flex-start; margin: 16px 0 10px; font-size: 13px; color: #c6cfdc; line-height: 1.4; }
+  .bvFim { margin-top: 4px; }
+  .bvDica { font-size: 12px; color: #8a96a8; margin: 12px 0 0; line-height: 1.4; }
 </style>
 <script data-goatcounter="https://viagem-pelo-espaco.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -409,7 +426,7 @@
     <label title="Até onde chegaram as transmissões de rádio humanas"><input type="checkbox" id="ckBolha" checked> Bolha do rádio</label>
     <label title="Reduz a velocidade perto de planetas e estrelas, para não atravessá-los"><input type="checkbox" id="ckFreio" checked> Freio de proximidade</label>
   </div>
-  <div class="linha"><button id="btAjuda" title="H">Controles (H)</button><a class="botao" href="manual.html" target="_blank" rel="noopener">Manual completo</a></div>
+  <div class="linha"><button id="btInicio">Início</button><button id="btAjuda" title="H">Controles (H)</button><a class="botao" href="manual.html" target="_blank" rel="noopener">Manual completo</a></div>
   <div class="sub" id="visitas" hidden></div>
 </section>
 
@@ -446,6 +463,33 @@
 </section>
 
 <script type="module" src="js/main.js"></script>
+<section id="boasVindas" hidden>
+  <div class="bvCaixa">
+    <h1>Viagem pelo Espaço</h1>
+    <p class="bvSub">Do chão da sua cidade até a borda do universo, com os astros nas posições reais, sondas da NASA e a Estação Espacial em tempo real. Por onde começar?</p>
+    <div class="bvGrade">
+      <div class="bvCartao">
+        <h3>Pousar na sua cidade</h3>
+        <input id="bvCidade" list="listaCidades" placeholder="Sua cidade" autocomplete="off" aria-label="Cidade para pousar">
+        <button id="bvPousar">Pousar</button>
+      </div>
+      <div class="bvCartao">
+        <h3>O céu de uma data especial</h3>
+        <p>Como estava o céu no dia em que você nasceu?</p>
+        <input id="bvCidade2" list="listaCidades" placeholder="Cidade" autocomplete="off" aria-label="Cidade do céu">
+        <div class="bvLinha"><input type="date" id="bvData" aria-label="Data"><input type="time" id="bvHora" value="21:00" aria-label="Hora"></div>
+        <button id="bvCeu">Ver o céu</button>
+      </div>
+      <button class="bvCartao bvAtalho" id="bvISS"><h3>Embarcar na ISS agora</h3><p>A Terra vista da Estação Espacial, onde ela está neste momento.</p></button>
+      <button class="bvCartao bvAtalho" id="bvVoyager"><h3>O Pálido Ponto Azul</h3><p>Com a Voyager 1, a 6 bilhões de km, no dia em que ela fotografou a Terra (1990).</p></button>
+      <button class="bvCartao bvAtalho" id="bvSaturno"><h3>Voar até Saturno</h3><p>Em 12 segundos, muito acima da velocidade da luz.</p></button>
+      <button class="bvCartao bvAtalho" id="bvPangeia"><h3>A Terra da Pangeia</h3><p>Os continentes juntos, há 250 milhões de anos.</p></button>
+    </div>
+    <label class="bvLeve"><input type="checkbox" id="bvLeve"> <span><b>Modo leve</b>, para celular ou computador mais simples: sem prédios 3D, atmosfera simples e menos pixels. <span id="bvLeveMotivo"></span></span></label>
+    <div class="bvLinha bvFim"><button id="bvExplorar">Explorar livremente</button><a class="botao" href="manual.html" target="_blank" rel="noopener">Manual</a></div>
+    <p class="bvDica">Arraste para olhar em volta · a roda do mouse muda a velocidade · ☰ mostra os painéis · H lista os controles. Esta tela volta pelo botão "Início" no painel "Tempo e exibição".</p>
+  </div>
+</section>
 <div id="ocular" hidden>
   <div class="hud" id="hudInfo">
     <div class="hudTit">Telescópio</div>
