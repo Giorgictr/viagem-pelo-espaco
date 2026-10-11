@@ -129,7 +129,31 @@
     #pVel, #pDest { width: calc(100vw - 24px); max-height: calc(45vh - 18px); }
     #pVel { top: 48px; }
   }
-  #ocular { position: fixed; inset: 0; pointer-events: none; z-index: 1; background: radial-gradient(circle closest-side, transparent 93%, rgba(0,0,0,.92) 99%, #000 100%); }
+  #ocular { position: fixed; inset: 0; pointer-events: none; z-index: 4; background: radial-gradient(circle closest-side, transparent 93%, rgba(0,0,0,.92) 99%, #000 100%); }
+  #ocular .hud { position: absolute; pointer-events: auto; color: #cfd8e6; font-size: 13px; line-height: 1.5; display: flex; flex-direction: column; gap: 6px; max-width: calc(50vw - 50vh - 24px); }
+  #ocular .hud button { text-align: left; }
+  #ocular .hud .linha button { min-width: 44px; text-align: center; font-size: 18px; }
+  #ocular .hudTit { text-transform: uppercase; letter-spacing: .12em; font-size: 11px; color: #8a96a8; }
+  #ocular .hudGrande { font-size: 26px; color: #fff; font-weight: 600; }
+  #ocular .hudDica { font-size: 11px; color: #8a96a8; }
+  #hudInfo { left: 20px; top: 50%; transform: translateY(-50%); }
+  #hudBotoes { right: 20px; top: 50%; transform: translateY(-50%); }
+  /* tela em pé: o círculo ocupa a largura e as bordas escuras ficam em cima e embaixo */
+  @media (orientation: portrait) {
+    #ocular .hud { max-width: none; font-size: 12px; line-height: 1.35; }
+    #ocular #hudInfo { left: 16px; right: 16px; top: 10px; transform: none; flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
+    #ocular #hudInfo .hudTit { width: 100%; }
+    #ocular #hudInfo .hudGrande { font-size: 20px; }
+    #ocular #hudInfo #hudAlvo { width: 100%; }
+    #ocular #hudBotoes { left: 16px; right: 16px; top: auto; bottom: 10px; transform: none; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px; }
+    #ocular #hudBotoes .hudDica { width: 100%; }
+    #ocular #hudBotoes .linha { margin: 0; }
+  }
+  /* janela quase quadrada: sem espaço nas bordas, o painel fica por cima, translúcido */
+  @media (min-aspect-ratio: 9/10) and (max-aspect-ratio: 13/10) {
+    #ocular .hud { max-width: 220px; background: rgba(0,0,0,.55); padding: 8px; border-radius: 8px; }
+  }
+  body.telescopio .painel, body.telescopio #btPaineis, body.telescopio #toque { display: none !important; }
   body.telescopio .rot.sonda, body.telescopio .rot.cometa { opacity: .8; }
 </style>
 </head>
@@ -406,6 +430,22 @@
 </section>
 
 <script type="module" src="js/main.js"></script>
-<div id="ocular" hidden></div>
+<div id="ocular" hidden>
+  <div class="hud" id="hudInfo">
+    <div class="hudTit">Telescópio</div>
+    <div id="hudZoom" class="hudGrande"></div>
+    <div id="hudCampo"></div>
+    <div id="hudLim"></div>
+    <div id="hudAlvo"></div>
+    <div id="hudHora"></div>
+  </div>
+  <div class="hud" id="hudBotoes">
+    <div class="linha"><button id="hudMenos" title="Menos aumento (roda do mouse)">−</button><button id="hudMais" title="Mais aumento (roda do mouse)">+</button></div>
+    <button id="hudApontar">Apontar para o alvo</button>
+    <button id="hudRastrear"></button>
+    <button id="hudSair">Sair do telescópio (Esc)</button>
+    <div class="hudDica">Clique num nome para escolher o alvo; arraste para mover.</div>
+  </div>
+</div>
 </body>
 </html>

@@ -947,6 +947,7 @@ function definirZoom(z) {
   $('zoomSlider').value = Math.log10(estado.zoom);
   const campo = 60 / estado.zoom * (innerWidth / innerHeight); // campo horizontal aproximado
   $('zoomTxt').textContent = `${Math.round(estado.zoom)}× · campo de ${campo >= 1 ? `${sig(campo)}°` : `${Math.round(campo * 60)}'`}`;
+  hudTelescopio();
 }
 function alternarTelescopio() {
   estado.telescopio = !estado.telescopio;
@@ -954,7 +955,7 @@ function alternarTelescopio() {
   document.body.classList.toggle('telescopio', estado.telescopio);
   $('ocular').hidden = !estado.telescopio;
   for (const id of ['linhaZoom', 'linhaTel', 'zoomTxt']) $(id).hidden = !estado.telescopio;
-  if (estado.telescopio) definirZoom(estado.zoom);
+  if (estado.telescopio) { definirZoom(estado.zoom); hudTelescopio(); }
   $('btTelescopio').textContent = estado.telescopio ? 'Telescópio: ligado' : 'Telescópio: desligado';
   $('btTelescopio').classList.toggle('ativo', estado.telescopio);
 }
@@ -962,6 +963,32 @@ chave('btTelescopio', ['Telescópio: ligado', 'Telescópio: desligado'], () => e
 chave('btRastrear', ['Acompanhar as estrelas', 'Telescópio parado'], () => estado.rastrear, () => (estado.rastrear = !estado.rastrear));
 $('zoomSlider').oninput = (e) => definirZoom(10 ** +e.target.value);
 $('btApontar').onclick = () => apontar(estado.alvo);
+// Dados e botões nas bordas escuras da ocular
+const pintarRastrear = () => { $('hudRastrear').textContent = estado.rastrear ? 'Acompanhando as estrelas' : 'Telescópio parado'; $('hudRastrear').classList.toggle('ativo', estado.rastrear); $('btRastrear').textContent = estado.rastrear ? 'Acompanhar as estrelas' : 'Telescópio parado'; $('btRastrear').classList.toggle('ativo', estado.rastrear); };
+$('hudMenos').onclick = () => definirZoom(estado.zoom / 1.5);
+$('hudMais').onclick = () => definirZoom(estado.zoom * 1.5);
+$('hudApontar').onclick = () => apontar(estado.alvo);
+$('hudRastrear').onclick = () => { estado.rastrear = !estado.rastrear; pintarRastrear(); };
+$('btRastrear').addEventListener('click', pintarRastrear);
+$('hudSair').onclick = () => alternarTelescopio();
+function hudTelescopio() {
+  if (!estado.telescopio) return;
+  const campo = 60 / estado.zoom * (innerWidth / Math.max(innerHeight, 1));
+  $('hudZoom').textContent = `${Math.round(estado.zoom)}×`;
+  $('hudCampo').textContent = `Campo: ${campo >= 1 ? `${sig(campo)}°` : `${Math.max(1, Math.round(campo * 60))}'`}`;
+  $('hudLim').textContent = `Estrelas até a magnitude ${limiteMag().toFixed(1).replace('.', ',')}`;
+  const a = estado.alvo;
+  if (a && a.abs) {
+    const up = estado.local.clone().normalize(), { norte, leste } = eixosLocais(up);
+    const d = a.abs.clone().sub(camAbs()).normalize();
+    const alt = Math.asin(Math.max(-1, Math.min(1, d.dot(up)))) / GRAU;
+    const az = ((Math.atan2(d.dot(leste), d.dot(norte)) / GRAU) + 360) % 360;
+    const fora = new THREE.Vector3(0, 0, -1).applyQuaternion(estado.q).angleTo(d) / GRAU > campo / 2;
+    $('hudAlvo').textContent = `Alvo: ${a.nome} · ${Math.round(alt)}° de altura, ${PONTOS[Math.round(az / 22.5) % 16]} (${Math.round(az)}°)${alt < 0 ? ' · abaixo do horizonte' : fora ? ' · fora do campo' : ''}`;
+  } else $('hudAlvo').textContent = 'Sem alvo: clique num nome no céu';
+  $('hudHora').textContent = $('ceuHoraLocal').textContent;
+  pintarRastrear();
+}
 for (const id of ['linhaZoom', 'linhaTel', 'zoomTxt']) $(id).hidden = true;
 $('btSairCeu').onclick = sairDoCeu;
 aoTeclar('KeyZ', olharCeu);
@@ -1321,7 +1348,7 @@ aoTeclar('Equal', () => definirV(estado.v * 2));
 aoTeclar('NumpadAdd', () => definirV(estado.v * 2));
 aoTeclar('Minus', () => definirV(estado.v / 2));
 aoTeclar('NumpadSubtract', () => definirV(estado.v / 2));
-aoTeclar('Escape', () => $('ajuda').classList.remove('aberta'));
+aoTeclar('Escape', () => { if (estado.telescopio) alternarTelescopio(); else $('ajuda').classList.remove('aberta'); });
 ligarMouse(tela);
 document.addEventListener('change', (e) => { if (e.target.tagName === 'SELECT') e.target.blur(); });
 document.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) b.blur(); });
@@ -2296,7 +2323,7 @@ function painelCeu() {
 }
 
 function painel() {
-  if (estado.ceuModo) painelCeu();
+  if (estado.ceuModo) { painelCeu(); hudTelescopio(); }
   if (estado.embarcado) painelMissao();
   const abs = camAbs();
   const vr = velocidade(velMedida);
