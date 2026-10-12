@@ -74,15 +74,25 @@ export const PLANETA_V = LOGV + /* glsl */ `
   uniform sampler2D relevo;
   uniform float temRelevo, hMin, hMax, exagero, raio, usarPiso, pisoMar;
   varying vec3 vN, vP, vMundo; varying vec2 vUv;
+  #ifdef LADRILHO
+  // ladrilho de relevo (js/solo.js): posição na esfera relativa ao centro do ladrilho, direção e altura (km) à parte
+  attribute vec4 dirAlt; attribute vec2 uvT; varying vec2 vT;
+  #endif
   void main() {
     vUv = uv; vP = position;
     vec3 pos = position;
+    #ifdef LADRILHO
+    vT = uvT; vP = dirAlt.xyz;
+    pos += dirAlt.xyz * dirAlt.w * exagero;
+    vN = normalize(mat3(modelMatrix) * dirAlt.xyz);
+    #else
     if (temRelevo > 0.5) {
       float h = mix(hMin, hMax, texture2D(relevo, uv).r);
       if (usarPiso > 0.5) h = max(h, pisoMar); // superfície do mar plana (Terra antiga)
       pos *= 1.0 + h * exagero / raio;
     }
     vN = normalize(mat3(modelMatrix) * normal);
+    #endif
     vec4 m = modelMatrix * vec4(pos, 1.0);
     vMundo = m.xyz;
     gl_Position = projectionMatrix * viewMatrix * m;
@@ -119,28 +129,38 @@ export const PLANETA_F = LOGF + RUIDO + ECLIPSE + /* glsl */ `
   uniform vec2 texel;
   uniform vec3 camOct[16]; uniform mat3 paraCorpo;
   varying vec3 vN, vP, vMundo; varying vec2 vUv;
+  #ifdef LADRILHO
+  uniform sampler2D relTile, imgTile; uniform vec4 janelaRel, janelaImg; uniform float temImg;
+  varying vec2 vT;
+  #endif
   void main() {
     #include <logdepthbuf_fragment>
     vec3 n0 = normalize(vN);
     vec3 n = n0;
     vec3 base;
-    if (temMapa > 0.5 && usarTextura > 0.5) base = texture2D(mapa, vUv).rgb;
-    // imagem de alta resolução (NASA Trek) em volta do ponto abaixo da câmera, fundida nas bordas
     float pesoDet = 0.0;
-    if (detalheAtivo2 > 0.5 && usarTextura > 0.5) { // camada larga, até o horizonte
+    if (temMapa > 0.5 && usarTextura > 0.5) {
+    base = texture2D(mapa, vUv).rgb;
+    #ifdef LADRILHO
+    if (temImg > 0.5) { base = texture2D(imgTile, janelaImg.xy + vT * janelaImg.zw).rgb; pesoDet = 1.0; }
+    #else
+    // imagem de alta resolução (NASA Trek) em volta do ponto abaixo da câmera, fundida nas bordas
+    if (detalheAtivo2 > 0.5) { // camada larga, até o horizonte
       vec2 q2 = (vUv - detalheJanela2.xy) / (detalheJanela2.zw - detalheJanela2.xy);
       if (q2.x > 0.0 && q2.x < 1.0 && q2.y > 0.0 && q2.y < 1.0) {
         pesoDet = smoothstep(0.0, 0.1, min(min(q2.x, 1.0 - q2.x), min(q2.y, 1.0 - q2.y)));
         base = mix(base, texture2D(detalheMapa2, q2).rgb, pesoDet);
       }
     }
-    if (detalheAtivo > 0.5 && usarTextura > 0.5) {
+    if (detalheAtivo > 0.5) {
       vec2 q = (vUv - detalheJanela.xy) / (detalheJanela.zw - detalheJanela.xy);
       if (q.x > 0.0 && q.x < 1.0 && q.y > 0.0 && q.y < 1.0) {
         float pf = smoothstep(0.0, 0.1, min(min(q.x, 1.0 - q.x), min(q.y, 1.0 - q.y)));
         base = mix(base, texture2D(detalheMapa, q).rgb, pf);
         pesoDet = max(pesoDet, pf);
       }
+    }
+    #endif
     }
     else {
       // aparência procedural: cor do corpo com manchas e faixas
@@ -159,6 +179,13 @@ export const PLANETA_F = LOGF + RUIDO + ECLIPSE + /* glsl */ `
       #include <colorspace_fragment>
       return;
     }
+    #ifdef LADRILHO
+    { // inclinação de cada amostra dos dados (para leste e para o norte)
+      vec2 s = texture2D(relTile, janelaRel.xy + vT * janelaRel.zw).rg * exagero;
+      vec3 T = normalize(cross(polo, n0)); vec3 B = cross(n0, T);
+      n = normalize(n - T * s.x - B * s.y);
+    }
+    #else
     bool sobAgua = usarPiso > 0.5 && mix(hMin, hMax, texture2D(relevo, vUv).r) < pisoMar;
     if (temRelevo > 0.5 && !sobAgua) {
       float hE = texture2D(relevo, vUv + vec2(texel.x, 0.0)).r, hW = texture2D(relevo, vUv - vec2(texel.x, 0.0)).r;
@@ -170,6 +197,7 @@ export const PLANETA_F = LOGF + RUIDO + ECLIPSE + /* glsl */ `
       vec3 T = normalize(cross(polo, n0)); vec3 B = cross(n0, T);
       n = normalize(n - T * dx - B * dy);
     }
+    #endif
     // Detalhe procedural que aparece perto do chão (rochas, crateras pequenas)
     if (detalhe > 0.5) {
       // tamanho do pixel no chão (km): cresce muito em visada rasante, o que evita serrilhado e moiré
@@ -196,7 +224,11 @@ export const PLANETA_F = LOGF + RUIDO + ECLIPSE + /* glsl */ `
       base *= clamp(1.0 + 0.55 * alb, 0.4, 1.6);
     }
     // a foto de alta resolução já traz as sombras do relevo: o relevo global (grosseiro) quase não ilumina por cima dela
+    #ifdef LADRILHO
+    n = normalize(mix(n, n0, 0.45 * pesoDet)); // com o relevo fino de verdade, a luz dele vale mais
+    #else
     n = normalize(mix(n, n0, 0.85 * pesoDet));
+    #endif
     float l = dot(n, luz);
     float lg = dot(n0, luz);
     float umbra;

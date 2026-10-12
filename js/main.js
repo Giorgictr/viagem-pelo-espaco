@@ -11,7 +11,8 @@ import { zonaDoLugar, deslocamento, rotuloUTC, utcDeHoraLocal } from './fuso.js'
 import { criarMissoes, raioComa } from './missoes.js';
 import { criarSatelites, criarFrota } from './satelites.js';
 import { criarPredios } from './predios.js';
-import { criarDetalhe } from './detalhe.js';
+import { criarDetalhe, CAMADAS } from './detalhe.js';
+import { criarSolo, lerManifesto } from './solo.js';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { DRACOLoader } from '../vendor/DRACOLoader.js';
 import { radecParaCena, carregarEfemeridesLuas, velocidadePlaneta, equatorialParaCena } from './corpos.js';
@@ -123,6 +124,7 @@ function carregarAlturas(c) {
     const h = new Float32Array(img.width * img.height);
     for (let i = 0; i < h.length; i++) h[i] = px[i * 4] / 255;
     c.alturas = { w: img.width, h: img.height, dados: h };
+    if (c.malha) c.malha.material.uniforms.texel.value.set(1 / img.width, 1 / img.height);
   };
   img.src = `texturas/${c.relevo[0]}`;
 }
@@ -175,6 +177,10 @@ function raioSuperficie(c, dirCena) {
     }
     if (!c.relevo) return c.raio; // Terra antiga: segue pelo caminho do relevo, abaixo
   }
+  if (c.solo && c.solo.ativo) {
+    const h = c.solo.altura(_dl.copy(dirCena).normalize().applyQuaternion(_qi.copy(c.qOri).invert()));
+    if (h !== null) return c.raio + h * estado.exagero;
+  }
   if (!c.relevo || !c.alturas) return c.raio;
   const dl = _dl.copy(dirCena).normalize().applyQuaternion(_qi.copy(c.qOri).invert());
   const th = Math.acos(Math.min(Math.max(dl.y, -1), 1));
@@ -219,7 +225,7 @@ for (const c of CORPOS) {
       temRelevo: { value: temRelevo ? 1 : 0 },
       hMin: { value: temRelevo ? c.relevo[1] : 0 },
       hMax: { value: temRelevo ? c.relevo[2] : 0 },
-      texel: { value: new THREE.Vector2(c.id === 'marte' ? 1 / 4096 : 1 / 1024, c.id === 'marte' ? 1 / 2048 : 1 / 512) },
+      texel: { value: new THREE.Vector2(1 / 1024, 1 / 512) }, // corrigido quando a imagem de relevo chega
       exagero: { value: 1 },
       raio: { value: c.raio },
       detalhe: { value: c.rochoso ? 1 : 0 },
@@ -387,6 +393,15 @@ const satelites = criarSatelites(PORID, PORID.terra.raio); // ISS, Hubble e Tian
 const frotaSat = criarFrota(PORID, PORID.terra.raio); // os demais satélites, como pontos
 missoes.usarVelPlaneta((id, jd) => (id === '67p' ? missoes.porId['67p']?.vel.clone() ?? new THREE.Vector3() : velocidadePlaneta(id, jd)));
 const terra = criarTerra(cena, S, PORID.terra.raio); // Terra em ladrilhos (relevo e satélite), perto do chão
+// Lua, Marte e Mercúrio: relevo de alta resolução em ladrilhos, perto da superfície
+for (const id of ['lua', 'marte', 'mercurio']) {
+  lerManifesto(id).then((man) => {
+    if (!man) return;
+    const c = PORID[id];
+    c.solo = criarSolo(c, S, man, c.malha.material.uniforms);
+    cena.add(c.solo.grupo);
+  });
+}
 const predios = criarPredios(cena, PORID.terra.raio, terra); // construções do OpenStreetMap em 3D
 let mrs = null; // catálogo real de galáxias (carrega em segundo plano)
 carregar2MRS(gal.brilho).then((pts) => { mrs = pts; cena.add(pts); });
@@ -2501,7 +2516,7 @@ function passo() {
 // Mesma rotação por oitava usada no shader (GLSL guarda a matriz por colunas)
 const GIRO = new THREE.Matrix3().set(0.36, -0.8, 0.48, 0.48, 0.6, 0.64, -0.8, 0, 0.6);
 const camAltoPc = new THREE.Vector3(), camBaixoPc = new THREE.Vector3();
-const _relT = new THREE.Vector3(), _camT = new THREE.Vector3(), _luzT = new THREE.Vector3();
+const _relT = new THREE.Vector3(), _camT = new THREE.Vector3(), _luzT = new THREE.Vector3(), _relS = new THREE.Vector3(), _camS = new THREE.Vector3();
 const projetado = new THREE.Vector3(), polo = new THREE.Vector3(), _cb = new THREE.Vector3(), _oc = new THREE.Vector3(), _m4 = new THREE.Matrix4();
 function desenhar() {
   const abs = camAbs();
@@ -2571,9 +2586,18 @@ function desenhar() {
       c.malha.visible = diamPx > 0.5;
       const luz = u.luz.value.copy(sol.abs).sub(c.abs).normalize();
       uniformsEclipse(c, u, luz);
+      // relevo em ladrilhos: carrega abaixo de 1,5 raio de altitude e assume abaixo de 1 raio, com a esfera afundada por baixo
+      if (c.solo) {
+        const altC = d - c.raio, quer = altC < c.raio * 1.5 && !vr.ativo;
+        if (quer) {
+          const inv = tmpQ.copy(c.qOri).invert();
+          c.solo.ativo = altC < c.raio && (c.solo.ativo || c.solo.completo());
+          c.solo.atualizar(_camS.copy(rel).negate().applyQuaternion(inv), _relS.copy(rel).multiplyScalar(s), c.qOri, camera, estado.exagero, c.solo.ativo);
+        } else { c.solo.ativo = false; c.solo.esconder(); }
+      }
       if (c.detalhe === undefined) { c.detalhe = criarDetalhe(c); c.detalhe2 = c.detalhe && criarDetalhe(c, 2); }
-      if (c.detalhe) { // imagem de alta resolução perto da superfície: uma camada fina e uma larga
-        const altC = d - c.raio, perto = altC < c.raio * 0.6 && estado.texturas;
+      if (c.detalhe) { // imagem de alta resolução perto da superfície: uma camada fina e uma larga (os ladrilhos de relevo têm a sua)
+        const altC = d - c.raio, perto = altC < c.raio * 0.6 && estado.texturas && !c.solo?.ativo;
         const dirC = perto ? rel.clone().negate().normalize().applyQuaternion(_qi.copy(c.qOri).invert()) : _e3.set(1, 0, 0);
         c.detalhe.atualizar(dirC, perto ? altC : Infinity);
         c.detalhe2.atualizar(dirC, perto ? altC : Infinity);
@@ -2629,6 +2653,7 @@ function desenhar() {
         }
       }
       if (c.id === 'terra' && terra.ativo) c.malha.scale.setScalar((c.raio - 6) * s); // esfera de base sob os ladrilhos
+      if (c.solo?.ativo) c.malha.scale.setScalar((c.raio - 2 - 3 * estado.exagero) * s);
       if (c.nuvMalha) {
         c.nuvMalha.material.uniforms.opac.value = c.id === 'terra' ? Math.min(Math.max((d - c.raio - 15) / 60, 0), 1) : 1;
         c.nuvMalha.position.copy(c.malha.position);
@@ -2764,7 +2789,9 @@ function desenhar() {
   desenharModelo(abs);
   desenharFrota(abs);
   $('pTerra').style.display = altT < T.raio * 10 && !document.body.classList.contains('foto') ? '' : 'none';
-  $('creditos').textContent = terra.ativo ? (estado.ceuModo ? 'Terreno: EOX/Sentinel-2 · NASA · Mapzen/AWS · Natural Earth (créditos completos no manual)' : CREDITOS + (predios.visiveis() ? ' · Construções: © colaboradores do OpenStreetMap (OpenFreeMap)' : '')) : '';
+  const comSolo = CORPOS.find((c) => c.solo?.ativo);
+  $('creditos').textContent = terra.ativo ? (estado.ceuModo ? 'Terreno: EOX/Sentinel-2 · NASA · Mapzen/AWS · Natural Earth (créditos completos no manual)' : CREDITOS + (predios.visiveis() ? ' · Construções: © colaboradores do OpenStreetMap (OpenFreeMap)' : ''))
+    : comSolo ? `Relevo (aqui, um ponto a cada ${Math.round(comSolo.solo.resolucao(_dl.copy(camAbs().sub(comSolo.abs)).normalize().applyQuaternion(_qi.copy(comSolo.qOri).invert())).metros)} m): ${comSolo.solo.credito}` + (estado.texturas && CAMADAS[comSolo.id] ? ` · Imagens: ${CAMADAS[comSolo.id].credito}` : '') : '';
 
   // Bolha do rádio (centrada na Terra); escala escolhida para caber inteira na profundidade
   const rb = raioBolha();
@@ -3429,4 +3456,22 @@ $('eclAntes').onclick = () => { eclInicio = Math.max(0, eclInicio - 12); listarE
 $('eclDepois').onclick = () => { eclInicio = Math.min(eclipses.length - 12, eclInicio + 12); listarEclipses(); };
 $('eclHoje').onclick = () => { eclInicio = Math.max(0, eclipses.findIndex((e) => e.jd >= jdAgora() - 1)); listarEclipses(); };
 if (lerGuardado('viagemVisitou') === null && !veioDeRecarga) abrirBoasVindas();
-window.__sim = { pequenos, maximoDaqui, modelos, testeMeteoros: (n) => { const up = estado.local.clone().normalize(); const c = CHUVAS.find((x) => x.nome === "Oriônidas"); for (let i = 0; i < n; i++) { novoMeteoro(c.dir, c.v, up); if (meteoros.length) meteoros[meteoros.length - 1].t = 0.45; } }, quadros: (n = 1) => { for (let i = 0; i < n; i++) { tAnterior = performance.now() - 16; passo(); } }, luzEclipseJS, coroa, verEclipse, ficarEm, abrirEclipses, predios, vr, alvoNaDirecao, textoPainelVR, satelites, embarcar: (o) => embarcar(o), estado, PORID, camAbs, cat, estrelaObj, vagas, THREE, terra, buscar, indiceBusca, missoes, atualizarPosicoes };
+// teste: latitude e longitude do ponto abaixo do Sol num corpo (graus)
+function subsolar(id) {
+  const c = PORID[id];
+  const d = PORID.sol.abs.clone().sub(c.abs).normalize().applyQuaternion(c.qOri.clone().invert());
+  return [Math.asin(d.y) / GRAU, Math.atan2(-d.z, d.x) / GRAU];
+}
+// teste: câmera a alt km sobre (lat, lon) de um corpo, olhando para o norte e inclinada para baixo (graus)
+function sobrevoar(id, lat, lon, alt, inclinacao = 20) {
+  const c = PORID[id];
+  teleportar(c);
+  const dl = new THREE.Vector3(Math.cos(lat * GRAU) * Math.cos(lon * GRAU), Math.sin(lat * GRAU), -Math.cos(lat * GRAU) * Math.sin(lon * GRAU));
+  const d = dl.applyQuaternion(c.qOri);
+  estado.local.copy(d).multiplyScalar(c.raio + alt);
+  const norte = new THREE.Vector3(0, 1, 0).applyQuaternion(c.qOri);
+  const frente = norte.sub(d.clone().multiplyScalar(norte.dot(d))).normalize();
+  frente.multiplyScalar(Math.cos(inclinacao * GRAU)).addScaledVector(d, -Math.sin(inclinacao * GRAU));
+  quatOlhando(frente, estado.q, d);
+}
+window.__sim = { sobrevoar, subsolar, pequenos, maximoDaqui, modelos, testeMeteoros: (n) => { const up = estado.local.clone().normalize(); const c = CHUVAS.find((x) => x.nome === "Oriônidas"); for (let i = 0; i < n; i++) { novoMeteoro(c.dir, c.v, up); if (meteoros.length) meteoros[meteoros.length - 1].t = 0.45; } }, quadros: (n = 1) => { for (let i = 0; i < n; i++) { tAnterior = performance.now() - 16; passo(); } }, luzEclipseJS, coroa, verEclipse, ficarEm, abrirEclipses, predios, vr, alvoNaDirecao, textoPainelVR, satelites, embarcar: (o) => embarcar(o), estado, PORID, camAbs, cat, estrelaObj, vagas, THREE, terra, buscar, indiceBusca, missoes, atualizarPosicoes };

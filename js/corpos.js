@@ -130,7 +130,7 @@ export function equatorialParaCena(x, y, z, out = new THREE.Vector3()) {
 // atm: [r, g, b, espessura relativa ao raio]
 export const CORPOS = [
   { id: 'sol', nome: 'Sol', tipo: 'estrela', raio: 695700, cor: 0xfff1d8, textura: '2k_sun.jpg', lum: 1, soi: 1.5 * AL, polo: [286.13, 63.87], W: [84.176, 14.1844] },
-  { id: 'mercurio', nome: 'Mercúrio', tipo: 'planeta', pai: 'sol', raio: 2439.7, cor: 0xa9a29a, textura: '2k_mercury.jpg', soi: 1.12e5, polo: [281.0103, 61.4155], W: [329.5469, 6.1385025], rochoso: true },
+  { id: 'mercurio', nome: 'Mercúrio', tipo: 'planeta', pai: 'sol', raio: 2439.7, cor: 0xa9a29a, textura: '2k_mercury.jpg', soi: 1.12e5, polo: [281.0103, 61.4155], W: [329.5469, 6.1385025], relevo: ['relevo/mercurio_2048.png', -5.36, 4.37], rochoso: true },
   { id: 'venus', nome: 'Vênus', tipo: 'planeta', pai: 'sol', raio: 6051.8, cor: 0xe8cf9a, textura: '2k_venus_atmosphere.jpg', soi: 6.16e5, polo: [272.76, 67.16], W: [160.2, -1.4813688], atm: [1.0, 0.85, 0.55, 0.03] },
   { id: 'terra', nome: 'Terra', tipo: 'planeta', pai: 'sol', raio: 6371, cor: 0x5d8fd6, textura: '2k_earth_daymap.jpg', noite: '2k_earth_nightmap.jpg', nuvens: '2k_earth_clouds.jpg', soi: 9.25e5, polo: [0, 90], poloT: [-0.641, -0.557], W: [190.147, 360.9856235], atm: [0.32, 0.58, 1.0, 0.025] },
   { id: 'marte', nome: 'Marte', tipo: 'planeta', pai: 'sol', raio: 3389.5, cor: 0xd0704a, textura: '2k_mars.jpg', soi: 5.77e5, polo: [317.269, 54.432], W: [176.63, 350.89198226], relevo: ['relevo/marte_mola_4096.jpg', -8.2, 21.24], atm: [0.95, 0.6, 0.42, 0.012], rochoso: true },
@@ -141,7 +141,7 @@ export const CORPOS = [
   { id: 'plutao', nome: 'Plutão', tipo: 'anao', pai: 'sol', raio: 1188.3, cor: 0xc9b39a, soi: 3.1e6, polo: [132.993, -6.163], W: [302.695, 56.3625225], rochoso: true },
   // Luas. A nossa tem efeméride própria; as outras: órbita circular no equador do planeta,
   // período real, posição ao longo da órbita aproximada. orbita: [raio km, período dias (negativo = retrógrada)]
-  { id: 'lua', nome: 'Lua', tipo: 'lua', pai: 'terra', raio: 1737.4, cor: 0xbdbab5, textura: '2k_moon.jpg', soi: 6.6e4, relevo: ['relevo/lua_ldem_3_8bit.jpg', -9.13, 10.76], rochoso: true },
+  { id: 'lua', nome: 'Lua', tipo: 'lua', pai: 'terra', raio: 1737.4, cor: 0xbdbab5, textura: '2k_moon.jpg', soi: 6.6e4, relevo: ['relevo/lua_2048.png', -8.62, 10.49], rochoso: true },
   { id: 'fobos', nome: 'Fobos', tipo: 'lua', pai: 'marte', raio: 11.1, cor: 0x8a7d70, orbita: [9376, 0.31891], rochoso: true },
   { id: 'deimos', nome: 'Deimos', tipo: 'lua', pai: 'marte', raio: 6.2, cor: 0x9c8e7c, orbita: [23463, 1.26244], rochoso: true },
   { id: 'io', nome: 'Io', tipo: 'lua', pai: 'jupiter', raio: 1821.6, cor: 0xe6cf63, orbita: [421700, 1.769138], rochoso: true },

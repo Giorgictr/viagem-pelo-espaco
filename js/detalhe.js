@@ -3,10 +3,10 @@
 // O relevo continua o global (MOLA, LOLA), com o detalhe inventado por cima.
 import * as THREE from '../vendor/three.module.js';
 
-const CAMADAS = {
+export const CAMADAS = {
   lua: { url: 'Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02', zMax: 8, credito: 'LRO WAC (NASA/GSFC/Arizona State University), via NASA Trek' },
-  marte: { url: 'Mars/EQ/Mars_Viking_MDIM21_ClrMosaic_global_232m', zMax: 8, credito: 'Viking MDIM 2.1 colorido (NASA/USGS), via NASA Trek' },
-  mercurio: { url: 'Mercury/EQ/Mercury_MESSENGER_MDIS_Basemap_BDR_Mosaic_Global_166m', zMax: 8, credito: 'MESSENGER MDIS (NASA/JHUAPL/Carnegie), via NASA Trek' },
+  marte: { url: 'Mars/EQ/Mars_Viking_MDIM21_ClrMosaic_global_232m', zMax: 7, credito: 'Viking MDIM 2.1 colorido (NASA/USGS), via NASA Trek' },
+  mercurio: { url: 'Mercury/EQ/Mercury_MESSENGER_MDIS_Basemap_BDR_Mosaic_Global_166m', zMax: 7, credito: 'MESSENGER MDIS (NASA/JHUAPL/Carnegie), via NASA Trek' },
 };
 const N = 6, TAM = 256; // mosaico N × N ladrilhos
 

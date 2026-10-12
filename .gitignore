@@ -3,3 +3,4 @@
 dados/brutos/
 musica/*
 !musica/LEIA-ME.txt
+__pycache__/
