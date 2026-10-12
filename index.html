@@ -121,7 +121,11 @@
   #toque { position: fixed; right: 12px; bottom: 20px; display: none; flex-direction: column; gap: 8px; z-index: 6; }
   #toque button { width: 56px; height: 56px; font-size: 22px; border-radius: 50%; background: var(--painel); touch-action: none; }
   @media (pointer: coarse) { #toque { display: flex; } }
-  @media (max-width: 760px) { #btPaineis { display: block; } body.semPaineis .painel { display: none !important; } }
+  /* modo foco (☰ ou a tecla .): só a vista; em tela pequena, os painéis começam recolhidos */
+  body.semPaineis .painel { display: none !important; }
+  body.semPaineis #btPaineis { display: block; opacity: .55; }
+  body.semPaineis #btPaineis:hover { opacity: 1; }
+  @media (max-width: 760px) { #btPaineis { display: block; } }
   #mira { position: fixed; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; pointer-events: none; opacity: .35; }
   #mira::before, #mira::after { content: ""; position: absolute; background: #fff; }
   #mira::before { left: 6px; top: 0; width: 2px; height: 14px; }
@@ -230,6 +234,7 @@
     </select>
     <button id="btProxima" hidden>Próxima ⏭</button>
     <button id="btFoto" title="Tab">Modo foto</button>
+    <button id="btFoco" title="tecla .">Modo foco</button>
   </div>
   <div class="sub" id="faixa"></div>
 </section>
@@ -364,6 +369,7 @@
   <div class="kv">
     <span>Acompanhando</span><span id="refFrame">—</span>
     <span>Mais perto</span><span id="maisPerto">—</span>
+    <span id="rotExo" hidden></span><span id="exoInfo" hidden style="font-size:11px;line-height:1.35"></span>
     <span>Até a superfície</span><span id="altitude">—</span>
     <span>Coordenadas</span><span id="coord">—</span>
     <span>Da Terra</span><span id="daTerra">—</span>
@@ -475,6 +481,7 @@
     <tr><td><kbd>N</kbd> · <kbd>J</kbd></td><td>nivelar com o horizonte · girar junto com o planeta</td></tr>
     <tr><td><kbd>B</kbd> · <kbd>M</kbd></td><td>efeito da velocidade: dobra (cinema) / relatividade (real) / nenhum · som ligado/desligado</td></tr>
     <tr><td><kbd>Tab</kbd></td><td>modo foto (esconde o painel; <kbd>Enter</kbd> salva a imagem)</td></tr>
+    <tr><td><kbd>.</kbd></td><td>modo foco: esconde os painéis e deixa só a vista (☰ ou <kbd>.</kbd> trazem de volta)</td></tr>
     <tr><td><kbd>Y</kbd></td><td>modo avião (perto do chão): segue o relevo; ↑↓ sobem e descem</td></tr>
     <tr><td>Clique num lugar</td><td>voar até ele · a busca também acha cidades, países, picos e mares</td></tr>
     <tr><td><kbd>Z</kbd></td><td>olhar para o céu do lugar onde você está na Terra (hora, data, constelações)</td></tr>

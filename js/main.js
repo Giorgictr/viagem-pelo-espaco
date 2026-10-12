@@ -13,6 +13,7 @@ import { criarSatelites, criarFrota } from './satelites.js';
 import { criarPredios } from './predios.js';
 import { criarDetalhe, CAMADAS } from './detalhe.js';
 import { criarSolo, lerManifesto } from './solo.js';
+import { exo, carregarExoplanetas, corpoPlaneta, posicaoOrbita, pontoOrbita, resumoPlaneta } from './exoplanetas.js';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { DRACOLoader } from '../vendor/DRACOLoader.js';
 import { radecParaCena, carregarEfemeridesLuas, velocidadePlaneta, equatorialParaCena } from './corpos.js';
@@ -327,8 +328,42 @@ for (let j = 0; j < NV; j++) {
   vagas.push({ malha, obj: null });
 }
 
+// Vagas para os planetas do sistema de exoplanetas mais próximo (até 8 por estrela: Kepler-90)
+const NEXO = 8;
+const vagasExo = [];
+for (let j = 0; j < NEXO; j++) {
+  const mat = PORID.jupiter.malha.material.clone();
+  for (const k of ['temMapa', 'temNoite', 'temRelevo', 'emissivo']) mat.uniforms[k].value = 0;
+  mat.uniforms.corBase.value = new THREE.Color();
+  const malha = new THREE.Mesh(esfera, mat);
+  malha.visible = false;
+  cena.add(malha);
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(257 * 3), 3).setUsage(THREE.DynamicDrawUsage));
+  const linha = new THREE.Line(geo, new THREE.LineBasicMaterial({ transparent: true, opacity: 0.3, depthWrite: false }));
+  linha.frustumCulled = false;
+  linha.visible = false;
+  cena.add(linha);
+  vagasExo.push({ malha, linha, obj: null, pts: [] });
+}
+let sistemaExo = null; // estrela hospedeira (do catálogo de exoplanetas) cujos planetas estão nas vagas
+// Zona habitável (onde a água poderia ser líquida na superfície): limites conservadores de Kopparapu et al. (2013),
+// fluxo de 1,107 a 0,356 vez o que a Terra recebe; uma faixa verde no plano das órbitas
+const zonaHab = (() => {
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(258 * 3), 3).setUsage(THREE.DynamicDrawUsage));
+  const idx = [];
+  for (let j = 0; j < 128; j++) idx.push(2 * j, 2 * j + 1, 2 * j + 2, 2 * j + 1, 2 * j + 3, 2 * j + 2);
+  geo.setIndex(idx);
+  const malha = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x3fbf6a, transparent: true, opacity: 0.13, depthWrite: false, side: THREE.DoubleSide }));
+  malha.frustumCulled = false;
+  malha.visible = false;
+  cena.add(malha);
+  return { malha, pts: [] };
+})();
+
 // Camada de brilhos: um ponto por corpo (e por vaga)
-const nB = CORPOS.length + NV;
+const nB = CORPOS.length + NV + NEXO;
 const geoBrilho = new THREE.BufferGeometry();
 const posB = new Float32Array(nB * 3), corB = new Float32Array(nB * 3), tamB = new Float32Array(nB), alfaB = new Float32Array(nB);
 geoBrilho.setAttribute('position', new THREE.BufferAttribute(posB, 3).setUsage(THREE.DynamicDrawUsage));
@@ -465,14 +500,14 @@ function escolherRef() {
 }
 
 const distChegada = (c) =>
-  c.tipo === 'sonda' ? 0.05 : c.tipo === 'cometa' ? c.raio * 60 : c.tipo === 'galaxia' ? c.raio * 2.6 : c.tipo === 'marco' ? (c.id === 'centro' ? 40 * AL : c.id === 'borda' ? 3e9 * AL : c.raio * 2) : c.tipo === 'estrela' ? Math.max(c.raio * 8, 2e5) : c.aneis ? c.raio * 6 : Math.max(c.raio * 4, 30);
+  c.tipo === 'sonda' ? 0.05 : c.tipo === 'cometa' ? c.raio * 60 : c.tipo === 'galaxia' ? c.raio * 2.6 : c.tipo === 'marco' ? (c.id === 'centro' ? 40 * AL : c.id === 'borda' ? 3e9 * AL : c.raio * 2) : c.tipo === 'estrela' ? Math.max(c.raio * 8, 2e5, c.distExo ?? 0) : c.aneis ? c.raio * 6 : Math.max(c.raio * 4, 30);
 
 // Direção de chegada: do lado iluminado, um pouco acima do plano
 function direcaoBonita(c) {
   if (c.normal) return c.normal.clone().multiplyScalar(Math.cos(35 * GRAU)).addScaledVector(c.eixoMaior, Math.sin(35 * GRAU)).normalize();
   if (c.id === 'borda') return PORID.terra.abs.clone().sub(c.abs).normalize(); // por dentro, olhando para fora
   if (c.tipo === 'estrela' || c.tipo === 'galaxia' || c.tipo === 'marco') return new THREE.Vector3(0.35, 0.3, 1).normalize();
-  const s = PORID.sol.abs.clone().sub(c.abs).normalize();
+  const s = (c.estrela ?? PORID.sol).abs.clone().sub(c.abs).normalize();
   if (c.aneis) {
     // do lado iluminado dos anéis, ~30° acima do plano deles
     const polo = c.base.p.clone().multiplyScalar(Math.sign(c.base.p.dot(s)) || 1);
@@ -548,6 +583,7 @@ function pousar() {
   const altC = c === proximo ? altProx : camAbs().distanceTo(c.abs) - raioSuperficie(c, camAbs().sub(c.abs));
   if (!c || !['planeta', 'lua', 'anao'].includes(c.tipo)) return aviso('Chegue perto de um planeta ou lua para pousar.');
   if (GASOSOS.includes(c.id)) return aviso(`${c.nome} é um gigante gasoso: não tem chão para pousar.`);
+  if (c.gasoso) return aviso(`${c.nome} não é rochoso (${c.tipoExo}): não tem chão para pousar.`);
   if (altC > c.raio * 30) return aviso(`Chegue mais perto ${com('de', c)} para pousar (menos de ${distancia(c.raio * 30)}).`);
   mudarRef(c);
   estado.cruzeiro = false;
@@ -611,7 +647,7 @@ for (const sel of [$('selDestino'), $('selPartida')]) {
 $('selPartida').value = 'terra';
 $('selDestino').value = 'lua';
 estado.alvo = null;
-const obterCorpo = (id) => PORID[id] ?? missoes.porId[id] ?? (id && id.startsWith('hyg') ? estrelaObj(+id.slice(3)) : null);
+const obterCorpo = (id) => PORID[id] ?? missoes.porId[id] ?? (id && id.startsWith('hyg') ? estrelaObj(+id.slice(3)) : id && id.startsWith('exo:') ? planetaPorNome.get(id.slice(4)) ?? null : null);
 $('selDestino').onchange = () => (estado.alvo = obterCorpo($('selDestino').value));
 $('btIr').onclick = () => iniciarViagem(obterCorpo($('selDestino').value));
 $('btParar').onclick = pararTudo;
@@ -631,6 +667,20 @@ function preencherEstrelas() {
     for (const nome of DESTAQUES) if (cat.porNome.has(nome)) g.append(new Option(nome, `hyg${cat.porNome.get(nome)}`));
   }
   for (const { i, nome } of cat.nomes) addBusca(`${nome} · estrela`, nome, 1e9, () => irPara(estrelaObj(i)));
+  // exoplanetas e suas estrelas (as mais perto pesam mais)
+  for (const e of exo.estrelas) {
+    const n = e.pl.length, peso = 5e8 / (1 + e.d / 10);
+    addBusca(`${e.nome} · estrela com ${n} planeta${n > 1 ? 's' : ''}`, e.nome, peso, () => irPara(hospedeira(e)));
+    e.pl.slice(0, NEXO).forEach((p) => addBusca(`${p.n} · exoplaneta`, p.n, peso * 0.9, () => irPara(planetaExo(e, p))));
+  }
+}
+// Estrela hospedeira e planetas como corpos (criados na primeira vez)
+const planetaPorNome = new Map();
+const hospedeira = (e) => { const o = estrelaObj(e.h); ajustarHospedeira(o); return o; };
+function planetaExo(e, p) {
+  const c = hospedeira(e).exoCorpos.find((o) => o.exo === p);
+  posicaoOrbita(c.orbita, estado.jd, c.abs).add(c.estrela.abs);
+  return c;
 }
 
 // Busca única: corpos do céu, estrelas e lugares da Terra. Aceita o nome sem acento, só o começo ou
@@ -792,8 +842,20 @@ $('ckBolha').onchange = (e) => (estado.bolha = e.target.checked);
 ligarAudioNoPrimeiroGesto();
 
 // Telas pequenas e de toque: painéis recolhíveis e botões para andar e mudar a velocidade
-$('btPaineis').onclick = () => document.body.classList.toggle('semPaineis');
-if (innerWidth <= 760) document.body.classList.add('semPaineis');
+// Modo foco: esconde os painéis (a escolha fica guardada); em tela pequena começa assim
+function modoFoco() {
+  const foco = document.body.classList.toggle('semPaineis');
+  try { localStorage.setItem('viagemFoco', foco ? '1' : '0'); } catch { /* sem armazenamento */ }
+}
+$('btPaineis').onclick = modoFoco;
+$('btFoco').onclick = modoFoco;
+aoTeclar('Period', modoFoco);
+aoTeclar('NumpadDecimal', modoFoco);
+{
+  let f = null;
+  try { f = localStorage.getItem('viagemFoco'); } catch { /* sem armazenamento */ }
+  if (f === '1' || (f === null && innerWidth <= 760)) document.body.classList.add('semPaineis');
+}
 for (const b of document.querySelectorAll('#toque button')) {
   const tecla = b.dataset.tecla, acao = b.dataset.acao;
   b.addEventListener('pointerdown', (e) => {
@@ -1943,6 +2005,7 @@ function novoRotulo(classe) {
   return el;
 }
 for (const v of vagas) v.rotulo = novoRotulo('estrela');
+for (const v of vagasExo) v.rotulo = novoRotulo('planeta');
 const rotulosCeu = Array.from({ length: 30 }, () => novoRotulo('estrela'));
 let estrelasRotuladas = [];
 
@@ -1999,7 +2062,7 @@ $('btCeuMudar').onclick = () => { pousarNaCidade($('ceuCidade').value, true); $(
 $('ceuCidade').onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); $('btCeuMudar').click(); e.target.blur(); } };
 
 let ceu = null;
-carregarEstrelas().then(() => {
+carregarEstrelas().then(() => carregarExoplanetas().catch((e) => console.warn("exoplanetas:", e))).then(() => {
   ceu = criarCeu(S);
   ceu.material.uniforms.escalaPx.value = renderer.getPixelRatio();
   cena.add(ceu);
@@ -2027,6 +2090,7 @@ function pedirGaia() {
 function atualizarVagas() {
   if (!cat.n) return;
   const novos = maisProximas(camAbs(), NV).map(estrelaObj);
+  for (const o of novos) ajustarHospedeira(o);
   for (const v of vagas) if (v.obj && !novos.includes(v.obj)) { v.obj.malha = v.obj.rotulo = null; v.obj = null; }
   for (const o of novos) {
     if (vagas.some((v) => v.obj === o)) continue;
@@ -2043,12 +2107,75 @@ function atualizarVagas() {
     o.cor3.toArray(corB, (CORPOS.length + j) * 3);
   }
   geoBrilho.attributes.cor.needsUpdate = true;
-  lista = CORPOS.concat(vagas.filter((v) => v.obj).map((v) => v.obj));
+  montarLista();
+  escolherSistemaExo();
   if (ceu) {
     const oc = ceu.material.uniforms.ocultos.value;
     oc.fill(-1);
     vagas.forEach((v, j) => (oc[j] = v.obj ? v.obj.hyg : -1));
   }
+}
+
+const montarLista = () => { lista = CORPOS.concat(vagas.filter((v) => v.obj).map((v) => v.obj), vagasExo.filter((v) => v.obj).map((v) => v.obj)); };
+// Estrela com exoplanetas: raio e massa do catálogo de exoplanetas (melhores que os estimados pela cor)
+function ajustarHospedeira(o) {
+  const e = exo.porHyg.get(o.hyg);
+  if (!e || o.exoSistema) return;
+  o.exoSistema = e;
+  if (e.R) o.raio = e.R * 695700;
+  o.massa = e.m;
+  o.nome = e.nome;
+  o.exoCorpos = e.pl.slice(0, NEXO).map((p) => corpoPlaneta(p, o));
+  for (const c of o.exoCorpos) planetaPorNome.set(c.nome, c);
+  // chegada de cima do plano das órbitas (do planeta mais externo da lista), longe o bastante para ver o sistema
+  const ext = o.exoCorpos.at(-1).orbita;
+  o.normal = ext.normal; o.eixoMaior = ext.N;
+  o.distExo = Math.min(ext.a, 30 * UA) * 2.2;
+}
+// Sistema ativo: o do planeta escolhido como alvo ou acompanhado; senão, a hospedeira mais perto, se a câmera estiver nela
+function escolherSistemaExo() {
+  const abs = camAbs();
+  let e = (estado.alvo?.exo && estado.alvo.estrela) || (estado.ref?.exo && estado.ref.estrela) || null;
+  if (!e) {
+    let melhor = Infinity;
+    for (const v of vagas) {
+      const o = v.obj;
+      if (!o?.exoSistema) continue;
+      const d = abs.distanceTo(o.abs), alcance = Math.max(o.soi, o.exoSistema.pl.at(-1).a * UA * 40);
+      if (d < alcance && d < melhor) { melhor = d; e = o; }
+    }
+  }
+  if (e === sistemaExo) return;
+  for (const v of vagasExo) { if (v.obj) v.obj.malha = v.obj.rotulo = null; v.obj = null; v.malha.visible = v.linha.visible = false; v.rotulo.style.display = 'none'; }
+  sistemaExo = e;
+  if (e) {
+    hospedeira(e.exoSistema);
+    e.exoCorpos.forEach((o, j) => {
+      const v = vagasExo[j];
+      v.obj = o; o.malha = v.malha; o.rotulo = v.rotulo;
+      v.rotulo.textContent = o.nome; v.rotulo.corpo = o;
+      const u = v.malha.material.uniforms;
+      u.corBase.value.copy(o.cor3).convertSRGBToLinear();
+      u.raio.value = o.raio;
+      u.detalhe.value = o.rochoso ? 1 : 0;
+      o.cor3.toArray(corB, (CORPOS.length + NV + j) * 3);
+      v.linha.material.color.copy(o.cor3);
+      v.pts = Array.from({ length: 257 }, (_, k) => pontoOrbita(o.orbita, (k / 256) * 2 * Math.PI));
+      posicaoOrbita(o.orbita, estado.jd, o.abs).add(e.abs);
+    });
+    const L = (e.raio / 695700) ** 2 * (e.T / 5772) ** 4, n = e.normal, t1 = e.eixoMaior, t2 = new THREE.Vector3().crossVectors(n, t1);
+    const r1 = Math.sqrt(L / 1.107) * UA, r2 = Math.sqrt(L / 0.356) * UA;
+    zonaHab.pts = Array.from({ length: 258 }, (_, j) => {
+      const a = (Math.floor(j / 2) / 128) * 2 * Math.PI, r = j % 2 ? r2 : r1;
+      return t1.clone().multiplyScalar(r * Math.cos(a)).addScaledVector(t2, r * Math.sin(a));
+    });
+    geoBrilho.attributes.cor.needsUpdate = true;
+  }
+  montarLista();
+}
+// posições dos planetas ativos na data atual
+function moverExo() {
+  for (const v of vagasExo) if (v.obj) posicaoOrbita(v.obj.orbita, estado.jd, v.obj.abs).add(v.obj.estrela.abs);
 }
 
 // As estrelas com nome mais brilhantes vistas daqui recebem rótulo
@@ -2295,6 +2422,8 @@ function passo() {
   // Tempo da simulação e posições
   if (estado.orbitasMovem) estado.jd += (dt * estado.ritmo) / 86400;
   atualizarPosicoes(estado.jd);
+  if (quadro % 30 === 0 || estado.alvo?.exo || estado.ref?.exo) escolherSistemaExo();
+  moverExo();
   missoes.atualizar(estado.jd);
   satelites.atualizar(estado.jd);
   avisarMomentos();
@@ -2584,7 +2713,7 @@ function desenhar() {
       c.malha.scale.setScalar(c.raio * s);
       c.malha.quaternion.copy(c.qOri);
       c.malha.visible = diamPx > 0.5;
-      const luz = u.luz.value.copy(sol.abs).sub(c.abs).normalize();
+      const luz = u.luz.value.copy((c.estrela ?? sol).abs).sub(c.abs).normalize();
       uniformsEclipse(c, u, luz);
       // relevo em ladrilhos: carrega abaixo de 1,5 raio de altitude e assume abaixo de 1 raio, com a esfera afundada por baixo
       if (c.solo) {
@@ -2741,6 +2870,10 @@ function desenhar() {
     v.malha.visible = false;
     tamB[CORPOS.length + j] = 0;
     v.rotulo.style.display = 'none';
+  });
+  vagasExo.forEach((v, j) => {
+    if (v.obj) return corpoQuadro(v.obj, CORPOS.length + NV + j);
+    tamB[CORPOS.length + NV + j] = 0;
   });
 
   // Rótulos das estrelas brilhantes (depois dos corpos, que têm prioridade)
@@ -2905,6 +3038,18 @@ function desenhar() {
     o.linha.material.opacity = (o.corpo.tipo === 'lua' ? 0.22 : 0.3) * (1 - diaNoCeu);
   }
 
+  for (const v of vagasExo.map((v) => ({ m: v.linha, pts: v.pts, ok: !!v.obj, alfa: 0.3 })).concat({ m: zonaHab.malha, pts: zonaHab.pts, ok: true, alfa: 0.13 })) {
+    v.m.visible = !!sistemaExo && estado.linhas && v.ok;
+    if (!v.m.visible) continue;
+    const arr = v.m.geometry.attributes.position.array, base = sistemaExo.abs;
+    for (let k = 0; k < v.pts.length; k++) {
+      tmpV.copy(base).add(v.pts[k]).sub(abs);
+      aberrarJS(tmpV.multiplyScalar(comprimir(tmpV.length()))).toArray(arr, k * 3);
+    }
+    v.m.geometry.attributes.position.needsUpdate = true;
+    v.m.material.opacity = v.alfa * (1 - diaNoCeu);
+  }
+
   vr.desenhar();
   renderer.render(cena, camera);
 }
@@ -3066,6 +3211,11 @@ function painel() {
   $('relInfo').textContent = rel;
   $('refFrame').textContent = (estado.ref ? estado.ref.nome : 'espaço (fixo)') + (estado.pousado ? ' · pousado' : '');
   $('maisPerto').textContent = proximo ? proximo.nome : '—';
+  const pe = [estado.ref, estado.alvo, proximo].find((c) => c?.exo);
+  const est = !pe && sistemaExo ? sistemaExo.exoSistema : null;
+  $('rotExo').hidden = $('exoInfo').hidden = !pe && !est;
+  if (pe) { $('rotExo').textContent = pe.nome; $('exoInfo').textContent = resumoPlaneta(pe, sig); }
+  else if (est) { $('rotExo').textContent = 'Planetas'; $('exoInfo').textContent = `${est.pl.length} conhecido${est.pl.length > 1 ? 's' : ''} em volta ${com('de', sistemaExo)} (NASA Exoplanet Archive, ${exo.data.split('-').reverse().join('/')}); órbitas reais, orientação no céu aproximada`; }
   $('altitude').textContent = proximo ? distancia(Math.max(altProx, 0)) : '—';
   if (proximo && altProx < proximo.raio * 2 && proximo.tipo !== 'estrela') {
     const [la, lo] = latLon(proximo, abs.clone().sub(proximo.abs));
@@ -3474,4 +3624,4 @@ function sobrevoar(id, lat, lon, alt, inclinacao = 20) {
   frente.multiplyScalar(Math.cos(inclinacao * GRAU)).addScaledVector(d, -Math.sin(inclinacao * GRAU));
   quatOlhando(frente, estado.q, d);
 }
-window.__sim = { sobrevoar, subsolar, pequenos, maximoDaqui, modelos, testeMeteoros: (n) => { const up = estado.local.clone().normalize(); const c = CHUVAS.find((x) => x.nome === "Oriônidas"); for (let i = 0; i < n; i++) { novoMeteoro(c.dir, c.v, up); if (meteoros.length) meteoros[meteoros.length - 1].t = 0.45; } }, quadros: (n = 1) => { for (let i = 0; i < n; i++) { tAnterior = performance.now() - 16; passo(); } }, luzEclipseJS, coroa, verEclipse, ficarEm, abrirEclipses, predios, vr, alvoNaDirecao, textoPainelVR, satelites, embarcar: (o) => embarcar(o), estado, PORID, camAbs, cat, estrelaObj, vagas, THREE, terra, buscar, indiceBusca, missoes, atualizarPosicoes };
+window.__sim = { teleportar, sobrevoar, subsolar, exo, vagasExo, zonaHab, planetaPorNome, pequenos, maximoDaqui, modelos, testeMeteoros: (n) => { const up = estado.local.clone().normalize(); const c = CHUVAS.find((x) => x.nome === "Oriônidas"); for (let i = 0; i < n; i++) { novoMeteoro(c.dir, c.v, up); if (meteoros.length) meteoros[meteoros.length - 1].t = 0.45; } }, quadros: (n = 1) => { for (let i = 0; i < n; i++) { tAnterior = performance.now() - 16; passo(); } }, luzEclipseJS, coroa, verEclipse, ficarEm, abrirEclipses, predios, vr, alvoNaDirecao, textoPainelVR, satelites, embarcar: (o) => embarcar(o), estado, PORID, camAbs, cat, estrelaObj, vagas, THREE, terra, buscar, indiceBusca, missoes, atualizarPosicoes };

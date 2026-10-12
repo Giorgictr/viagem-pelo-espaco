@@ -70,6 +70,7 @@
   <a href="#eclipses">Eclipses</a>
   <a href="#roteiros">Roteiros guiados</a>
   <a href="#detalhe">Marte, Lua e Mercúrio de perto</a>
+  <a href="#exoplanetas">Exoplanetas</a>
   <a href="#sondas">Sondas, cometas e satélites</a>
   <a href="#terra">A Terra de perto</a>
   <a href="#ceu">Olhar para o céu</a>
@@ -103,6 +104,7 @@
   <div class="destaque"><b class="num">10 m</b><span>de imagem de satélite e 30 m de relevo na Terra inteira, 7.335 cidades, prédios em 3D, nuvens reais de cada dia desde 2000 e luzes das cidades à noite</span></div>
   <div class="destaque"><b class="num">500 milhões de anos</b><span>de Terra antiga: era glacial, fim dos dinossauros, Pangeia e Cambriano, com o nível do mar regulável</span></div>
   <div class="destaque"><b class="num">100 m</b><span>de imagem real de perto na Lua (LRO), 330 m em Marte (Viking) e 230 m em Mercúrio (MESSENGER)</span></div>
+  <div class="destaque"><b class="num">6.410</b><span>exoplanetas confirmados em volta de 4.808 estrelas (NASA), visitáveis, com as órbitas e a zona habitável de cada sistema</span></div>
   <div class="destaque"><b class="num">170 m</b><span>de relevo real nos pousos das Apollo, em Tycho e Copérnico; 330 m no Monte Olimpo, no Valles Marineris e nos pousos dos jipes em Marte; menos de 1 km na Lua e em Mercúrio inteiros</span></div>
   <div class="destaque"><b class="num">Céu físico</b><span>azul, pôr do sol laranja e crepúsculo calculados pela física da luz no ar (Terra e Marte, com o pôr do sol azulado marciano)</span></div>
   <div class="destaque"><b class="num">5 km/h a 10¹⁸ c</b><span>de velocidade, com a relatividade de verdade (aberração, Doppler, tempo a bordo) ou a "dobra" de cinema</span></div>
@@ -188,6 +190,18 @@
   <li>Precisa de internet; enquanto as imagens chegam, aparece a textura global.</li>
 </ul>
 
+<h2 id="exoplanetas">Exoplanetas</h2>
+<p>Os planetas confirmados em volta de outras estrelas (catálogo do NASA Exoplanet Archive, outubro de 2026: 6.410 dos 6.445 têm distância conhecida) estão no lugar deles. Busque pelo nome do planeta ("Proxima Cen b", "TRAPPIST-1 e", "51 Peg b") ou da estrela ("TRAPPIST-1 · estrela com 7 planetas") e vá até lá. As estrelas que não estavam no catálogo de estrelas (a maioria das descobertas pelo Kepler, fracas e distantes) foram acrescentadas a ele.</p>
+<ul>
+  <li>Perto de uma estrela com planetas, eles aparecem com nome e órbita, e dá para acompanhar, chegar perto e pousar nos rochosos (<kbd>P</kbd>). Ao visitar a estrela, a chegada é de cima do plano das órbitas, de onde se vê o sistema inteiro.</li>
+  <li><b>Faixa verde</b>: a zona habitável, onde um planeta parecido com a Terra poderia ter água líquida na superfície (limites conservadores de Kopparapu e colaboradores, 2013). Em TRAPPIST-1, caem nela os planetas e, f e g.</li>
+  <li><b>O que é real</b>: tamanho e período da órbita, excentricidade e, quando medidos, a inclinação e o argumento do periastro. Nos planetas que passam na frente da estrela (trânsito), a posição na órbita também é a real, calculada pelo horário dos trânsitos.</li>
+  <li><b>O que é aproximado</b>: a orientação da órbita no céu (o ângulo do nodo não se mede) e, quando falta, a inclinação (89° nos trânsitos, 60° nos demais). Sem o raio medido, ele é estimado pela massa (e o contrário), e o painel avisa.</li>
+  <li><b>O que é ilustrativo</b>: a aparência. A cor de cada planeta só indica o tipo (rochoso, mininetuno, gigante de gelo, júpiter quente…), pelo tamanho e pela temperatura de equilíbrio. Ninguém fotografou a superfície de um exoplaneta.</li>
+  <li>O painel "Onde estou" mostra, do planeta mais perto (ou do alvo), tamanho, massa, duração do ano, temperatura de equilíbrio e como e quando foi descoberto. A temperatura de equilíbrio é a de um corpo sem atmosfera: a Terra, por essa conta, teria −18 °C.</li>
+  <li>Em sistemas com mais de 8 planetas conhecidos, aparecem os 8 mais internos.</li>
+</ul>
+
 <h2 id="pouso">Pouso e caminhada</h2>
 <p>Perto de um planeta rochoso ou de uma lua, aperte <kbd>P</kbd>: a nave desce até a altura dos olhos (1,8 m). No chão, as setas fazem andar seguindo o relevo e <kbd>R</kbd> decola. Gigantes gasosos não têm chão.</p>
 <ul>
@@ -232,6 +246,7 @@
 
 <h2 id="foto">Modo foto</h2>
 <p><kbd>Tab</kbd> esconde os painéis e <kbd>Enter</kbd> salva a imagem em PNG. A imagem salva não leva os nomes na tela.</p>
+<p><b>Modo foco</b> (<kbd>.</kbd> ou o botão "Modo foco" no painel "Tempo e exibição"): esconde os painéis para viajar só com a vista, mantendo a mira e os nomes. O botão ☰, no canto, traz tudo de volta. A escolha fica guardada para a próxima visita.</p>
 
 <h2 id="vr">Óculos de realidade virtual</h2>
 <p><strong>Protótipo.</strong> Em óculos com navegador compatível com WebXR (como o Meta Quest), aparece embaixo o botão <em>Entrar em VR</em>. No computador comum ele não aparece e nada muda.</p>
@@ -434,6 +449,7 @@
   <tr><td>Céu profundo · refração · poluição luminosa</td><td>painel do céu</td><td>ligados · desligados · ligada · desligada · natural a Bortle 9</td></tr>
   <tr><td>Telescópio · acompanhar as estrelas</td><td>painel do céu (roda do mouse = aumento)</td><td>ligado · desligado · acompanhar · parado</td></tr>
   <tr><td>Modo foto</td><td><kbd>Tab</kbd></td><td>painéis visíveis · escondidos</td></tr>
+  <tr><td>Modo foco</td><td><kbd>.</kbd></td><td>painéis visíveis · só a vista</td></tr>
 </table>
 
 <h2 id="real">Real ou ilustrativo?</h2>
@@ -447,6 +463,7 @@
   <tr><td>Estrelas: posição, brilho e cor</td><td><span class="real">Real</span> (até algumas centenas de anos-luz; além disso, menos preciso)</td></tr>
   <tr><td>Tamanho e cor das estrelas vistas de perto</td><td><span class="ilus">Estimados</span> pela física (margem de ~30–50%)</td></tr>
   <tr><td>Relevo da Lua, de Marte e de Mercúrio</td><td><span class="real">Real</span>, 0,7–1,3 km no corpo inteiro e 170–330 m nas regiões de destaque; detalhe mais fino <span class="ilus">inventado</span> (chave)</td></tr>
+  <tr><td>Exoplanetas: tamanho, órbita, ano</td><td><span class="real">Reais</span> (NASA Exoplanet Archive); posição na órbita real nos que transitam; orientação no céu <span class="ilus">aproximada</span>; aparência <span class="ilus">ilustrativa</span></td></tr>
   <tr><td>Imagens de perto de Marte, Lua e Mercúrio</td><td><span class="real">Reais</span> (NASA Trek, 100–330 m por pixel)</td></tr>
   <tr><td>Terra: relevo, imagens de satélite, luzes, lugares</td><td><span class="real">Real</span></td></tr>
   <tr><td>Via Láctea vista daqui</td><td><span class="real">Real</span> (mapa da NASA); de longe, <span class="ilus">modelo</span> baseado em medidas publicadas</td></tr>
@@ -651,6 +668,7 @@
   <li><b>Efemérides</b>: biblioteca astronomy-engine, © Don Cross (licença MIT), com VSOP87 (Bretagnon e Francou) para os planetas.</li>
   <li><b>Imagens de perto de Marte, Lua e Mercúrio</b>: NASA Trek (NASA/JPL-Caltech), com os mosaicos LRO WAC (NASA/GSFC/Arizona State University), Viking MDIM 2.1 colorido (NASA/USGS) e MESSENGER MDIS (NASA/JHUAPL/Carnegie Institution).</li>
   <li><b>Asteroides e cometas</b>: JPL Small-Body Database (NASA/JPL-Caltech).</li>
+  <li><b>Exoplanetas</b>: NASA Exoplanet Archive, tabela Planetary Systems Composite Parameters (NASA/Caltech-IPAC; dados/baixar_exoplanetas.py). Zona habitável: Kopparapu et al. (2013), ApJ 765, 131.</li>
   <li><b>Eclipses</b>: Five Millennium Canon of Solar/Lunar Eclipses, F. Espenak e J. Meeus (NASA/GSFC, domínio público).</li>
   <li><b>Nuvens do dia</b>: NASA GIBS/Worldview, imagens VIIRS (Suomi NPP) e MODIS (Terra), corrected reflectance.</li>
   <li><b>Chuvas de meteoros</b>: calendário da International Meteor Organization (valores médios).</li>
