@@ -112,7 +112,8 @@ const ECLIPSE = /* glsl */ `
   }`;
 
 export const PLANETA_F = LOGF + RUIDO + ECLIPSE + /* glsl */ `
-  uniform sampler2D mapa, noite, relevo;
+  uniform sampler2D mapa, noite, relevo, detalheMapa, detalheMapa2;
+  uniform vec4 detalheJanela, detalheJanela2; uniform float detalheAtivo, detalheAtivo2;
   uniform float temMapa, temNoite, emissivo, temRelevo, hMin, hMax, exagero, raio, detalhe, kmPorUnidade, usarTextura, usarPiso, pisoMar, exposicao;
   uniform vec3 corBase, luz, polo;
   uniform vec2 texel;
@@ -124,6 +125,23 @@ export const PLANETA_F = LOGF + RUIDO + ECLIPSE + /* glsl */ `
     vec3 n = n0;
     vec3 base;
     if (temMapa > 0.5 && usarTextura > 0.5) base = texture2D(mapa, vUv).rgb;
+    // imagem de alta resolução (NASA Trek) em volta do ponto abaixo da câmera, fundida nas bordas
+    float pesoDet = 0.0;
+    if (detalheAtivo2 > 0.5 && usarTextura > 0.5) { // camada larga, até o horizonte
+      vec2 q2 = (vUv - detalheJanela2.xy) / (detalheJanela2.zw - detalheJanela2.xy);
+      if (q2.x > 0.0 && q2.x < 1.0 && q2.y > 0.0 && q2.y < 1.0) {
+        pesoDet = smoothstep(0.0, 0.1, min(min(q2.x, 1.0 - q2.x), min(q2.y, 1.0 - q2.y)));
+        base = mix(base, texture2D(detalheMapa2, q2).rgb, pesoDet);
+      }
+    }
+    if (detalheAtivo > 0.5 && usarTextura > 0.5) {
+      vec2 q = (vUv - detalheJanela.xy) / (detalheJanela.zw - detalheJanela.xy);
+      if (q.x > 0.0 && q.x < 1.0 && q.y > 0.0 && q.y < 1.0) {
+        float pf = smoothstep(0.0, 0.1, min(min(q.x, 1.0 - q.x), min(q.y, 1.0 - q.y)));
+        base = mix(base, texture2D(detalheMapa, q).rgb, pf);
+        pesoDet = max(pesoDet, pf);
+      }
+    }
     else {
       // aparência procedural: cor do corpo com manchas e faixas
       if (emissivo > 0.5) {
@@ -177,6 +195,8 @@ export const PLANETA_F = LOGF + RUIDO + ECLIPSE + /* glsl */ `
       n = normalize(mix(n, nb, smoothstep(0.2, 0.7, clamp(dot(nb, n), 0.0, 1.0)))); // nunca vira o chão do avesso
       base *= clamp(1.0 + 0.55 * alb, 0.4, 1.6);
     }
+    // a foto de alta resolução já traz as sombras do relevo: o relevo global (grosseiro) quase não ilumina por cima dela
+    n = normalize(mix(n, n0, 0.85 * pesoDet));
     float l = dot(n, luz);
     float lg = dot(n0, luz);
     float umbra;

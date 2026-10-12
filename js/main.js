@@ -11,6 +11,7 @@ import { zonaDoLugar, deslocamento, rotuloUTC, utcDeHoraLocal } from './fuso.js'
 import { criarMissoes, raioComa } from './missoes.js';
 import { criarSatelites, criarFrota } from './satelites.js';
 import { criarPredios } from './predios.js';
+import { criarDetalhe } from './detalhe.js';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { DRACOLoader } from '../vendor/DRACOLoader.js';
 import { radecParaCena, carregarEfemeridesLuas, velocidadePlaneta, equatorialParaCena } from './corpos.js';
@@ -229,6 +230,8 @@ for (const c of CORPOS) {
       luz: { value: new THREE.Vector3(1, 0, 0) },
       polo: { value: new THREE.Vector3(0, 1, 0) },
       usarPiso: { value: 0 }, pisoMar: { value: 0 }, exposicao: { value: 1 },
+      detalheMapa: { value: null }, detalheJanela: { value: new THREE.Vector4() }, detalheAtivo: { value: 0 },
+      detalheMapa2: { value: null }, detalheJanela2: { value: new THREE.Vector4() }, detalheAtivo2: { value: 0 },
       eclOcl: { value: new THREE.Vector3() }, eclRaio: { value: 1 }, eclSolAng: { value: 0.00465 }, eclAtivo: { value: 0 }, eclVermelho: { value: 0 },
       camOct: { value: Array.from({ length: 16 }, () => new THREE.Vector3()) },
       paraCorpo: { value: new THREE.Matrix3() },
@@ -2560,6 +2563,15 @@ function desenhar() {
       c.malha.visible = diamPx > 0.5;
       const luz = u.luz.value.copy(sol.abs).sub(c.abs).normalize();
       uniformsEclipse(c, u, luz);
+      if (c.detalhe === undefined) { c.detalhe = criarDetalhe(c); c.detalhe2 = c.detalhe && criarDetalhe(c, 2); }
+      if (c.detalhe) { // imagem de alta resolução perto da superfície: uma camada fina e uma larga
+        const altC = d - c.raio, perto = altC < c.raio * 0.6 && estado.texturas;
+        const dirC = perto ? rel.clone().negate().normalize().applyQuaternion(_qi.copy(c.qOri).invert()) : _e3.set(1, 0, 0);
+        c.detalhe.atualizar(dirC, perto ? altC : Infinity);
+        c.detalhe2.atualizar(dirC, perto ? altC : Infinity);
+        u.detalheAtivo.value = c.detalhe.ativo() ? 1 : 0; u.detalheMapa.value = c.detalhe.textura; u.detalheJanela.value.copy(c.detalhe.janela);
+        u.detalheAtivo2.value = c.detalhe2.ativo() ? 1 : 0; u.detalheMapa2.value = c.detalhe2.textura; u.detalheJanela2.value.copy(c.detalhe2.janela);
+      }
       u.kmPorUnidade.value = 1 / s;
       u.exagero.value = estado.exagero;
       u.usarTextura.value = estado.texturas ? 1 : 0;
