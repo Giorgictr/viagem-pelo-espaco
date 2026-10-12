@@ -9,7 +9,7 @@ import { criarTerra, CREDITOS } from './terra.js';
 import { criarCamadas } from './camadas.js';
 import { zonaDoLugar, deslocamento, rotuloUTC, utcDeHoraLocal } from './fuso.js';
 import { criarMissoes, raioComa } from './missoes.js';
-import { criarSatelites } from './satelites.js';
+import { criarSatelites, criarFrota } from './satelites.js';
 import { criarPredios } from './predios.js';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { DRACOLoader } from '../vendor/DRACOLoader.js';
@@ -381,6 +381,7 @@ const gal = criarGalaxias(cena, S);
 // Sondas e cometas com trajetórias reais (JPL Horizons)
 const missoes = criarMissoes(cena, PORID, PORID.fobos.malha.material);
 const satelites = criarSatelites(PORID, PORID.terra.raio); // ISS, Hubble e Tiangong em tempo real
+const frotaSat = criarFrota(PORID, PORID.terra.raio); // os demais satélites, como pontos
 missoes.usarVelPlaneta((id, jd) => (id === '67p' ? missoes.porId['67p']?.vel.clone() ?? new THREE.Vector3() : velocidadePlaneta(id, jd)));
 const terra = criarTerra(cena, S, PORID.terra.raio); // Terra em ladrilhos (relevo e satélite), perto do chão
 const predios = criarPredios(cena, PORID.terra.raio, terra); // construções do OpenStreetMap em 3D
@@ -1467,6 +1468,52 @@ $('mVista').onclick = () => {
   pintarVista();
 };
 pintarVista();
+// ------------------------------- frota de satélites (pontos) -------------------------------
+const geoFrota = new THREE.BufferGeometry();
+let capFrota = 0;
+const pontosFrota = new THREE.Points(geoFrota, new THREE.ShaderMaterial({
+  vertexShader: '#include <common>\n#include <logdepthbuf_pars_vertex>\nattribute float alfa; varying float vA; uniform float tam;\nvoid main() { vA = alfa; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); gl_PointSize = alfa > 0.0 ? tam * (0.6 + 0.8 * alfa) : 0.0;\n#include <logdepthbuf_vertex>\n}',
+  fragmentShader: '#include <common>\n#include <logdepthbuf_pars_fragment>\nvarying float vA;\nvoid main() {\n#include <logdepthbuf_fragment>\n vec2 p = gl_PointCoord * 2.0 - 1.0; gl_FragColor = vec4(vec3(1.0, 0.98, 0.94) * vA * exp(-dot(p, p) * 2.5), 1.0);\n}',
+  uniforms: { tam: { value: 3 } }, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false,
+}));
+pontosFrota.frustumCulled = false; pontosFrota.renderOrder = 4; pontosFrota.visible = false;
+cena.add(pontosFrota);
+estado.satGrupo = 'visual';
+$('selSatelites').onchange = (e) => { estado.satGrupo = e.target.value; e.target.blur(); };
+function desenharFrota(abs) {
+  const E = PORID.terra, d = abs.distanceTo(E.abs);
+  const perto = d < 2e6 && estado.ref !== null;
+  if (!perto || !estado.satGrupo) { pontosFrota.visible = false; if (!estado.satGrupo && frotaSat.frota.grupo) frotaSat.carregar(null); return; }
+  frotaSat.carregar(estado.satGrupo);
+  const f = frotaSat.frota;
+  if (f.falhou) { f.falhou = false; estado.satGrupo = 'visual'; $('selSatelites').value = 'visual'; aviso('O CelesTrak só libera a lista completa a cada 2 horas; por enquanto, os satélites mais brilhantes.'); }
+  if (!f.n) { pontosFrota.visible = false; return; }
+  if (capFrota < f.n) {
+    capFrota = f.n;
+    geoFrota.setAttribute('position', new THREE.BufferAttribute(new Float32Array(capFrota * 3), 3));
+    geoFrota.setAttribute('alfa', new THREE.BufferAttribute(new Float32Array(capFrota), 1));
+  }
+  // os mais brilhantes: todos a cada quadro; os 11 mil: em rodízio (o tempo acelerado demais deixaria todos atrasados)
+  frotaSat.atualizar(estado.jd, f.grupo === 'visual' ? f.n : 1000); // 11 mil: mil recalculados por quadro, os outros avançam pela velocidade
+  const P = geoFrota.attributes.position.array, A = geoFrota.attributes.alfa.array;
+  const lim = estado.ceuModo ? limOlho() : 7.5, base = f.grupo === 'visual' ? 4.5 : 6.5;
+  const rel = _e2.copy(E.abs).sub(abs);
+  for (let i = 0; i < f.n; i++) {
+    const x = f.pos[i * 3];
+    if (x !== x || (estado.ceuModo && !f.luz[i])) { A[i] = 0; continue; }
+    const px = rel.x + x, py = rel.y + f.pos[i * 3 + 1], pz = rel.z + f.pos[i * 3 + 2];
+    P[i * 3] = px; P[i * 3 + 1] = py; P[i * 3 + 2] = pz;
+    if (!estado.ceuModo) { A[i] = f.luz[i] ? 0.55 : 0.12; continue; } // do espaço: todos como pontinhos (apagados na sombra da Terra)
+    const dist = Math.sqrt(px * px + py * py + pz * pz);
+    const m = base + 5 * Math.log10(Math.max(dist, 200) / 1000);
+    A[i] = Math.min(1, 10 ** (-0.4 * (m - lim))) * (1 - diaNoCeu);
+    if (A[i] < 0.03) A[i] = 0;
+  }
+  geoFrota.setDrawRange(0, f.n);
+  geoFrota.attributes.position.needsUpdate = true; geoFrota.attributes.alfa.needsUpdate = true;
+  pontosFrota.material.uniforms.tam.value = (estado.ceuModo ? 3 : 2) * renderer.getPixelRatio();
+  pontosFrota.visible = true;
+}
 function pintarCeuBotoes() {
   $('btLinhasConst').textContent = estado.linhasConst ? 'Desenho das constelações: ligado' : 'Desenho das constelações: desligado';
   $('btLinhasConst').classList.toggle('ativo', estado.linhasConst);
@@ -2588,6 +2635,7 @@ function desenhar() {
   desenharMeteoros();
   desenharMissoes(abs, rotulosPostos, pxPorRad);
   desenharModelo(abs);
+  desenharFrota(abs);
   $('pTerra').style.display = altT < T.raio * 10 && !document.body.classList.contains('foto') ? '' : 'none';
   $('creditos').textContent = terra.ativo ? (estado.ceuModo ? 'Terreno: EOX/Sentinel-2 · NASA · Mapzen/AWS · Natural Earth (créditos completos no manual)' : CREDITOS + (predios.visiveis() ? ' · Construções: © colaboradores do OpenStreetMap (OpenFreeMap)' : '')) : '';
 

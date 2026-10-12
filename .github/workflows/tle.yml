@@ -18,11 +18,11 @@ jobs:
           for n in 25544 20580 48274; do
             curl -sf "https://celestrak.org/NORAD/elements/gp.php?CATNR=$n&FORMAT=TLE" >> novo.txt || exit 0
           done
-          if [ "$(grep -c '^1 ' novo.txt)" = "3" ] && ! cmp -s novo.txt dados/tle_reserva.txt; then
+          curl -sf "https://celestrak.org/NORAD/elements/gp.php?GROUP=visual&FORMAT=tle" > visual.txt && [ "$(grep -c '^1 ' visual.txt)" -gt 50 ] && mv visual.txt dados/tle_visual.txt || true
+          if [ "$(grep -c '^1 ' novo.txt)" = "3" ]; then
             mv novo.txt dados/tle_reserva.txt
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add dados/tle_reserva.txt
-            git commit -m "Órbitas dos satélites atualizadas"
-            git push
+            git add dados/tle_reserva.txt dados/tle_visual.txt
+            git diff --cached --quiet || { git commit -m "Órbitas dos satélites atualizadas" && git push; }
           fi
