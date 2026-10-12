@@ -2816,7 +2816,7 @@ function painelCeu() {
   $('ceuMeteoros').textContent = textoMeteoros();
   const ano = 2000 + (estado.jd - 2451545) / 365.25;
   const sol = PORID.sol.abs.clone().sub(abs).normalize(), aSol = Math.asin(sol.dot(up)) / GRAU;
-  $('ceuSituacao').textContent = (ano < 1800 || ano > 2050 ? 'Atenção: fora de 1800–2050 as posições ficam menos precisas. ' : '')
+  $('ceuSituacao').textContent = (ano < 1800 || ano > 2050 ? 'Atenção: fora de 1800–2050 as estrelas ficam nas posições de hoje. ' : '')
     + (aSol > 0 ? 'Dia: o céu claro esconde as estrelas.' : aSol > -6 ? 'Crepúsculo civil: só os astros mais brilhantes.' : aSol > -18 ? 'Crepúsculo: as estrelas vão aparecendo.'
       : luar > 0.3 ? 'Noite com luar forte: a Lua apaga as estrelas fracas e a Via Láctea.' : luar > 0.05 ? 'Noite com algum luar.' : 'Noite fechada: céu escuro, sem nuvens e sem luzes de cidade.');
 }
@@ -2857,7 +2857,7 @@ function painel() {
   $('doSol').textContent = distancia(abs.distanceTo(PORID.sol.abs));
   $('dataSim').textContent = data(estado.jd);
   const ano = 2000 + (estado.jd - 2451545) / 365.25;
-  $('avisoData').textContent = ano < 1800 || ano > 2050 ? 'Fora de 1800–2050: posições dos planetas menos precisas; estrelas sem o movimento próprio.' : '';
+  $('avisoData').textContent = ano < 1800 || ano > 2050 ? 'Fora de 1800–2050: estrelas sem o movimento próprio (planetas e Lua continuam precisos).' : '';
   const fz = -new Date().getTimezoneOffset() / 60;
   $('fusoTxt').textContent = `hora do seu computador (UTC${fz >= 0 ? '+' : '−'}${Math.abs(fz)})`;
 

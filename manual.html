@@ -139,7 +139,7 @@
 
 <h2 id="sistema">Sistema Solar</h2>
 <ul>
-  <li>Planetas nas <b>posições de hoje</b>, calculadas com os elementos orbitais do JPL (precisos entre 1800 e 2050). A <b>Lua</b> usa a teoria ELP-2000/82 (versão de Meeus), com erro de poucos centésimos de grau. Inclinação e rotação dos planetas seguem os dados da IAU, e o eixo da Terra inclui a precessão (o lento giro do eixo ao longo dos séculos).</li>
+  <li>Planetas nas <b>posições de hoje</b>, calculadas com a teoria VSOP87 (biblioteca astronomy-engine), com erro de segundos de arco ao longo de milênios. A <b>Lua</b> usa um modelo completo, também com erro de segundos de arco, e o tempo dinâmico (ΔT) é aplicado automaticamente. Inclinação e rotação dos planetas seguem os dados da IAU, e o eixo da Terra inclui a precessão (o lento giro do eixo ao longo dos séculos).</li>
   <li>21 luas, os anéis de Saturno com a sombra do planeta, atmosferas (halo visto de fora, céu visto de dentro), nuvens da Terra, cinturão de asteroides, troianos de Júpiter e cinturão de Kuiper.</li>
   <li><b>Tempo</b>: <b>Órbitas em movimento / paradas</b> (<kbd>T</kbd>); <b>Ritmo</b>, de tempo real até 10 anos por segundo, inclusive para trás; <b>Agora</b> volta à data atual.</li>
   <li><b>Nomes</b> (<kbd>L</kbd>), <b>Órbitas</b> (<kbd>O</kbd>), <b>Cinturões</b>, <b>Nomes</b> e <b>Desenho das constelações</b> e <b>Bolha do rádio</b> ligam e desligam. As constelações só fazem sentido perto do Sistema Solar: a partir de ~50 anos-luz o desenho vai sumindo, porque as estrelas mudam de lugar no céu.</li>
@@ -309,7 +309,7 @@
   <li>No painel do céu, escolha a data (20/08/1978), a hora (23:00) e deixe <b>hora oficial</b>.</li>
 </ol>
 <p>Nessa noite, o painel mostra a Lua quase cheia a 41° no leste, com luar forte, e nenhum planeta visível a olho nu (Netuno estava acima do horizonte, mas só com telescópio). Ao sair do modo céu, a simulação continua na data escolhida; use <b>Agora</b> para voltar ao presente.</p>
-<p>Datas entre 1800 e 2050 têm boa precisão. Fora disso, o programa avisa: as posições dos planetas perdem precisão e as estrelas não incluem o próprio movimento delas (algumas, como a Estrela de Barnard, andam vários graus em dois mil anos).</p>
+<p>Planetas e Lua têm boa precisão por milhares de anos para trás e para a frente. Fora de 1800–2050 o programa avisa por outro motivo: as estrelas não incluem o próprio movimento delas (algumas, como a Estrela de Barnard, andam vários graus em dois mil anos), e a rotação da Terra (o ΔT) é cada vez mais incerta no passado distante.</p>
 
 <h3>O que procurar em cada época do ano (à noite, por volta das 22 h)</h3>
 <table>
@@ -345,7 +345,7 @@
   <li><b>Visto de outro lugar</b>: depois de "Ver do chão", troque de cidade no painel do céu (campo "Outra cidade") e clique em <b>Máximo do eclipse daqui</b>. A simulação procura a hora em que o eclipse fica mais forte naquele lugar e diz quanto do Sol fica coberto (ou quanto dura a totalidade), já deixando o relógio um pouco antes. Funciona também sem o calendário, para qualquer data: ele procura um eclipse até 4 horas antes ou depois do horário da simulação. Exemplo, em 2/8/2027: Madri vê 87% do Sol coberto; Sevilha, 99%; Málaga e Luxor, eclipse total.</li>
   <li>A sombra é calculada pela geometria real do Sol, da Lua e da Terra, então qualquer data mostra o que aconteceria. A cor de cobre da Lua vem da luz que atravessa a nossa atmosfera, como todos os pores do sol da Terra ao mesmo tempo.</li>
   <li>O cálculo usa o Sol aparente (com a aberração da luz), o tempo dinâmico da Lua (ΔT) e o achatamento da Terra para quem está no chão, como os cálculos oficiais.</li>
-  <li>Limite: a posição da Lua tem erro de poucos quilômetros a dezenas de quilômetros, então a faixa de totalidade pode ficar um pouco deslocada e a duração num ponto pode diferir de alguns segundos a um ou dois minutos da tabela.</li>
+  <li>Precisão: comparado com a busca de eclipses da biblioteca astronomy-engine, a cobertura do Sol bate com diferença de 1% e a duração da totalidade fica a uns 10 a 15 segundos (Luxor, 2/8/2027: 6 min 10 s contra 6 min 25 s). A Terra é desenhada como esfera; o achatamento só entra no cálculo para quem está no chão.</li>
 </ul>
 
 <h2 id="roteiros">Roteiros guiados</h2>
@@ -388,8 +388,8 @@
 <h2 id="real">Real ou ilustrativo?</h2>
 <table>
   <tr><th>Elemento</th><th>Situação</th></tr>
-  <tr><td>Posições dos planetas hoje</td><td><span class="real">Real</span> (JPL, 1800–2050; ~0,1° de erro)</td></tr>
-  <tr><td>Posição da Lua</td><td><span class="real">Real</span> (ELP-2000/82 de Meeus; poucos centésimos de grau)</td></tr>
+  <tr><td>Posições dos planetas</td><td><span class="real">Real</span> (VSOP87; segundos de arco, por milênios)</td></tr>
+  <tr><td>Posição da Lua</td><td><span class="real">Real</span> (modelo completo; segundos de arco; eclipses a segundos ou poucos minutos das tabelas)</td></tr>
   <tr><td>Posição das outras luas</td><td><span class="real">Real</span> entre 1970 e 2040 (JPL Horizons, com o achatamento do planeta); fora disso, <span class="ilus">aproximada</span></td></tr>
   <tr><td>ISS, Hubble e Tiangong</td><td><span class="real">Real</span>, agora (CelesTrak + SGP4; ~1 km de erro perto da data dos elementos, piorando com as semanas)</td></tr>
   <tr><td>Cor do céu e do pôr do Sol (Terra e Marte)</td><td><span class="real">Física</span> (espalhamento de Rayleigh e Mie); o crepúsculo profundo é <span class="ilus">aproximado</span></td></tr>
@@ -468,7 +468,7 @@
   <tr><td>Vista do espaço, a Terra tem um véu azul, e a borda é mais clara</td><td>Com a <b>Atmosfera física</b>, o ar espalha luz azul por cima do chão, mais na borda, onde a camada de ar é mais longa. As fotos da sonda DSCOVR mostram o mesmo.</td></tr>
   <tr><td>As estrelas atrás da borda de Marte somem</td><td>A poeira marciana, vista de lado, é espessa o bastante para apagar a luz que vem de trás.</td></tr>
   <tr><td>Depois de pousar, a velocidade ficou "a pé"</td><td>Ao pousar ou entrar no modo céu, a velocidade vai para 5 km/h; no modo avião, para 300 ou 900 km/h. Ao decolar (<kbd>R</kbd>), sair do modo ou viajar para outro lugar, ela volta a ser a de antes.</td></tr>
-  <tr><td>Datas muito antigas ou futuras deixam os planetas imprecisos</td><td>As fórmulas do JPL valem para 1800–2050. Fora disso, as posições vão perdendo precisão.</td></tr>
+  <tr><td>Em datas muito antigas, as estrelas parecem fora do lugar</td><td>Planetas e Lua continuam precisos, mas as estrelas estão nas posições de hoje: o movimento próprio delas não é aplicado.</td></tr>
 </table>
 
 <h3>Na Terra</h3>
@@ -596,6 +596,7 @@
   <li><b>Sondas e cometas</b>: trajetórias do sistema JPL Horizons (NASA/JPL-Caltech).</li>
   <li><b>Luas dos outros planetas</b>: posições e velocidades do JPL Horizons (1970–2040), propagadas com o achatamento de cada planeta.</li>
   <li><b>Satélites</b>: elementos orbitais do CelesTrak (T. S. Kelso), calculados com a biblioteca satellite.js (licença MIT).</li>
+  <li><b>Efemérides</b>: biblioteca astronomy-engine, © Don Cross (licença MIT), com VSOP87 (Bretagnon e Francou) para os planetas.</li>
   <li><b>Eclipses</b>: Five Millennium Canon of Solar/Lunar Eclipses, F. Espenak e J. Meeus (NASA/GSFC, domínio público).</li>
   <li><b>Nuvens do dia</b>: NASA GIBS/Worldview, imagens VIIRS (Suomi NPP) e MODIS (Terra), corrected reflectance.</li>
   <li><b>Chuvas de meteoros</b>: calendário da International Meteor Organization (valores médios).</li>

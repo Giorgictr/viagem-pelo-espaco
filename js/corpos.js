@@ -1,6 +1,7 @@
 // Catálogo de corpos e efemérides. Coordenadas da cena: eclíptica J2000 em km,
 // com o eixo Y da cena = norte da eclíptica (cena x = x_ecl, y = z_ecl, z = -y_ecl).
 import * as THREE from '../vendor/three.module.js';
+import * as Astro from '../vendor/astronomy.js';
 import { UA, AL, PC, GRAU, OBLIQUIDADE } from './unidades.js';
 import { integrar, PLANETAS, poloEcliptica } from './orbita.js';
 
@@ -271,15 +272,22 @@ export function deltaT(jd) {
   if (y < 2150) return -20 + 32 * ((y - 1820) / 100) ** 2 - 0.5628 * (2150 - y);
   t = (y - 1820) / 100; return -20 + 32 * t * t;
 }
+// Efemérides de precisão (astronomy-engine, MIT): VSOP87 para os planetas e um modelo da Lua com erro de segundos de arco;
+// ela mesma converte o tempo civil (UT) em tempo dinâmico (ΔT). Os elementos de Kepler ficam para as linhas das órbitas.
+const CORPO_ASTRO = { mercurio: 'Mercury', venus: 'Venus', terra: 'Earth', marte: 'Mars', jupiter: 'Jupiter', saturno: 'Saturn', urano: 'Uranus', netuno: 'Neptune', plutao: 'Pluto' };
+export const tempoAstro = (jd) => Astro.MakeTime(new Date((jd - 2440587.5) * 86400000));
 export function atualizarPosicoes(jd) {
   const d = jd - 2451545.0;
   const T = d / 36525;
-  for (const id in KEPLER) kepler(KEPLER[id], T, PORID[id].abs);
-  // O elemento "terra" é o baricentro Terra–Lua; separa os dois
-  const bary = tmp.copy(PORID.terra.abs);
+  const t = tempoAstro(jd);
+  for (const id in CORPO_ASTRO) {
+    if (!PORID[id]) continue;
+    const v = Astro.HelioVector(Astro.Body[CORPO_ASTRO[id]], t);
+    equatorialParaCena(v.x * UA, v.y * UA, v.z * UA, PORID[id].abs);
+  }
   const L = PORID.lua;
-  lua(d + deltaT(jd) / 86400, L.relPai); // em tempo dinâmico
-  PORID.terra.abs.copy(bary).addScaledVector(L.relPai, -1 / 82.3);
+  const m = Astro.GeoMoon(t);
+  equatorialParaCena(m.x * UA, m.y * UA, m.z * UA, L.relPai);
   for (const c of CORPOS) {
     if (c.orbita) {
       if (c.efem && c.efemJd === jd) { /* já calculada neste instante */ }
@@ -308,11 +316,11 @@ export function atualizarPosicoes(jd) {
 // Velocidade (km/s, na cena) de um planeta pelos elementos orbitais, por diferença em 60 s
 const _v1 = new THREE.Vector3(), _v2 = new THREE.Vector3();
 export function velocidadePlaneta(id, jd) {
-  const el = KEPLER[id];
-  if (!el) return new THREE.Vector3();
-  kepler(el, (jd - 2451545.0) / 36525, _v1);
-  kepler(el, (jd + 60 / 86400 - 2451545.0) / 36525, _v2);
-  return _v2.clone().sub(_v1).divideScalar(60);
+  const b = CORPO_ASTRO[id];
+  if (!b) return new THREE.Vector3();
+  const e = Astro.HelioState(Astro.Body[b], tempoAstro(jd)); // UA/dia
+  const k = UA / 86400;
+  return equatorialParaCena(e.vx * k, e.vy * k, e.vz * k);
 }
 
 // Pontos de uma órbita (para desenhar a linha), relativos ao pai, km
