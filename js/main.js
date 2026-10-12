@@ -1514,6 +1514,109 @@ function desenharFrota(abs) {
   pontosFrota.material.uniforms.tam.value = (estado.ceuModo ? 3 : 2) * renderer.getPixelRatio();
   pontosFrota.visible = true;
 }
+// ------------------------------- asteroides e cometas (JPL Small-Body Database) -------------------------------
+// cada um na própria órbita (dois corpos, elementos osculantes); brilho pelo sistema H-G (asteroides) ou M1/K1 (cometas)
+const pequenos = []; // { nome, tipo, el, abs, mag, ... }
+const geoPeq = new THREE.BufferGeometry();
+let posPeq = null, alfaPeq = null, tamPeq = null;
+const pontosPeq = new THREE.Points(geoPeq, new THREE.ShaderMaterial({
+  vertexShader: '#include <common>\n#include <logdepthbuf_pars_vertex>\nattribute float alfa, tamanho; varying float vA;\nvoid main() { vA = alfa; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); gl_PointSize = alfa > 0.0 ? tamanho : 0.0;\n#include <logdepthbuf_vertex>\n}',
+  fragmentShader: '#include <common>\n#include <logdepthbuf_pars_fragment>\nvarying float vA;\nvoid main() {\n#include <logdepthbuf_fragment>\n vec2 p = gl_PointCoord * 2.0 - 1.0; gl_FragColor = vec4(vec3(1.0, 0.95, 0.85) * vA * exp(-dot(p, p) * 3.0), 1.0);\n}',
+  blending: THREE.AdditiveBlending, transparent: true, depthWrite: false,
+}));
+pontosPeq.frustumCulled = false; pontosPeq.renderOrder = 4; pontosPeq.visible = false;
+cena.add(pontosPeq);
+const K_GAUSS = 0.01720209895; // constante gravitacional de Gauss (UA, dias)
+// posição heliocêntrica (km, eixos da cena) a partir de q (periélio, UA), e, i, Ω, ω (graus) e tempo desde o periélio (dias)
+function posOrbital(q, e, i, om, w, dtPeri, out) {
+  let x, y;
+  if (e < 0.98) { // elíptica
+    const a = q / (1 - e), n = K_GAUSS / Math.sqrt(a * a * a);
+    let M = (n * dtPeri) % (2 * Math.PI), E = M + e * Math.sin(M);
+    for (let k = 0; k < 12; k++) { const d = (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E)); E -= d; if (Math.abs(d) < 1e-10) break; }
+    x = a * (Math.cos(E) - e); y = a * Math.sqrt(1 - e * e) * Math.sin(E);
+  } else { // quase parabólica ou hiperbólica: equação de Barker (parábola) como aproximação suficiente para o brilho e a posição no céu
+    const W = 3 * K_GAUSS / Math.sqrt(2 * q * q * q) * dtPeri;
+    const Y = Math.cbrt(W + Math.sqrt(W * W + 1));
+    const tv2 = Y - 1 / Y; // tan(ν/2)
+    const nu = 2 * Math.atan(tv2), r = q * (1 + tv2 * tv2);
+    x = r * Math.cos(nu); y = r * Math.sin(nu);
+  }
+  const O = om * GRAU, W2 = w * GRAU, I = i * GRAU;
+  const cO = Math.cos(O), sO = Math.sin(O), cw = Math.cos(W2), sw = Math.sin(W2), ci = Math.cos(I), si = Math.sin(I);
+  const X = (cO * cw - sO * sw * ci) * x + (-cO * sw - sO * cw * ci) * y;
+  const Yv = (sO * cw + cO * sw * ci) * x + (-sO * sw + cO * cw * ci) * y;
+  const Z = (sw * si) * x + (cw * si) * y;
+  return out.set(X * UA, Z * UA, -Yv * UA).add(PORID.sol.abs); // eclíptica J2000 → cena
+}
+Promise.all([fetch('dados/asteroides.json').then((r) => r.json()), fetch('dados/cometas.json').then((r) => r.json())]).then(([a, c]) => {
+  for (const [nome, sa, e, i, om, w, ma, ep, H, G] of a.dados) {
+    const q = sa * (1 - e), n = K_GAUSS / Math.sqrt(sa ** 3);
+    const tp = ep - (ma * GRAU) / n; // instante do periélio equivalente
+    pequenos.push({ nome, tipo: 'asteroide', q, e, i, om, w, tp, H, G, abs: new THREE.Vector3(), soCeu: true, textoRotulo: nome.replace(/^\d+ /, '') });
+  }
+  for (const [nome, q, e, i, om, w, tp, M1, K1] of c.dados) pequenos.push({ nome, tipo: 'cometa ', q, e, i, om, w, tp, M1, K1, abs: new THREE.Vector3(), soCeu: true, textoRotulo: nome });
+  const n = pequenos.length;
+  posPeq = new Float32Array(n * 3); alfaPeq = new Float32Array(n); tamPeq = new Float32Array(n);
+  geoPeq.setAttribute('position', new THREE.BufferAttribute(posPeq, 3));
+  geoPeq.setAttribute('alfa', new THREE.BufferAttribute(alfaPeq, 1));
+  geoPeq.setAttribute('tamanho', new THREE.BufferAttribute(tamPeq, 1));
+  for (const o of pequenos) {
+    if (o.tipo === 'asteroide' ? o.H < 7.5 : false) addBusca(`${o.textoRotulo} · asteroide`, o.textoRotulo, 2e9, () => irParaProfundo(o));
+  }
+  for (const o of pequenos) if (o.tipo !== 'asteroide') addBusca(`${o.nome} · cometa`, o.nome, 1e8, () => irParaProfundo(o));
+});
+let iPeq = 0;
+const _pq = new THREE.Vector3();
+function magnitudePequeno(o, camPos) {
+  const r = o.abs.distanceTo(PORID.sol.abs) / UA, d = Math.max(o.abs.distanceTo(camPos) / UA, 1e-6);
+  if (o.tipo === 'asteroide') {
+    const cosA = Math.min(1, Math.max(-1, (r * r + d * d - (camPos.distanceTo(PORID.sol.abs) / UA) ** 2) / (2 * r * d)));
+    const t = Math.tan(Math.acos(cosA) / 2);
+    const f = (1 - o.G) * Math.exp(-3.33 * t ** 0.63) + o.G * Math.exp(-1.87 * t ** 1.22);
+    return o.H + 5 * Math.log10(r * d) - 2.5 * Math.log10(Math.max(f, 1e-6));
+  }
+  return o.M1 + 5 * Math.log10(d) + o.K1 * Math.log10(Math.max(r, 0.01));
+}
+function desenharPequenos(abs, postos) {
+  const ver = estado.messier && pequenos.length && abs.distanceTo(PORID.sol.abs) < 200 * UA;
+  pontosPeq.visible = !!ver;
+  if (!ver) { for (const o of pequenos) if (o.el) o.el.style.display = 'none'; return; }
+  // posições em rodízio (3 mil por quadro; com o tempo acelerado, todas)
+  const quantos = Math.abs(estado.ritmo) > 3600 ? pequenos.length : 3000;
+  for (let k = 0; k < quantos; k++) {
+    const o = pequenos[iPeq]; iPeq = (iPeq + 1) % pequenos.length;
+    posOrbital(o.q, o.e, o.i, o.om, o.w, estado.jd - o.tp, o.abs);
+    o.mag = magnitudePequeno(o, abs);
+  }
+  const lim = limiteMag(), up = estado.ceuModo ? estado.local.clone().normalize() : null;
+  for (let i = 0; i < pequenos.length; i++) {
+    const o = pequenos[i];
+    if (o.el) o.el.style.display = 'none';
+    const rel = _pq.copy(o.abs).sub(abs), d = rel.length();
+    let a = o.mag === undefined ? 0 : Math.min(1, 10 ** (-0.4 * (o.mag - lim))) * (1 - diaNoCeu);
+    if (a > 0.02 && up && rel.dot(up) < 0) a = 0;
+    alfaPeq[i] = a > 0.02 ? a : 0;
+    if (!alfaPeq[i]) continue;
+    aberrarJS(rel.multiplyScalar(comprimir(d))).toArray(posPeq, i * 3);
+    tamPeq[i] = (1.6 + 2.2 * a) * renderer.getPixelRatio();
+    // nomes: os grandes asteroides e os cometas mais brilhantes
+    if (!(estado.nomes && (o === estado.alvo || (a > 0.3 && (o.tipo !== 'asteroide' || o.H < 6))))) continue;
+    projetado.copy(_pq.fromArray(posPeq, i * 3)).applyMatrix4(camera.matrixWorldInverse);
+    if (projetado.z >= 0) continue;
+    projetado.applyMatrix4(camera.projectionMatrix);
+    const x = (projetado.x * 0.5 + 0.5) * innerWidth, y = (-projetado.y * 0.5 + 0.5) * innerHeight;
+    if (x < 0 || x > innerWidth || y < 0 || y > innerHeight) continue;
+    const caixa = [x, y - 8, x + o.textoRotulo.length * 6.2 + 12, y + 8];
+    if (o !== estado.alvo && postos.some((b) => caixa[0] < b[2] && caixa[2] > b[0] && caixa[1] < b[3] && caixa[3] > b[1])) continue;
+    postos.push(caixa);
+    if (!o.el) { o.el = document.createElement('div'); o.el.className = 'messier'; o.el.textContent = o.textoRotulo; o.el.onclick = () => { estado.alvo = o; aviso(`${o.nome} · ${o.tipo.trim()}, magnitude ${o.mag.toFixed(1).replace('.', ',')} agora`); }; camadaRot.append(o.el); }
+    o.el.style.left = `${x}px`; o.el.style.top = `${y}px`; o.el.style.display = '';
+    o.el.classList.toggle('alvo', o === estado.alvo);
+  }
+  geoPeq.setDrawRange(0, pequenos.length);
+  geoPeq.attributes.position.needsUpdate = true; geoPeq.attributes.alfa.needsUpdate = true; geoPeq.attributes.tamanho.needsUpdate = true;
+}
 function pintarCeuBotoes() {
   $('btLinhasConst').textContent = estado.linhasConst ? 'Desenho das constelações: ligado' : 'Desenho das constelações: desligado';
   $('btLinhasConst').classList.toggle('ativo', estado.linhasConst);
@@ -2632,6 +2735,7 @@ function desenhar() {
   }
   desenharCeu(abs, rotulosPostos);
   desenharMessier(rotulosPostos, pxPorRad);
+  desenharPequenos(abs, rotulosPostos);
   desenharMeteoros();
   desenharMissoes(abs, rotulosPostos, pxPorRad);
   desenharModelo(abs);
@@ -3301,4 +3405,4 @@ $('eclAntes').onclick = () => { eclInicio = Math.max(0, eclInicio - 12); listarE
 $('eclDepois').onclick = () => { eclInicio = Math.min(eclipses.length - 12, eclInicio + 12); listarEclipses(); };
 $('eclHoje').onclick = () => { eclInicio = Math.max(0, eclipses.findIndex((e) => e.jd >= jdAgora() - 1)); listarEclipses(); };
 if (lerGuardado('viagemVisitou') === null && !veioDeRecarga) abrirBoasVindas();
-window.__sim = { maximoDaqui, modelos, testeMeteoros: (n) => { const up = estado.local.clone().normalize(); const c = CHUVAS.find((x) => x.nome === "Oriônidas"); for (let i = 0; i < n; i++) { novoMeteoro(c.dir, c.v, up); if (meteoros.length) meteoros[meteoros.length - 1].t = 0.45; } }, quadros: (n = 1) => { for (let i = 0; i < n; i++) { tAnterior = performance.now() - 16; passo(); } }, luzEclipseJS, coroa, verEclipse, ficarEm, abrirEclipses, predios, vr, alvoNaDirecao, textoPainelVR, satelites, embarcar: (o) => embarcar(o), estado, PORID, camAbs, cat, estrelaObj, vagas, THREE, terra, buscar, indiceBusca, missoes, atualizarPosicoes };
+window.__sim = { pequenos, maximoDaqui, modelos, testeMeteoros: (n) => { const up = estado.local.clone().normalize(); const c = CHUVAS.find((x) => x.nome === "Oriônidas"); for (let i = 0; i < n; i++) { novoMeteoro(c.dir, c.v, up); if (meteoros.length) meteoros[meteoros.length - 1].t = 0.45; } }, quadros: (n = 1) => { for (let i = 0; i < n; i++) { tAnterior = performance.now() - 16; passo(); } }, luzEclipseJS, coroa, verEclipse, ficarEm, abrirEclipses, predios, vr, alvoNaDirecao, textoPainelVR, satelites, embarcar: (o) => embarcar(o), estado, PORID, camAbs, cat, estrelaObj, vagas, THREE, terra, buscar, indiceBusca, missoes, atualizarPosicoes };
