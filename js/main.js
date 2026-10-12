@@ -1413,8 +1413,10 @@ function nuvensDoDia(u) {
 chave('btNuvens', ['Nuvens: do dia (NASA)', 'Nuvens: genéricas'], () => estado.nuvensReais, () => (estado.nuvensReais = !estado.nuvensReais));
 chave('btNuvensDeriva', ['Nuvens em movimento (ilustrativo)', 'Nuvens paradas'], () => estado.nuvensDeriva, () => (estado.nuvensDeriva = !estado.nuvensDeriva));
 // ------------------------------- sondas em 3D (NASA 3D Resources, livres de direitos) -------------------------------
-const MODELOS = { voyager1: 'voyager', voyager2: 'voyager', cassini: 'cassini', juno: 'juno', jwst: 'jwst', parker: 'parker', hubble: 'hubble', iss: 'iss', pioneer10: 'pioneer10', rosetta: 'rosetta' };
-const TAMANHO_M = { voyager: 13, cassini: 6.8, juno: 20, jwst: 21, parker: 3, hubble: 13.2, iss: 109, pioneer10: 5, rosetta: 32 }; // maior dimensão real, em metros
+const MODELOS = { voyager1: 'voyager', voyager2: 'voyager', cassini: 'cassini', juno: 'juno', jwst: 'jwst', parker: 'parker', hubble: 'hubble', iss: 'iss', pioneer10: 'pioneer10', pioneer11: 'pioneer10', rosetta: 'rosetta',
+  dawn: 'dawn', deepimpact: 'deepimpact', galileo: 'galileo', kepler: 'kepler', messenger: 'messenger', osirisrex: 'osirisrex', spitzer: 'spitzer', ulysses: 'ulysses', stardust: 'stardust' };
+const TAMANHO_M = { voyager: 13, cassini: 6.8, juno: 20, jwst: 21, parker: 3, hubble: 13.2, iss: 109, pioneer10: 5, rosetta: 32,
+  dawn: 19.7, deepimpact: 7.5, galileo: 11, kepler: 4.7, messenger: 6, osirisrex: 6.2, spitzer: 4.5, ulysses: 6, stardust: 5 }; // maior dimensão real, em metros
 const luzModelo = new THREE.DirectionalLight(0xffffff, 3.2);
 const luzAmbModelo = new THREE.AmbientLight(0x8090a0, 0.25);
 cena.add(luzModelo, luzModelo.target, luzAmbModelo);
@@ -1651,7 +1653,7 @@ fetch('dados/constelacoes.json').then((r) => r.json()).then((lista) => {
   });
 });
 // ------------------------------- sondas e cometas: embarcar, momentos e fotos -------------------------------
-const nM = 24;
+const nM = 64;
 const geoM = new THREE.BufferGeometry();
 const posM = new Float32Array(nM * 3), corM = new Float32Array(nM * 3), tamM = new Float32Array(nM), alfaM = new Float32Array(nM);
 geoM.setAttribute('position', new THREE.BufferAttribute(posM, 3).setUsage(THREE.DynamicDrawUsage));

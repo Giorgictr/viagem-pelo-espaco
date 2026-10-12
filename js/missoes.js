@@ -2,6 +2,7 @@
 // com dados, propagando a órbita (dois corpos) entre os pontos tabelados; cometas com núcleo, coma e caudas;
 // "momentos" marcantes de cada missão, com fotos reais (NASA e parceiros).
 import * as THREE from '../vendor/three.module.js';
+import { deltaT } from './corpos.js';
 
 const UA = 1.495978707e8;
 const jdDe = (iso) => Date.parse(iso) / 86400000 + 2440587.5;
@@ -60,6 +61,95 @@ export const MOMENTOS = {
   rosetta: [
     { iso: '2014-08-06T09:00Z', titulo: 'Chegada ao cometa 67P', texto: 'Depois de dez anos, a Rosetta passa a acompanhar o cometa: a primeira sonda a orbitar um.', olhar: '67p', foto: 'PIA19093', credito: 'ESA/Rosetta/NAVCAM (CC BY-SA IGO 3.0), dezembro de 2014' },
     { iso: '2016-09-30T10:39Z', titulo: 'Pouso final', texto: 'A Rosetta encerra a missão descendo suavemente sobre o núcleo do cometa.', olhar: '67p' },
+  ],
+  pioneer11: [
+    { iso: '1974-12-03T05:22Z', titulo: 'Passagem por Júpiter', texto: 'A 43 mil km das nuvens, três vezes mais perto que a Pioneer 10; a gravidade de Júpiter a lança rumo a Saturno.', olhar: 'jupiter' },
+    { iso: '1979-09-01T16:31Z', titulo: 'A primeira visita a Saturno', texto: 'Primeira sonda a passar por Saturno, a 21 mil km das nuvens. Descobre o anel F e abre caminho para as Voyager.', olhar: 'saturno' },
+  ],
+  galileo: [
+    { iso: '1990-02-10T05:59Z', titulo: 'Passagem por Vênus', texto: 'A primeira das três manobras de gravidade (Vênus, Terra, Terra) que levaram a Galileo até Júpiter.', olhar: 'venus' },
+    { iso: '1990-12-08T20:34Z', titulo: 'De volta à Terra', texto: 'Passagem a 960 km da Terra. A sonda procura sinais de vida na Terra como se fosse um planeta desconhecido, e encontra.', olhar: 'terra' },
+    { iso: '1994-07-20T00:00Z', titulo: 'O cometa que caiu em Júpiter', texto: 'Ainda a caminho, a Galileo vê diretamente os fragmentos do cometa Shoemaker-Levy 9 caírem no lado noturno de Júpiter.', olhar: 'jupiter' },
+    { iso: '1995-12-07T22:04Z', titulo: 'Chegada a Júpiter', texto: 'Primeira sonda a orbitar Júpiter. No mesmo dia, uma cápsula mergulha na atmosfera do planeta.', olhar: 'jupiter' },
+    { iso: '2003-09-21T18:57Z', titulo: 'Mergulho final', texto: 'Para não contaminar Europa, que pode ter um oceano com vida, a Galileo é lançada contra Júpiter.', olhar: 'jupiter' },
+  ],
+  ulysses: [
+    { iso: '1992-02-08T12:02Z', titulo: 'Júpiter muda o rumo', texto: 'A gravidade de Júpiter tira a Ulysses do plano dos planetas e a põe numa órbita que passa por cima dos polos do Sol.', olhar: 'jupiter' },
+    { iso: '1994-09-13T00:00Z', titulo: 'Sobre o polo sul do Sol', texto: 'Pela primeira vez, uma sonda observa o Sol de cima de um dos polos.', olhar: 'sol' },
+    { iso: '1995-07-31T00:00Z', titulo: 'Sobre o polo norte do Sol', texto: 'Menos de um ano depois, o outro polo.', olhar: 'sol' },
+  ],
+  messenger: [
+    { iso: '2008-01-14T19:04Z', titulo: 'Primeira passagem por Mercúrio', texto: 'A 200 km da superfície: a primeira visita a Mercúrio desde a Mariner 10, 33 anos antes.', olhar: 'mercurio' },
+    { iso: '2011-03-18T01:00Z', titulo: 'Em órbita de Mercúrio', texto: 'Primeira sonda a orbitar o planeta mais próximo do Sol. Encontra gelo de água no fundo das crateras dos polos.', olhar: 'mercurio' },
+    { iso: '2015-04-30T19:26Z', titulo: 'O fim', texto: 'Sem combustível, a MESSENGER cai em Mercúrio a 14 mil km/h, abrindo uma cratera de uns 16 metros.', olhar: 'mercurio' },
+  ],
+  dawn: [
+    { iso: '2009-02-17T23:28Z', titulo: 'Passagem por Marte', texto: 'Uma manobra de gravidade a caminho do cinturão de asteroides.', olhar: 'marte' },
+    { iso: '2011-07-16T00:00Z', titulo: 'Chegada a Vesta', texto: 'A Dawn passa a orbitar Vesta, o segundo maior corpo do cinturão de asteroides, por mais de um ano.' },
+    { iso: '2015-03-06T12:00Z', titulo: 'Chegada a Ceres', texto: 'Primeira sonda a orbitar dois corpos diferentes, e a primeira a visitar um planeta anão. Ceres tem manchas brilhantes de sal.' },
+  ],
+  stardust: [
+    { iso: '2004-01-02T19:22Z', titulo: 'Poeira do cometa Wild 2', texto: 'A 240 km do núcleo, a sonda recolhe poeira do cometa num bloco de aerogel.' },
+    { iso: '2006-01-15T10:12Z', titulo: 'A cápsula volta à Terra', texto: 'A cápsula com a poeira pousa em Utah: as primeiras amostras de um cometa trazidas à Terra.', olhar: 'terra' },
+  ],
+  deepimpact: [
+    { iso: '2005-07-04T05:52Z', titulo: 'Impacto no cometa Tempel 1', texto: 'Um projétil de 370 kg atinge o cometa a 37 mil km/h, e a sonda fotografa a nuvem de material lançada do interior.' },
+    { iso: '2010-11-04T13:50Z', titulo: 'Cometa Hartley 2', texto: 'Na missão estendida, a sonda passa pelo pequeno cometa Hartley 2, que solta jatos de gelo de dióxido de carbono.' },
+  ],
+  hayabusa2: [
+    { iso: '2018-06-27T00:00Z', titulo: 'Chegada a Ryugu', texto: 'A sonda japonesa alcança o asteroide Ryugu, um "pião" escuro de menos de 1 km.' },
+    { iso: '2019-04-05T02:00Z', titulo: 'Uma cratera artificial', texto: 'Um projétil abre uma cratera em Ryugu para expor material de baixo da superfície; depois, a sonda o recolhe.' },
+    { iso: '2020-12-05T17:30Z', titulo: 'Amostras de volta', texto: 'A cápsula pousa na Austrália com 5 gramas de Ryugu. A sonda segue viagem para outros asteroides.', olhar: 'terra' },
+  ],
+  osirisrex: [
+    { iso: '2018-12-03T00:00Z', titulo: 'Chegada a Bennu', texto: 'A sonda alcança o asteroide Bennu, que tem uma pequena chance de atingir a Terra no século 22.' },
+    { iso: '2020-10-20T22:08Z', titulo: 'O toque', texto: 'A sonda toca Bennu por alguns segundos. O solo, mais fofo que o esperado, quase a engole.' },
+    { iso: '2023-09-24T14:52Z', titulo: 'Amostras de volta', texto: 'A cápsula pousa em Utah com cerca de 120 gramas de Bennu. A sonda segue rumo ao asteroide Apophis, com o nome OSIRIS-APEX.', olhar: 'terra' },
+  ],
+  dart: [
+    { iso: '2022-09-26T23:14Z', titulo: 'Impacto em Dimorphos', texto: 'O primeiro teste de defesa planetária: a DART colide com a pequena lua Dimorphos e encurta a órbita dela em 32 minutos.' },
+  ],
+  lucy: [
+    { iso: '2022-10-16T11:04Z', titulo: 'Passagem pela Terra', texto: 'A 350 km de altitude, mais baixo que a ISS, ganhando impulso rumo ao cinturão de asteroides e aos troianos de Júpiter.', olhar: 'terra' },
+    { iso: '2023-11-01T16:54Z', titulo: 'Dinkinesh e uma surpresa', texto: 'No primeiro asteroide visitado, uma surpresa: uma lua formada por duas partes encostadas.' },
+    { iso: '2025-04-20T17:51Z', titulo: 'Donaldjohanson', texto: 'Asteroide batizado em homenagem ao descobridor do fóssil "Lucy", que dá nome à missão.' },
+  ],
+  psyche: [
+    { iso: '2023-10-14T00:00Z', titulo: 'A caminho de um mundo de metal', texto: 'A sonda segue para o asteroide Psyche, que pode ser o núcleo de metal de um planeta que não chegou a se formar. Chegada prevista para 2029.' },
+  ],
+  juice: [
+    { iso: '2024-08-19T21:16Z', titulo: 'Lua e Terra em seguida', texto: 'A primeira dupla manobra de gravidade da história: a sonda passa pela Lua e, um dia depois, pela Terra.', olhar: 'terra' },
+    { iso: '2025-08-31T05:28Z', titulo: 'Passagem por Vênus', texto: 'Mais impulso a caminho de Júpiter, onde chega em 2031 para estudar Ganimedes, Calisto e Europa.', olhar: 'venus' },
+  ],
+  europaclipper: [
+    { iso: '2025-03-01T17:57Z', titulo: 'Passagem por Marte', texto: 'A 884 km da superfície, a sonda ganha impulso e testa as câmeras. Chega a Júpiter em 2030.', olhar: 'marte' },
+    { iso: '2026-12-03T00:00Z', titulo: 'De volta à Terra', texto: 'A última manobra de gravidade antes de seguir para Júpiter e para Europa, a lua que pode esconder um oceano.', olhar: 'terra' },
+  ],
+  bepicolombo: [
+    { iso: '2021-10-01T23:34Z', titulo: 'Primeira passagem por Mercúrio', texto: 'A 199 km da superfície. A missão europeia e japonesa usa seis passagens por Mercúrio para conseguir entrar em órbita.', olhar: 'mercurio' },
+    { iso: '2025-01-08T05:59Z', titulo: 'Sexta e última passagem', texto: 'A sonda fotografa os polos de Mercúrio antes da chegada definitiva.', olhar: 'mercurio' },
+  ],
+  solarorbiter: [
+    { iso: '2022-03-26T00:00Z', titulo: 'Perto do Sol', texto: 'A 48 milhões de km do Sol, mais perto que Mercúrio, com um escudo térmico que aguenta 500 °C.', olhar: 'sol' },
+    { iso: '2025-03-20T00:00Z', titulo: 'Os polos do Sol', texto: 'Com a órbita inclinada, as primeiras imagens dos polos do Sol, onde nasce o ciclo das manchas solares.', olhar: 'sol' },
+  ],
+  artemis1: [
+    { iso: '2022-11-21T12:57Z', titulo: 'Rasante na Lua', texto: 'A cápsula Orion, sem tripulação, passa a 130 km da superfície da Lua.', olhar: 'lua' },
+    { iso: '2022-11-28T20:00Z', titulo: 'Mais longe que nunca', texto: 'A 432 mil km da Terra: a maior distância já alcançada por uma nave feita para levar pessoas.', olhar: 'terra' },
+    { iso: '2022-12-05T16:43Z', titulo: 'Segunda passagem pela Lua', texto: 'A manobra que põe a Orion no caminho de volta.', olhar: 'lua' },
+    { iso: '2022-12-11T17:00Z', titulo: 'De volta', texto: 'A cápsula entra na atmosfera a 40 mil km/h e pousa no Pacífico.', olhar: 'terra' },
+  ],
+  gaia: [
+    { iso: '2016-09-14T00:00Z', titulo: 'O mapa da galáxia', texto: 'Do ponto L2, a 1,5 milhão de km da Terra, o Gaia mede a posição e a distância de quase 2 bilhões de estrelas. Parte das estrelas desta simulação vem dele.' },
+  ],
+  soho: [
+    { iso: '1996-05-01T00:00Z', titulo: 'Vigiando o Sol', texto: 'Do ponto L1, entre a Terra e o Sol, a SOHO observa o Sol sem parar há décadas, e já descobriu mais de 5 mil cometas.', olhar: 'sol' },
+  ],
+  kepler: [
+    { iso: '2011-12-05T00:00Z', titulo: 'Planetas por toda parte', texto: 'O Kepler vigia 150 mil estrelas ao mesmo tempo, à espera da leve queda de brilho quando um planeta passa na frente. Encontrou mais de 2.600 planetas.' },
+  ],
+  spitzer: [
+    { iso: '2017-02-22T00:00Z', titulo: 'Os sete planetas de TRAPPIST-1', texto: 'O telescópio infravermelho confirma sete planetas do tamanho da Terra em volta da pequena estrela TRAPPIST-1.' },
   ],
   halley: [
     { iso: '1986-03-14T00:00Z', titulo: 'A visita de 1986', texto: 'Na passagem de 1986, várias sondas visitaram o Halley; a europeia Giotto fotografou o núcleo de perto. Na foto, o cometa visto da Terra em 8 de março de 1986.', olhar: 'cometa', foto: 'halley_lspn', credito: 'NASA/W. Liller (International Halley Watch)' },
@@ -200,6 +290,9 @@ export function criarMissoes(cena, PORID, materialRochoso) {
     const fotos = await (await fetch('dados/fotos/indice.json')).json().catch(() => ({}));
     for (const it of indice) {
       const dados = new Float64Array(await (await fetch(`dados/missoes/${it.id}.bin`)).arrayBuffer());
+      // o JPL dá os instantes em tempo dinâmico (TDB); a simulação conta em tempo civil (UT): ~1 minuto de diferença hoje
+      for (let k = 0; k < dados.length; k += 7) dados[k] -= deltaT(dados[k]) / 86400;
+      for (const sg of it.segmentos) { sg.jd0 -= deltaT(sg.jd0) / 86400; sg.jd1 -= deltaT(sg.jd1) / 86400; }
       const o = {
         ...it, dados, abs: new THREE.Vector3(), ativo: false, vel: new THREE.Vector3(), jd0: Infinity, jd1: -Infinity,
         raio: it.tipo === 'cometa' ? COMETAS[it.id][0] : 0.005, cor: it.tipo === 'cometa' ? 0xcfe3ff : 0xffe0a0,

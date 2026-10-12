@@ -297,6 +297,684 @@
   ]
  },
  {
+  "id": "pioneer11",
+  "nome": "Pioneer 11",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 2073,
+    "jd0": 2441779.5,
+    "jd1": 2462499.5
+   },
+   {
+    "centro": "jupiter",
+    "gm": 126686534.0,
+    "modo": "kepler",
+    "inicio": 2073,
+    "n": 61,
+    "jd0": 2442376.5,
+    "jd1": 2442391.5
+   },
+   {
+    "centro": "saturno",
+    "gm": 37931187.0,
+    "modo": "kepler",
+    "inicio": 2134,
+    "n": 113,
+    "jd0": 2444110.5,
+    "jd1": 2444124.5
+   }
+  ]
+ },
+ {
+  "id": "galileo",
+  "nome": "Galileo",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 1117,
+    "jd0": 2447819.5,
+    "jd1": 2450051.5
+   },
+   {
+    "centro": "venus",
+    "gm": 324859.0,
+    "modo": "kepler",
+    "inicio": 1117,
+    "n": 97,
+    "jd0": 2447930.5,
+    "jd1": 2447934.5
+   },
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "kepler",
+    "inicio": 1214,
+    "n": 97,
+    "jd0": 2448231.5,
+    "jd1": 2448235.5
+   },
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "kepler",
+    "inicio": 1311,
+    "n": 97,
+    "jd0": 2448962.5,
+    "jd1": 2448966.5
+   },
+   {
+    "centro": "jupiter",
+    "gm": 126686534.0,
+    "modo": "kepler",
+    "inicio": 1408,
+    "n": 11405,
+    "jd0": 2450052.5,
+    "jd1": 2452903.5
+   }
+  ]
+ },
+ {
+  "id": "ulysses",
+  "nome": "Ulysses",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 2281,
+    "jd0": 2448171.5,
+    "jd1": 2455011.5
+   },
+   {
+    "centro": "jupiter",
+    "gm": 126686534.0,
+    "modo": "kepler",
+    "inicio": 2281,
+    "n": 73,
+    "jd0": 2448656.5,
+    "jd1": 2448665.5
+   }
+  ]
+ },
+ {
+  "id": "messenger",
+  "nome": "MESSENGER",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 2417,
+    "jd0": 2453221.5,
+    "jd1": 2455637.5
+   },
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "kepler",
+    "inicio": 2417,
+    "n": 73,
+    "jd0": 2453583.5,
+    "jd1": 2453586.5
+   },
+   {
+    "centro": "venus",
+    "gm": 324859.0,
+    "modo": "kepler",
+    "inicio": 2490,
+    "n": 97,
+    "jd0": 2454030.5,
+    "jd1": 2454034.5
+   },
+   {
+    "centro": "venus",
+    "gm": 324859.0,
+    "modo": "kepler",
+    "inicio": 2587,
+    "n": 73,
+    "jd0": 2454255.5,
+    "jd1": 2454258.5
+   },
+   {
+    "centro": "mercurio",
+    "gm": 22031.78,
+    "modo": "kepler",
+    "inicio": 2660,
+    "n": 145,
+    "jd0": 2454478.5,
+    "jd1": 2454481.5
+   },
+   {
+    "centro": "mercurio",
+    "gm": 22031.78,
+    "modo": "kepler",
+    "inicio": 2805,
+    "n": 145,
+    "jd0": 2454744.5,
+    "jd1": 2454747.5
+   },
+   {
+    "centro": "mercurio",
+    "gm": 22031.78,
+    "modo": "kepler",
+    "inicio": 2950,
+    "n": 145,
+    "jd0": 2455102.5,
+    "jd1": 2455105.5
+   },
+   {
+    "centro": "mercurio",
+    "gm": 22031.78,
+    "modo": "kepler",
+    "inicio": 3095,
+    "n": 36121,
+    "jd0": 2455637.5,
+    "jd1": 2457142.5
+   }
+  ]
+ },
+ {
+  "id": "dawn",
+  "nome": "Dawn",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 4052,
+    "jd0": 2454371.5,
+    "jd1": 2458422.5
+   },
+   {
+    "centro": "marte",
+    "gm": 42828.37,
+    "modo": "kepler",
+    "inicio": 4052,
+    "n": 73,
+    "jd0": 2454878.5,
+    "jd1": 2454881.5
+   }
+  ]
+ },
+ {
+  "id": "stardust",
+  "nome": "Stardust",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 2208,
+    "jd0": 2451217.5,
+    "jd1": 2455631.5
+   },
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "kepler",
+    "inicio": 2208,
+    "n": 49,
+    "jd0": 2451923.5,
+    "jd1": 2451925.5
+   }
+  ]
+ },
+ {
+  "id": "deepimpact",
+  "nome": "Deep Impact",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 1565,
+    "jd0": 2453383.5,
+    "jd1": 2456511.5
+   }
+  ]
+ },
+ {
+  "id": "hayabusa2",
+  "nome": "Hayabusa2",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 2206,
+    "jd0": 2456995.5,
+    "jd1": 2461405.5
+   },
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "kepler",
+    "inicio": 2206,
+    "n": 73,
+    "jd0": 2457358.5,
+    "jd1": 2457361.5
+   },
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "kepler",
+    "inicio": 2279,
+    "n": 73,
+    "jd0": 2459187.5,
+    "jd1": 2459190.5
+   }
+  ]
+ },
+ {
+  "id": "osirisrex",
+  "nome": "OSIRIS-REx",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 2432,
+    "jd0": 2457640.5,
+    "jd1": 2462502.5
+   },
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "kepler",
+    "inicio": 2432,
+    "n": 73,
+    "jd0": 2458017.5,
+    "jd1": 2458020.5
+   },
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "kepler",
+    "inicio": 2505,
+    "n": 49,
+    "jd0": 2460210.5,
+    "jd1": 2460212.5
+   }
+  ]
+ },
+ {
+  "id": "dart",
+  "nome": "DART",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 612,
+    "jd0": 2459543.5,
+    "jd1": 2459849.0
+   }
+  ]
+ },
+ {
+  "id": "lucy",
+  "nome": "Lucy",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 1500,
+    "jd0": 2459504.5,
+    "jd1": 2462502.5
+   },
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "kepler",
+    "inicio": 1500,
+    "n": 73,
+    "jd0": 2459867.5,
+    "jd1": 2459870.5
+   },
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "kepler",
+    "inicio": 1573,
+    "n": 73,
+    "jd0": 2460655.5,
+    "jd1": 2460658.5
+   }
+  ]
+ },
+ {
+  "id": "psyche",
+  "nome": "Psyche",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 588,
+    "jd0": 2460231.5,
+    "jd1": 2461405.5
+   }
+  ]
+ },
+ {
+  "id": "juice",
+  "nome": "JUICE",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 1227,
+    "jd0": 2460049.5,
+    "jd1": 2462501.5
+   },
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "kepler",
+    "inicio": 1227,
+    "n": 145,
+    "jd0": 2460541.5,
+    "jd1": 2460544.5
+   },
+   {
+    "centro": "venus",
+    "gm": 324859.0,
+    "modo": "kepler",
+    "inicio": 1372,
+    "n": 73,
+    "jd0": 2460917.5,
+    "jd1": 2460920.5
+   },
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "kepler",
+    "inicio": 1445,
+    "n": 73,
+    "jd0": 2461311.5,
+    "jd1": 2461314.5
+   }
+  ]
+ },
+ {
+  "id": "europaclipper",
+  "nome": "Europa Clipper",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 953,
+    "jd0": 2460598.5,
+    "jd1": 2462502.5
+   },
+   {
+    "centro": "marte",
+    "gm": 42828.37,
+    "modo": "kepler",
+    "inicio": 953,
+    "n": 73,
+    "jd0": 2460734.5,
+    "jd1": 2460737.5
+   },
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "kepler",
+    "inicio": 1026,
+    "n": 97,
+    "jd0": 2461375.5,
+    "jd1": 2461379.5
+   }
+  ]
+ },
+ {
+  "id": "bepicolombo",
+  "nome": "BepiColombo",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 1498,
+    "jd0": 2458412.5,
+    "jd1": 2461406.5
+   },
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "kepler",
+    "inicio": 1498,
+    "n": 73,
+    "jd0": 2458948.5,
+    "jd1": 2458951.5
+   },
+   {
+    "centro": "venus",
+    "gm": 324859.0,
+    "modo": "kepler",
+    "inicio": 1571,
+    "n": 73,
+    "jd0": 2459136.5,
+    "jd1": 2459139.5
+   },
+   {
+    "centro": "venus",
+    "gm": 324859.0,
+    "modo": "kepler",
+    "inicio": 1644,
+    "n": 73,
+    "jd0": 2459435.5,
+    "jd1": 2459438.5
+   },
+   {
+    "centro": "mercurio",
+    "gm": 22031.78,
+    "modo": "kepler",
+    "inicio": 1717,
+    "n": 145,
+    "jd0": 2459487.5,
+    "jd1": 2459490.5
+   },
+   {
+    "centro": "mercurio",
+    "gm": 22031.78,
+    "modo": "kepler",
+    "inicio": 1862,
+    "n": 145,
+    "jd0": 2459752.5,
+    "jd1": 2459755.5
+   },
+   {
+    "centro": "mercurio",
+    "gm": 22031.78,
+    "modo": "kepler",
+    "inicio": 2007,
+    "n": 145,
+    "jd0": 2460113.5,
+    "jd1": 2460116.5
+   },
+   {
+    "centro": "mercurio",
+    "gm": 22031.78,
+    "modo": "kepler",
+    "inicio": 2152,
+    "n": 145,
+    "jd0": 2460556.5,
+    "jd1": 2460559.5
+   },
+   {
+    "centro": "mercurio",
+    "gm": 22031.78,
+    "modo": "kepler",
+    "inicio": 2297,
+    "n": 145,
+    "jd0": 2460644.5,
+    "jd1": 2460647.5
+   },
+   {
+    "centro": "mercurio",
+    "gm": 22031.78,
+    "modo": "kepler",
+    "inicio": 2442,
+    "n": 145,
+    "jd0": 2460682.5,
+    "jd1": 2460685.5
+   }
+  ]
+ },
+ {
+  "id": "solarorbiter",
+  "nome": "Solar Orbiter",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 3613,
+    "jd0": 2458890.5,
+    "jd1": 2462502.5
+   }
+  ]
+ },
+ {
+  "id": "artemis1",
+  "nome": "Artemis I (Orion)",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "hermite",
+    "inicio": 0,
+    "n": 1217,
+    "jd0": 2459899.875,
+    "jd1": 2459925.208333333
+   },
+   {
+    "centro": "lua",
+    "gm": 4902.8,
+    "modo": "kepler",
+    "inicio": 1217,
+    "n": 217,
+    "jd0": 2459904.0,
+    "jd1": 2459905.5
+   },
+   {
+    "centro": "lua",
+    "gm": 4902.8,
+    "modo": "kepler",
+    "inicio": 1434,
+    "n": 217,
+    "jd0": 2459918.0,
+    "jd1": 2459919.5
+   }
+  ]
+ },
+ {
+  "id": "gaia",
+  "nome": "Telescópio Gaia",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "hermite",
+    "inicio": 0,
+    "n": 4097,
+    "jd0": 2456665.5,
+    "jd1": 2460761.5
+   }
+  ]
+ },
+ {
+  "id": "soho",
+  "nome": "SOHO",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "terra",
+    "gm": 398600.44,
+    "modo": "hermite",
+    "inicio": 0,
+    "n": 11187,
+    "jd0": 2450128.5,
+    "jd1": 2461314.5
+   }
+  ]
+ },
+ {
+  "id": "kepler",
+  "nome": "Telescópio Kepler",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 1770,
+    "jd0": 2454898.5,
+    "jd1": 2458436.5
+   }
+  ]
+ },
+ {
+  "id": "spitzer",
+  "nome": "Telescópio Spitzer",
+  "tipo": "sonda",
+  "segmentos": [
+   {
+    "centro": "sol",
+    "gm": 132712440018.0,
+    "modo": "kepler",
+    "inicio": 0,
+    "n": 3001,
+    "jd0": 2452877.5,
+    "jd1": 2458877.5
+   }
+  ]
+ },
+ {
   "id": "halley",
   "nome": "Cometa Halley",
   "tipo": "cometa",
