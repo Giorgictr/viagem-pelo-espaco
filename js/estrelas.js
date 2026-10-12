@@ -2,17 +2,24 @@
 // dados/estrelas.bin: por estrela, x, y, z (parsecs, já no sistema da cena), magnitude absoluta, índice de cor B−V.
 import * as THREE from '../vendor/three.module.js';
 import { PC, AL, UA, OBLIQUIDADE } from './unidades.js';
+import { t, idioma, LOCALE } from './idioma.js';
 
 export const cat = { n: 0, dados: null, nomes: [], porNome: new Map() };
 
 const APELIDOS = {
   'Rigil Kentaurus': 'Alfa Centauri A', Toliman: 'Alfa Centauri B', Polaris: 'Polaris (Estrela Polar)',
 };
+const APELIDOS_IDIOMA = {
+  en: { 'Rigil Kentaurus': 'Alpha Centauri A', Toliman: 'Alpha Centauri B', Polaris: 'Polaris (North Star)' },
+  es: { 'Rigil Kentaurus': 'Alfa Centauri A', Toliman: 'Alfa Centauri B', Polaris: 'Polaris (Estrella Polar)' },
+};
 export const DESTAQUES = ['Proxima Centauri', 'Alfa Centauri A', 'Estrela de Barnard', 'Sirius', 'Procyon', 'Altair', 'Vega',
   'Fomalhaut', 'Arcturus', 'Pollux', 'Capella', 'Aldebaran', 'Regulus', 'Spica', 'Polaris (Estrela Polar)', 'Antares',
   'Betelgeuse', 'Rigel', 'Canopus', 'Deneb', 'Achernar'];
 
-const traduzir = (n) => APELIDOS[n] ?? n.replace(/^(.+)'s Star$/, 'Estrela de $1');
+// nome em português (usado como chave, por exemplo nos destaques) e no idioma da interface
+const emPt = (n) => APELIDOS[n] ?? n.replace(/^(.+)'s Star$/, 'Estrela de $1');
+const traduzir = (n) => idioma === 'pt' ? emPt(n) : APELIDOS_IDIOMA[idioma][n] ?? (idioma === 'es' ? n.replace(/^(.+)'s Star$/, 'Estrella de $1') : n);
 
 export async function carregarEstrelas() {
   const [bin, nomes] = await Promise.all([
@@ -26,9 +33,10 @@ export async function carregarEstrelas() {
     const nome = traduzir(n);
     cat.nomes.push({ i, nome });
     cat.porNome.set(nome, i);
+    cat.porNome.set(emPt(n), i);
     cat.nomeDe.set(i, nome);
   }
-  cat.nomes.sort((a, b) => a.nome.localeCompare(b.nome, 'pt'));
+  cat.nomes.sort((a, b) => a.nome.localeCompare(b.nome, LOCALE));
 }
 
 // Temperatura pela cor (Ballesteros 2012) e cor RGB de corpo negro (aproximação de Tanner Helland)
@@ -76,7 +84,7 @@ export function estrelaObj(i) {
   const d = cat.dados, k = i * 5;
   const { T, lum, raio } = fisica(d[k + 3], d[k + 4]);
   const o = {
-    id: `hyg${i}`, hyg: i, tipo: 'estrela', nome: cat.nomeDe.get(i) ?? `Estrela sem nome (HYG ${i})`,
+    id: `hyg${i}`, hyg: i, tipo: 'estrela', nome: cat.nomeDe.get(i) ?? t('Estrela sem nome (HYG {i})', { i }),
     abs: new THREE.Vector3(d[k], d[k + 1], d[k + 2]).multiplyScalar(PC),
     raio, lum, T, cor: corDeTemperatura(T).getHex(),
     soi: Math.min(Math.max(2000 * UA * Math.sqrt(lum), 0.05 * AL), 1 * AL),

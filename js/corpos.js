@@ -3,6 +3,7 @@
 import * as THREE from '../vendor/three.module.js';
 import * as Astro from '../vendor/astronomy.js';
 import { UA, AL, PC, GRAU, OBLIQUIDADE } from './unidades.js';
+import { t as tr } from './idioma.js';
 import { integrar, PLANETAS, poloEcliptica } from './orbita.js';
 
 // Elementos orbitais aproximados do JPL (Standish), válidos 1800–2050:
@@ -197,6 +198,7 @@ export const CORPOS = [
 ];
 
 export const PORID = Object.fromEntries(CORPOS.map((c) => [c.id, c]));
+for (const c of CORPOS) c.nome = tr(c.nome); // nome no idioma da interface
 
 // Base do equador de um corpo na cena: X = nodo (IAU, em RA+90°), Y = polo norte, Z = X × Y
 function baseEquador(c) {

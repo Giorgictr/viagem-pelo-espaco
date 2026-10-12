@@ -45,7 +45,7 @@ function porLongitude(pais, lat, lon) {
 
 // cidade = { pais, estado } mais próxima; devolve { zona, estimada }
 export function zonaDoLugar(cidade, lat, lon) {
-  const pais = semAcento(cidade?.pais), estado = semAcento(cidade?.estado);
+  const pais = semAcento(cidade?.paisPt ?? cidade?.pais), estado = semAcento(cidade?.estado);
   let zona = null;
   if (pais === 'brasil') zona = BRASIL[estado] || 'America/Sao_Paulo';
   else zona = porLongitude(pais, lat, lon) || PAISES[pais] || null;

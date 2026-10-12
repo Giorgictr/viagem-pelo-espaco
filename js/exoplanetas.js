@@ -7,12 +7,13 @@ import * as THREE from '../vendor/three.module.js';
 import { UA } from './unidades.js';
 import { cat } from './estrelas.js';
 import { equatorialParaCena } from './corpos.js';
+import { t, idioma } from './idioma.js';
 
 export const exo = { porHyg: new Map(), estrelas: [], planetas: 0, fonte: '', data: '' };
 const RAIO_TERRA = 6371, MASSA_SOL_EM_TERRAS = 332946;
 const GRAU = Math.PI / 180;
 
-const nomeEstrela = (n) => n.replace(/^(.+)'s [Ss]tar$/, 'Estrela de $1');
+const nomeEstrela = (n) => (idioma === 'en' ? n : n.replace(/^(.+)'s [Ss]tar$/, idioma === 'es' ? 'Estrella de $1' : 'Estrela de $1'));
 
 // Acrescenta as hospedeiras ao catálogo (antes de o céu ser montado)
 export async function carregarExoplanetas() {
@@ -109,12 +110,12 @@ export function corpoPlaneta(p, estrela) {
 // Texto curto para o painel
 export function resumoPlaneta(c, fmt) {
   const p = c.exo;
-  const partes = [c.tipoExo + ' (aparência ilustrativa)'];
-  partes.push(`${fmt(p.R)} vez${p.R >= 2 ? 'es' : ''} o raio da Terra${p.est & 1 ? ' (estimado pela massa)' : ''}`);
-  if (!(p.est & 2)) partes.push(`${fmt(p.M)} massa${p.M >= 2 ? 's' : ''} da Terra`);
-  if (p.P) partes.push(p.P < 2 ? `ano de ${fmt(p.P * 24)} horas` : p.P < 1000 ? `ano de ${fmt(p.P)} dias` : `ano de ${fmt(p.P / 365.25)} anos`);
-  if (p.Teq) partes.push(`cerca de ${String(Math.round(p.Teq - 273)).replace('-', '−')} °C (temperatura de equilíbrio, sem atmosfera)`);
-  partes.push(`descoberto em ${p.ano} por ${METODO[p.met] ?? p.met}`);
+  const partes = [t('{tipo} (aparência ilustrativa)', { tipo: t(c.tipoExo) })];
+  partes.push(t(p.R >= 2 ? '{n} vezes o raio da Terra' : '{n} vez o raio da Terra', { n: fmt(p.R) }) + (p.est & 1 ? t(' (estimado pela massa)') : ''));
+  if (!(p.est & 2)) partes.push(t(p.M >= 2 ? '{n} massas da Terra' : '{n} massa da Terra', { n: fmt(p.M) }));
+  if (p.P) partes.push(p.P < 2 ? t('ano de {n} horas', { n: fmt(p.P * 24) }) : p.P < 1000 ? t('ano de {n} dias', { n: fmt(p.P) }) : t('ano de {n} anos', { n: fmt(p.P / 365.25) }));
+  if (p.Teq) partes.push(t('cerca de {n} °C (temperatura de equilíbrio, sem atmosfera)', { n: String(Math.round(p.Teq - 273)).replace('-', '−') }));
+  partes.push(t('descoberto em {ano} por {met}', { ano: p.ano, met: t(METODO[p.met] ?? p.met) }));
   return partes.join(' · ');
 }
 const METODO = {

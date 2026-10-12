@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Journey Through Space Manual</title>
+<style>
+  :root {
+    --fundo: #f6f4ef; --papel: #ffffff; --texto: #22252b; --fraco: #5c6270; --linha: #e2ddd2;
+    --acento: #2f5fb3; --quente: #b5651d; --codigo: #efe9dc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+    font-size: 16px; line-height: 1.6; color: var(--texto);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --fundo: #0b0f18; --papel: #121826; --texto: #e3e8f3; --fraco: #9aa4b8; --linha: #263044; --acento: #8fb5ff; --quente: #ffc27a; --codigo: #1b2335; }
+  }
+  :root[data-theme="dark"] { --fundo: #0b0f18; --papel: #121826; --texto: #e3e8f3; --fraco: #9aa4b8; --linha: #263044; --acento: #8fb5ff; --quente: #ffc27a; --codigo: #1b2335; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); }
+  .tudo { display: grid; grid-template-columns: 250px minmax(0, 760px); gap: 40px; max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
+  nav { position: sticky; top: 24px; align-self: start; max-height: calc(100vh - 48px); overflow-y: auto; font-size: 14px; }
+  nav a { display: block; color: var(--fraco); text-decoration: none; padding: 3px 0; }
+  nav a:hover { color: var(--acento); }
+  nav b { display: block; margin: 0 0 8px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--fraco); }
+  nav.idiomas { position: static; max-height: none; overflow: visible; columns: auto; max-width: 1100px; margin: 0 auto; padding: 12px 24px 0; text-align: right; font-size: 13px; }
+  nav.idiomas a { display: inline; color: var(--acento); padding: 0; }
+  nav.idiomas b { display: inline; margin: 0; font-size: inherit; letter-spacing: normal; text-transform: none; color: var(--texto); }
+  header { margin-bottom: 28px; }
+  h1 { font-size: 34px; line-height: 1.15; margin: 0 0 8px; letter-spacing: -.01em; }
+  .lead { font-size: 18px; color: var(--fraco); margin: 0; }
+  h2 { font-size: 23px; margin: 48px 0 10px; padding-top: 8px; border-top: 1px solid var(--linha); }
+  h3 { font-size: 17px; margin: 24px 0 6px; }
+  p, li { max-width: 68ch; }
+  a { color: var(--acento); }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0 18px; font-size: 15px; background: var(--papel); border-radius: 8px; overflow: hidden; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--linha); vertical-align: top; }
+  th { font-size: 12.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--fraco); font-weight: 600; }
+  kbd { font: 600 13px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--codigo); border: 1px solid var(--linha); border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px; white-space: nowrap; }
+  code { font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--codigo); padding: 1px 5px; border-radius: 4px; }
+  .nota { background: var(--papel); border-left: 3px solid var(--quente); padding: 10px 14px; border-radius: 6px; margin: 14px 0; }
+  .passos { counter-reset: p; list-style: none; padding: 0; }
+  .passos li { counter-increment: p; position: relative; padding-left: 38px; margin: 10px 0; }
+  .passos li::before { content: counter(p); position: absolute; left: 0; top: 1px; width: 26px; height: 26px; border-radius: 50%; background: var(--acento); color: var(--papel); font-weight: 700; display: grid; place-items: center; font-size: 14px; }
+  .real { color: #2e8b57; font-weight: 600; } .ilus { color: var(--quente); font-weight: 600; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .real { color: #6fd39b; } }
+  @media (max-width: 860px) { .tudo { grid-template-columns: 1fr; gap: 0; padding: 20px 16px 60px; } nav { position: static; max-height: none; margin-bottom: 20px; columns: 2; } h1 { font-size: 28px; } table { font-size: 14px; } nav.idiomas { columns: auto; margin-bottom: 0; padding: 12px 16px 0; } }
+  @media print { nav { display: none; } .tudo { display: block; } h2 { break-after: avoid; } }
+  .destaques { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin: 12px 0 18px; }
+  .destaque { border: 1px solid rgba(127,127,127,.3); border-radius: 10px; padding: 10px 12px; }
+  .destaque b.num { display: block; font-size: 22px; line-height: 1.2; }
+  .destaque span { font-size: 14px; opacity: .85; }
+</style>
+<script data-goatcounter="https://viagem-pelo-espaco.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+<nav class="idiomas"><a href="manual.html">Português</a> · <b>English</b> · <a href="manual.es.html">Español</a></nav>
+<div class="tudo">
+<nav aria-label="Contents">
+  <b>Contents</b>
+  <a href="#destaques">Highlights</a>
+  <a href="#abrir">How to open</a>
+  <a href="#primeiros">Getting started</a>
+  <a href="#controles">Controls</a>
+  <a href="#velocidade">Speed and trips</a>
+  <a href="#ondeestou">"Where am I" panel</a>
+  <a href="#sistema">Solar System</a>
+  <a href="#pouso">Landing and walking</a>
+  <a href="#estrelas">Stars</a>
+  <a href="#galaxias">Milky Way and galaxies</a>
+  <a href="#efeitos">Warp and relativity</a>
+  <a href="#som">Sound and music</a>
+  <a href="#foto">Photo mode</a>
+  <a href="#vr">Virtual reality headsets</a>
+  <a href="#eclipses">Eclipses</a>
+  <a href="#roteiros">Guided tours</a>
+  <a href="#detalhe">Mars, Moon and Mercury up close</a>
+  <a href="#exoplanetas">Exoplanets</a>
+  <a href="#sondas">Probes, comets and satellites</a>
+  <a href="#terra">Earth up close</a>
+  <a href="#ceu">Looking at the sky</a>
+  <a href="#tempo">Earth through time</a>
+  <a href="#chaves">All the toggles</a>
+  <a href="#real">Real or illustrative?</a>
+  <a href="#normal">Is this normal?</a>
+  <a href="#limites">System limits</a>
+  <a href="#fontes">Data sources</a>
+  <a href="#problemas">Common problems</a>
+</nav>
+
+<main>
+<header>
+  <h1>Journey Through Space (Viagem pelo Espaço): manual</h1>
+  <p class="lead">A 3D journey through the known universe, from your street to the edge of the observable universe, with real positions, distances and light travel times, and an adjustable speed of up to 10¹⁸ times the speed of light.</p>
+</header>
+
+<h2 id="destaques">Highlights</h2>
+<p>From the ground in your city to the edge of the observable universe, in a browser, with nothing to install, free and ad-free.</p>
+<div class="destaques">
+  <div class="destaque"><b class="num">3 million</b><span>real stars (HYG and Gaia DR3 catalogs, from ESA), each one at its 3D position, with real color and brightness</span></div>
+  <div class="destaque"><b class="num">43,000</b><span>real galaxies from the 2MRS survey, plus the Milky Way from NASA's real map</span></div>
+  <div class="destaque"><b class="num">5,398</b><span>nebulae, clusters and galaxies of the deep sky (Messier, NGC and IC), with real shape and size</span></div>
+  <div class="destaque"><b class="num">10,717</b><span>asteroids and comets, each on its own orbit (JPL)</span></div>
+  <div class="destaque"><b class="num">30 probes</b><span>and 5 comets with the real JPL trajectories, from 1972 to today; 20 in 3D and real photos of the milestone moments</span></div>
+  <div class="destaque"><b class="num">11,000</b><span>satellites in real time, from the ISS to the Starlink trains; board the ISS and see the Earth through the window</span></div>
+  <div class="destaque"><b class="num">913</b><span>eclipses from 1900 to 2100 (NASA calendar), with the shadow calculated and the maximum seen from any city</span></div>
+  <div class="destaque"><b class="num">Arcseconds</b><span>of precision for the planets and the Moon (VSOP87), over millennia; eclipses within seconds of the reference tables</span></div>
+  <div class="destaque"><b class="num">Any sky</b><span>from any place and date, with the official local time of the era, a 1 to 500× telescope, light pollution, refraction, 88 constellations and 13 meteor showers</span></div>
+  <div class="destaque"><b class="num">10 m</b><span>satellite imagery and 30 m terrain across the whole Earth, 7,335 cities, 3D buildings, real clouds for every day since 2000 and city lights at night</span></div>
+  <div class="destaque"><b class="num">500 million years</b><span>of ancient Earth: Ice Age, end of the dinosaurs, Pangaea and Cambrian, with adjustable sea level</span></div>
+  <div class="destaque"><b class="num">100 m</b><span>real close-up imagery of the Moon (LRO), 330 m of Mars (Viking) and 230 m of Mercury (MESSENGER)</span></div>
+  <div class="destaque"><b class="num">6,410</b><span>confirmed exoplanets around 4,808 stars (NASA), visitable, with the orbits and habitable zone of each system</span></div>
+  <div class="destaque"><b class="num">170 m</b><span>real terrain at the Apollo landing sites, at Tycho and Copernicus; 330 m at Olympus Mons, Valles Marineris and the Mars rover landing sites; under 1 km across the whole Moon and Mercury</span></div>
+  <div class="destaque"><b class="num">Physical sky</b><span>blue, orange sunset and twilight calculated from the physics of light in air (Earth and Mars, with the bluish Martian sunset)</span></div>
+  <div class="destaque"><b class="num">5 km/h to 10¹⁸ c</b><span>of speed, with true relativity (aberration, Doppler, onboard time) or movie-style "warp"</span></div>
+  <div class="destaque"><b class="num">4 guided tours</b><span>Solar System Grand Tour, Following Voyager 1, From Earth to the edge of the universe and A night in the sky</span></div>
+  <div class="destaque"><b class="num">Honest</b><span>this manual separates what is real, what is illustrative and what is a limit, and explains what looks like a bug but is natural</span></div>
+  <div class="destaque"><b class="num">Everywhere</b><span>computer, phone and tablet (automatic light mode) and, in testing, virtual reality headsets (Meta Quest)</span></div>
+  <div class="destaque"><b class="num">Private</b><span>no sign-up, no cookies; the visit counter stores no personal data</span></div>
+</div>
+
+<h2 id="abrir">How to open</h2>
+<ol class="passos">
+  <li><b>Online</b>: <a href="https://giorgictr.github.io/viagem-pelo-espaco/">giorgictr.github.io/viagem-pelo-espaco</a>. It works in any modern browser, including the Meta Quest one. The "My music" option only exists in the computer version.</li>
+  <li><b>On your computer</b>: in the <code>Simulação 3D</code> folder, double-click <b>Abrir Viagem.command</b>. It starts a small server on your own computer and opens the browser. The first time, macOS may ask for confirmation: right-click the file, choose <b>Open</b> and confirm.</li>
+  <li>If you prefer to open it by hand, the address is <code>http://127.0.0.1:8743</code>. It works in Chrome, Safari and other browsers.</li>
+  <li>The internet is only needed to see the Earth up close (terrain, satellite imagery and night lights), and the Moon, Mars and Mercury (terrain and imagery). Everything else works offline.</li>
+</ol>
+
+<h2 id="primeiros">Getting started</h2>
+<ol class="passos">
+  <li>On your first visit, the <b>Where to start?</b> screen appears, with six shortcuts: land in your city, the sky on a special date (the day you were born, for example), board the ISS right now, the Pale Blue Dot with Voyager 1, fly to Saturn and Pangaea Earth. It comes back with the <b>Home</b> button in the "Time and display" panel.</li>
+  <li><b>Light mode</b> (on the same screen): turns off the 3D buildings and the physical atmosphere, uses fewer pixels and hides the belts. It turns on by itself on phones, tablets and computers with little memory, and also if the simulation is slow in the first few seconds; your choice is saved in the browser.</li>
+  <li>You start near the Earth. <b>Drag the mouse</b> to look around and use the <b>mouse wheel</b> to change the speed.</li>
+  <li>In the <b>Destination</b> panel, pick a place (the Moon, for example), check <b>arrive in 12 s</b> and click <b>Go</b>.</li>
+  <li>Try the <b>search</b>: type "Saturn", "Betelgeuse", "Rio de Janeiro" or "Everest" and press <kbd>Enter</kbd>. The ship sets off for there.</li>
+  <li>Press <kbd>H</kbd> at any time to see a summary of the controls.</li>
+</ol>
+
+<h2 id="controles">Controls</h2>
+<table>
+  <tr><th>Action</th><th>Keyboard and mouse</th><th>Touch</th></tr>
+  <tr><td>Look around</td><td>drag the mouse</td><td>drag a finger</td></tr>
+  <tr><td>Forward / reverse</td><td><kbd>↑</kbd> <kbd>↓</kbd> or <kbd>W</kbd> <kbd>S</kbd></td><td>▲ ▼ buttons</td></tr>
+  <tr><td>Turn left / right</td><td><kbd>←</kbd> <kbd>→</kbd></td><td>drag</td></tr>
+  <tr><td>Pitch up / down</td><td><kbd>Shift</kbd> + <kbd>↑</kbd> <kbd>↓</kbd></td><td>drag</td></tr>
+  <tr><td>Slide sideways · move up and down</td><td><kbd>A</kbd> <kbd>D</kbd> · <kbd>R</kbd> <kbd>F</kbd></td><td>—</td></tr>
+  <tr><td>Roll the ship</td><td><kbd>Q</kbd> <kbd>E</kbd></td><td>—</td></tr>
+  <tr><td>Speed</td><td>mouse wheel, <kbd>+</kbd> <kbd>−</kbd></td><td>+ − buttons</td></tr>
+  <tr><td>Cruise (keeps going forward on its own)</td><td><kbd>C</kbd></td><td>—</td></tr>
+  <tr><td>Stop everything</td><td><kbd>Space</kbd></td><td>—</td></tr>
+  <tr><td>Go to the chosen destination</td><td><kbd>G</kbd>, or double-click a name</td><td>Go button</td></tr>
+  <tr><td>Land</td><td><kbd>P</kbd></td><td>Land button</td></tr>
+  <tr><td>Quick help</td><td><kbd>H</kbd></td><td>—</td></tr>
+</table>
+<p>On small screens, the <b>☰</b> button hides and shows the panels.</p>
+
+<h2 id="velocidade">Speed and trips</h2>
+<p>The speed control is logarithmic: each segment of the bar multiplies the speed, from 3.6 km/h (a walking step) up to about 10¹⁸ times the speed of light. The shortcuts take you straight to well-known speeds: on foot, car, airplane, the Parker probe (the fastest ever launched), 90% and 99% of light speed, light speed, and from 1 light-year per second up to 1 billion light-years per second.</p>
+<h3>Autopilot, in two modes</h3>
+<ul>
+  <li><b>At the chosen speed</b> (real time): at the speed of light, the Moon is 1.3 s away and Proxima Centauri is a true 4.2 years away. The panel shows how much is left.</li>
+  <li><b>Arrive in N seconds</b>: the speed rises and falls by itself to arrive in the requested time, however far the destination is.</li>
+</ul>
+<p><b>Starting point</b> takes you straight to any body in the list. <b>Proximity brake</b> (in "Time and display") slows you down near planets and stars so you don't fly right past them.</p>
+<div class="nota">Above the speed of light the trip is fiction, a "warp drive". Positions, distances and light travel times remain real.</div>
+
+<h2 id="ondeestou">"Where am I" panel</h2>
+<ul>
+  <li><b>Following</b>: the body whose motion the camera follows. Near the Earth, you follow the Earth along its orbit.</li>
+  <li><b>Closest</b> and <b>To the surface</b>: the nearest body and your altitude above its ground.</li>
+  <li><b>Coordinates</b>: latitude and longitude of the point below you.</li>
+  <li><b>From Earth</b>, <b>Light from Earth</b> and <b>From Sun</b>: distances, and how long the light takes.</li>
+  <li><b>This light left</b>: when the light reaching you now left the Earth, and what was happening here at that time. At the edge of the universe, this time accounts for the expansion of the universe.</li>
+</ul>
+
+<h2 id="sistema">Solar System</h2>
+<ul>
+  <li>Planets at <b>today's positions</b>, calculated with the VSOP87 theory (astronomy-engine library), with errors of arcseconds over millennia. The <b>Moon</b> uses a full model, also with arcsecond-level error, and dynamical time (ΔT) is applied automatically. The tilt and rotation of the planets follow IAU data, and Earth's axis includes precession (the slow wobble of the axis over the centuries).</li>
+  <li>21 moons, Saturn's rings with the planet's shadow, atmospheres (a halo seen from outside, a sky seen from inside), Earth's clouds, the asteroid belt, Jupiter Trojans and the Kuiper belt.</li>
+  <li><b>Time</b>: <b>Orbits moving / paused</b> (<kbd>T</kbd>); <b>Pace</b>, from real time up to 10 years per second, including backward; <b>Now</b> returns to the current date.</li>
+  <li><b>Names</b> (<kbd>L</kbd>), <b>Orbits</b> (<kbd>O</kbd>), <b>Belts</b>, <b>Constellation names</b>, <b>Constellation lines</b> and <b>Radio bubble</b> turn on and off. The constellations only make sense near the Solar System: from ~50 light-years out, the pattern fades, because the stars change places in the sky.</li>
+</ul>
+<h3>Radio bubble</h3>
+<p>This is the sphere reached by human radio transmissions since 1920, today about 106 light-years across, growing with the simulation date. When you leave it, a notice says that no human signal has reached that far yet.</p>
+
+<h2 id="detalhe">Mars, Moon and Mercury up close</h2>
+<p>Below an altitude equal to the body's radius, the <b>Moon</b>, <b>Mars</b> and <b>Mercury</b> are drawn in tiles, like the Earth: real terrain and high-resolution imagery, loaded during flight, with more detail the closer you get. You can see the crater Tycho with its terraced walls and central peak, or descend through the canyons of Valles Marineris.</p>
+<ul>
+  <li><b>Terrain</b>: the whole body with one point every ~670 m on the Moon (LRO LOLA), ~1.3 km on Mars (HRSC and MOLA) and ~940 m on Mercury (MESSENGER). In highlighted regions, one point every ~170 m on the Moon (the Apollo 11, 12, 14, 15, 16 and 17 landing sites, Chang'e 3 and 4, Tycho, Copernicus and Aristarchus) and ~330 m on Mars (Olympus Mons, center of Valles Marineris, Gale, Jezero, Gusev, Meridiani, Utopia, Elysium, Chryse and Ares Vallis; the rest of Valles Marineris at ~650 m). The credits line at the bottom shows the terrain resolution at the point where you are.</li>
+  <li><b>Imagery</b>: NASA Trek, the <b>Moon</b> from the LRO wide-angle camera (~100 m per pixel), <b>Mars</b> from the Viking color mosaic (~330 m) and <b>Mercury</b> from MESSENGER (~230 m).</li>
+  <li>Closer than that, the invented detail (toggle <kbd>I</kbd>) continues on top: rocks and small craters that are not in the data.</li>
+  <li>The photo already carries the shadows of the real terrain; lighting calculated from the terrain counts for a little less on top of it, so the shadow isn't doubled.</li>
+  <li>The photos were taken with a different Sun position: the shadows drawn in them do not change with the simulation time.</li>
+  <li>Needs internet; while the images arrive, the global texture is shown.</li>
+</ul>
+
+<h2 id="exoplanetas">Exoplanets</h2>
+<p>Confirmed planets around other stars (NASA Exoplanet Archive catalog, October 2026: 6,410 of 6,445 have a known distance) are in their places. Search by planet name ("Proxima Cen b", "TRAPPIST-1 e", "51 Peg b") or star name ("TRAPPIST-1 · star with 7 planets") and go there. Stars that were not in the star catalog (most of the Kepler discoveries, faint and distant) were added to it.</p>
+<ul>
+  <li>Near a star with planets, they appear with name and orbit, and you can follow them, get close and land on the rocky ones (<kbd>P</kbd>). When you visit the star, you arrive from above the plane of the orbits, from where the whole system is visible.</li>
+  <li><b>Green band</b>: the habitable zone, where an Earth-like planet could have liquid water on its surface (conservative limits from Kopparapu et al., 2013). In TRAPPIST-1, planets e, f and g fall within it.</li>
+  <li><b>What is real</b>: size and orbital period, eccentricity and, when measured, the inclination and the argument of periastron. For planets that pass in front of their star (transit), the position along the orbit is also real, calculated from the transit times.</li>
+  <li><b>What is approximate</b>: the orientation of the orbit in the sky (the node angle can't be measured) and, when missing, the inclination (89° for transiting planets, 60° for the rest). Without a measured radius, it is estimated from the mass (and vice versa), and the panel says so.</li>
+  <li><b>What is illustrative</b>: the appearance. The color of each planet only indicates the type (rocky, mini-Neptune, ice giant, hot Jupiter…), based on size and equilibrium temperature. Nobody has photographed the surface of an exoplanet.</li>
+  <li>The "Where am I" panel shows, for the nearest planet (or the target), its size, mass, length of year, equilibrium temperature and how and when it was discovered. The equilibrium temperature is that of a body without an atmosphere: by this calculation, the Earth would be −18 °C.</li>
+  <li>In systems with more than 8 known planets, the 8 innermost are shown.</li>
+</ul>
+
+<h2 id="pouso">Landing and walking</h2>
+<p>Near a rocky planet or a moon, press <kbd>P</kbd>: the ship descends to eye level (1.8 m). On the ground, the arrow keys make you walk following the terrain and <kbd>R</kbd> takes off. Gas giants have no ground.</p>
+<ul>
+  <li><b>Terrain: real / exaggerated ×10</b> (<kbd>X</kbd>): shows the mountains at their true size or ten times taller.</li>
+  <li><b>Invented detail / real data only</b> (<kbd>I</kbd>): up close, the ground of Mars and the moons gains procedural rocks and undulations. Turned off, only the measured data appears.</li>
+  <li><b>Level horizon</b> (<kbd>N</kbd>) and <b>Rotate with the planet</b> (<kbd>J</kbd>): near the ground, the horizon stays level and you follow the rotation, like someone standing on the ground.</li>
+</ul>
+
+<h2 id="estrelas">Stars</h2>
+<ul>
+  <li>109,000 real stars (HYG catalog), each one at its 3D position, with real brightness and color, plus <b>3 million Gaia stars</b> (ESA), down to magnitude 12 (those from 11 to 12, about 1.8 million, are only downloaded once the telescope can reach them): with them, clusters and star clouds gain body, and the telescope shows many more stars. As you travel, the constellations really deform. Gaia stars can't be visited (they have no name or sphere) and are turned off in light mode.</li>
+  <li>The 6 stars closest to you become spheres with a granulated surface. Size and color are estimated from the star type, so you can fly right up to the surface of Betelgeuse.</li>
+  <li>The brightest named stars as seen from your point get a label. Click a name to pick it as your destination; double-click to go.</li>
+  <li><b>Naked-eye / enhanced sky</b> (<kbd>K</kbd>): what a person would see (about 9,000 stars visible from Earth) or many more.</li>
+</ul>
+
+<h2 id="galaxias">Milky Way and galaxies</h2>
+<ul>
+  <li><b>Milky Way</b>: near the Sun, the band in the sky is the <b>real map</b> of the whole sky made by NASA with 1.7 billion stars from Gaia, Hipparcos and Tycho (Deep Star Maps 2020): the dark Great Rift, the Sagittarius star clouds, the Magellanic Clouds. The <b>Milky Way: real map / model</b> toggle swaps it for the map calculated from the 3D model. Far from the Sun (hundreds of light-years), the map stops being valid and the galaxy's 3D model (bar, arms, dust) takes over. Destination: "Milky Way (seen from outside)".</li>
+  <li><b>22 famous galaxies</b> (Andromeda, Magellanic Clouds, Whirlpool, Sombrero…) at approximate position, distance and tilt. The shape is drawn by the program; it's not a photo.</li>
+  <li><b>43,000 real galaxies</b> from the 2MRS survey, out to ~2.4 billion light-years: from far away, the cosmic web appears.</li>
+  <li><b>Distant galaxies: illustrative / catalogued only</b> (<kbd>U</kbd>): beyond the catalog, space can be filled with invented clusters to give a sense of scale.</li>
+  <li><b>Edge of the observable universe</b>: an illustrative shell at ~46 billion light-years, with the cosmic microwave background pattern.</li>
+</ul>
+
+<h2 id="efeitos">Warp and relativity</h2>
+<p>The <kbd>B</kbd> key switches the visual effect of speed:</p>
+<ul>
+  <li><b>Warp (cinema)</b>: above light speed, the stars turn into streaks, with a flash and sound when entering and leaving warp.</li>
+  <li><b>Relativity (real)</b>: what a traveler would truly see near light speed. The sky bunches up ahead, the stars ahead turn blue and those behind turn red, and the panel shows the γ factor ("1 s on board = 2.29 s on Earth" at 90% of light speed) and the onboard travel time. Above light speed there is no real physics: the sky is shown as at 99.5% of light speed.</li>
+  <li><b>None</b>.</li>
+</ul>
+
+<h2 id="som">Sound and music</h2>
+<p>The engine sound follows the speed, and there is wind near planets and inside atmospheres. Everything is synthesized on the spot. <b>Sound on</b> (<kbd>M</kbd>) and the volume control are in the speed panel. For music, there are three options:</p>
+<ul>
+  <li><b>Generated music</b>: changes mood in the Solar System, among the stars and in the galaxy.</li>
+  <li><b>My music</b>: put MP3 files (or M4A, OGG, WAV) in the <code>musica</code> folder. They play in random order, with a next-track button.</li>
+  <li><b>No music</b>.</li>
+</ul>
+<p>The browser only allows sound after the first click or key press.</p>
+
+<h2 id="foto">Photo mode</h2>
+<p><kbd>Tab</kbd> hides the panels and <kbd>Enter</kbd> saves the image as a PNG. The saved image does not include the on-screen names.</p>
+<p><b>Focus mode</b> (<kbd>.</kbd> or the "Focus mode" button in the "Time and display" panel): hides the panels so you travel with just the view, keeping the crosshair and the names. The ☰ button, in the corner, brings everything back. Your choice is saved for your next visit.</p>
+
+<h2 id="vr">Virtual reality headsets</h2>
+<p><strong>Prototype.</strong> On headsets with a WebXR-compatible browser (such as the Meta Quest), the <em>Enter VR</em> button appears at the bottom. On a regular computer it doesn't appear and nothing changes.</p>
+<table>
+  <tr><th>Action</th><th>Control</th></tr>
+  <tr><td>Look around</td><td>turn your head (taking a step also shifts the view, at real scale)</td></tr>
+  <tr><td>Move where you look · sideways</td><td>left joystick, at the chosen speed</td></tr>
+  <tr><td>Accelerate · brake</td><td>left trigger · left grip (side button)</td></tr>
+  <tr><td>Turn 30°</td><td>right joystick to the side</td></tr>
+  <tr><td>Choose a target</td><td>point the right controller's ray and pull the right trigger</td></tr>
+  <tr><td>Board · disembark (probes, comets, ISS, Hubble, Tiangong)</td><td><kbd>A</kbd></td></tr>
+  <tr><td>Go to the target</td><td><kbd>B</kbd></td></tr>
+  <tr><td>Stop · switch the effect (relativity / none)</td><td><kbd>X</kbd> · <kbd>Y</kbd></td></tr>
+</table>
+<p>On the left hand there is a panel with the speed, target, distance, date and notices. The target's name floats just below it.</p>
+<p><strong>Prototype limits:</strong></p>
+<ul>
+  <li>Automatic light mode: no tiled Earth (terrain, cities, borders), "simple" atmosphere and no warp effect, which is a screen effect. Relativity still works. When you take the headset off, everything goes back to how it was.</li>
+  <li>On-screen names, panels and menus do not appear in the headset. There you only see the target's name and the hand panel. To change the date, the epochs or the sky mode, take the headset off and use the screen.</li>
+  <li>Points and bodies appear at their resting position: with relativity, the target chosen by the ray may be a little displaced from what you see.</li>
+  <li>Automatic trips, horizon leveling and "rotate with the planet" rotate the whole body, which can cause motion sickness. If it bothers you, turn off "Level horizon" before entering.</li>
+  <li>On the Quest, the simplest way is to open the web address (giorgictr.github.io/viagem-pelo-espaco), which is already secure. To use the computer version, the headset's browser needs a secure address: connect the headset to the Mac by cable and use <code>adb reverse tcp:8743 tcp:8743</code> to open <code>http://localhost:8743</code>, or serve the site over HTTPS. The local server only answers to the Mac itself.</li>
+  <li>Tested in the emulator (Immersive Web Emulator, Meta Quest 3), not yet on a real Quest. Performance in the headset has not been measured.</li>
+</ul>
+
+<h2 id="sondas">Probes, comets and satellites</h2>
+<p>Board real probes and comets, with the real trajectories calculated by JPL (NASA), and relive the milestone moments of each mission with real photos.</p>
+<ul>
+  <li><b>Probes (30):</b>
+    <ul>
+      <li>outer planets: Voyager 1 and 2, Pioneer 10 and 11, Galileo, Cassini, Juno, New Horizons, JUICE, Europa Clipper;</li>
+      <li>Sun and inner planets: Parker Solar Probe, Solar Orbiter, Ulysses, SOHO, MESSENGER, BepiColombo;</li>
+      <li>asteroids and comets: Rosetta, Dawn, Stardust, Deep Impact, Hayabusa2, OSIRIS-REx, DART, Lucy, Psyche;</li>
+      <li>telescopes: James Webb, Gaia, Kepler, Spitzer;</li>
+      <li>Moon: Artemis I (the uncrewed Orion capsule, in 2022).</li>
+    </ul>
+  Checked against official distances: Artemis I at 135 km from the Moon, MESSENGER at 202 km from Mercury, Juno at 562 km from Earth, Voyager 2 at 4,618 km from Neptune.</li>
+  <li><b>Comets:</b> Halley, Hale-Bopp, NEOWISE, 67P/Churyumov-Gerasimenko and 3I/ATLAS, the interstellar visitor of 2025.</li>
+  <li><b>How to board:</b> search for the name ("voyager 1", "halley") and press <kbd>Enter</kbd>; or pick it in Destination and click <b>Board</b>; or double-click the name in the sky.</li>
+  <li><b>On board</b>, the mission panel shows:
+    <ul>
+      <li>the date and the distance from the Sun and Earth;</li>
+      <li>the speed relative to the Sun;</li>
+      <li>how long a signal takes to reach Earth;</li>
+      <li>a <b>timeline</b> of the whole mission and pace buttons (real time, 1 day, 1 month or 1 year per second);</li>
+      <li>and, when the mission is still active, the <b>Now</b> button: what the probe "sees" today.</li>
+    </ul>
+  </li>
+  <li><b>Moments</b>: a list of the highlights of each mission (for example, the Pale Blue Dot, Neptune, Pluto, "the day the Earth smiled", the Great Red Spot, the first deep field of the James Webb). When you click, the date changes, the camera turns to the target and, when there is one, the <b>real photo</b> appears next to the simulated scene. Moments with a photo have 📷.</li>
+  <li><b>Comets</b> have a nucleus, a coma and two tails, which grow near the Sun: the gas tail, bluish and straight, points away from the Sun; the dust tail, yellowish, curves back along the orbit.</li>
+  <li><b>View: inside / outside</b>: in the "On board" panel, it shows the probe in 3D, at real size, lit by the Sun, and the camera orbits around it as you drag. There are models of 20 of them (Voyager, Pioneer, Galileo, Cassini, Juno, Ulysses, MESSENGER, Dawn, Stardust, Deep Impact, OSIRIS-REx, Parker, James Webb, Kepler, Spitzer, Rosetta, Hubble, ISS…); the others, the comets and Tiangong have no model. The probe's orientation is approximate.</li>
+  <li>To leave, click <b>Disembark</b> or pick another destination.</li>
+</ul>
+<h3>Real-time satellites</h3>
+<ul>
+  <li>The <b>International Space Station</b>, the <b>Hubble Telescope</b> and the Chinese station <b>Tiangong</b> are where they are right now. When you open the page, the program downloads the latest orbital elements from CelesTrak and calculates the position with the standard SGP4 model.</li>
+  <li>Search for "iss", "hubble" or "tiangong", or pick from <b>Destination → Satellites (now)</b>, and board.</li>
+  <li><b>On board</b>, the view is the one from the window: the Earth below and the horizon ahead. The camera follows the orbit, like the real station, which always keeps the same face toward the Earth (turn off <b>Rotate with the planet</b> to keep the camera fixed in space).</li>
+  <li>The panel shows the altitude (~420 km for the ISS), the speed relative to the Earth (~27,600 km/h), one lap every ~93 minutes, the point on Earth just below and whether the station is in sunlight or in the Earth's shadow.</li>
+  <li>Dedicated paces: real time, 1 minute, 1 hour or 1 day per second. With "1 min/s", a full lap around the Earth takes an hour and a half of simulation, or 93 seconds on screen, with 16 sunrises and sunsets a day.</li>
+  <li><b>The other satellites</b> (selector in "Time and display"): only the ISS, Hubble and Tiangong; the ~150 brightest (default); or all active ones, about 11,000, including the Starlink trains. From space they appear as dots (dimmed in the Earth's shadow); from the ground, they only shine while still sunlit, just after sunset and before sunrise, and move from one side of the sky to the other in a few minutes. CelesTrak releases the full list only every 2 hours per address; the browser keeps the last copy.</li>
+  <li>From the ground, in sky mode, the ISS appears as a dot crossing the sky in a few minutes. It shines just after sunset and before sunrise, when it is still sunlit up there, and vanishes when it enters the Earth's shadow.</li>
+</ul>
+<div class="nota">The scene shows what the simulation draws from that point (planets with textures, catalog stars); the photos show what the probe's camera actually captured. The moons of the other planets are at their real position between 1970 and 2040 (JPL data), which covers the flybys of Voyager, Cassini, Juno and New Horizons.</div>
+
+<h2 id="terra">Earth up close</h2>
+<p>Below ~19,000 km of altitude, the Earth is drawn in tiles with real terrain (~30 m) and Sentinel-2 satellite imagery (~10 m), downloaded during flight. The sweet spot is flying between 1 and 10 km of altitude. On the ground the image gets blurry.</p>
+<h3>Searching and flying to a place</h3>
+<p>The same search field finds planets, moons, galaxies, named stars and places on Earth: cities (about 7,300 worldwide, only the largest), countries, seas, peaks and regions.</p>
+<ul>
+  <li>You don't need accents or the full name: "andromeda", "rio" and "everest" work, and so do nicknames such as "SP", "RJ" and "BH". <kbd>Enter</kbd> picks the best result (big cities win over seas and small countries); you can also click one of the suggestions.</li>
+  <li>The 88 <b>constellations</b> are also in the search ("orion", "scorpius"): the camera turns to them and the lines and names switch on.</li>
+  <li>For planets, galaxies and stars, the ship sets off using the mode chosen in the Destination panel. For places on Earth, it flies there from wherever you are, arrives a bit to the south and looks down at the place from above.</li>
+  <li>Clicking a place name on the screen does the same.</li>
+</ul>
+<h3>"Earth" panel</h3>
+<p>It appears at the top, in the center, when you are near the Earth. Click the title to open or close it; closed, it doesn't cover the planet. On narrow screens, it appears along with the other panels (☰ button).</p>
+<ul>
+  <li><b>Cities</b>: none, large, medium or all. From high up only the largest appear; as you descend, the smaller ones show up.</li>
+  <li><b>Borders</b>, <b>Countries and seas</b>, <b>Peaks and regions</b>.</li>
+  <li><b>Airplane mode</b> (<kbd>Y</kbd>): flies following the terrain at a constant altitude, at 900 km/h. <kbd>↑</kbd> <kbd>↓</kbd> climb and descend, <kbd>←</kbd> <kbd>→</kbd> turn.</li>
+  <li><b>Look at the sky from here</b> (<kbd>Z</kbd>): see below.</li>
+  <li><b>3D buildings</b> (toggle, on by default): below ~6 km of altitude, OpenStreetMap buildings appear as blocks with the height recorded on the map, within a radius of a few kilometers. By day, the facades get sun and shade; at night, lit windows. Where the map has no height, the building gets two floors. They are uniformly colored blocks, not photos.</li>
+  <li><b>Daily clouds</b> (toggle, on by default): the real clouds of each day since 2000, taken from the daily whole-planet photo made by NASA satellites (VIIRS since 2015, MODIS before). Between one day and the next, the two photos blend gradually: with time sped up, you can watch fronts and storms change. Before 2000 and on today's date (the photo comes out a day late), generic clouds or the previous day's are used.</li>
+  <li><b>Moving clouds (illustrative)</b> (toggle): the day's clouds drift with approximate winds (westward in the tropics, eastward in the mid-latitudes). The motion is invented; the starting position is real.</li>
+  <li><b>Land in a city</b>: type the name (the list suggests from among 7,000 cities, with state and country) and click <b>Land there</b>. The ship flies to the city and descends to the ground, right in its center. <b>See the sky from there</b> does the same and goes straight into sky mode.</li>
+</ul>
+<p>At night, the city lights come from NASA's Black Marble images. On the sea, the reflection of the Sun appears.</p>
+
+<h2 id="ceu">Looking at the sky</h2>
+<p>While on Earth (anywhere, or after searching for a city), press <kbd>Z</kbd> or click <b>Look at the sky from here</b>. You stand on the ground, looking north, 35° above the horizon. The sky appears <b>without clouds and without city lights</b>, like a perfect night in the countryside.</p>
+<ul>
+  <li><b>Time and date</b>: choose between <b>official time</b> (default) and <b>solar time</b>.
+    <ul>
+      <li><b>Official time</b>: the time zone is determined by the nearest city (and, in Brazil, by the state), with the real history of time zones and daylight saving times that the browser knows. The panel shows the zone used ("UTC−3, Teresina time zone") and also the solar time. Far from any city in the database, the zone is estimated from the longitude, and the panel says so.</li>
+      <li><b>Solar time</b>: the mean solar time of the place, from its longitude. It differs from the clock because of time zones (usually up to an hour, but up to 1.5–3 h in places like Spain or western China) and the "equation of time", which makes the real Sun run ahead of or behind the clock by up to 16 minutes over the year.</li>
+    </ul>
+    The "Time and display" panel shows your computer's time, labeled as such. The <b>Now</b>, <b>Tonight, 10 pm</b>, <b>±1 h</b> and <b>±1 month</b> buttons help; you can also pick an exact date and time. <b>Speed up the night</b> makes 10 minutes pass per second and shows the sky turning.</li>
+  <li><b>By day</b>, the bright sky hides the stars, as in reality. At twilight they gradually appear.</li>
+  <li><b>Moonlight</b>: with the Moon above the horizon, the fuller it is, the more it brightens the sky and washes out the faint stars and the Milky Way, as on a real full-moon night.</li>
+  <li>You stay where you are. If you just searched for a place, you stay exactly there, not at the arrival point to the south. In sky mode, <b>Rotate with the planet</b> is always on, so you don't "walk" across the planet when changing the time; when you leave, it goes back to how it was.</li>
+  <li><b>The panel shows</b> where you are looking (direction and altitude), the season in your hemisphere and which planets are above the horizon right now.</li>
+  <li><b>Names</b>: bright stars, planets, the Moon and the constellation names, plus the compass on the horizon (N, E, S, W).</li>
+  <li><b>Constellation lines</b> and <b>Constellation names</b>: two buttons in the sky panel (and two boxes in "Time and display"). Turn them on to find your bearings; turn them off to simply enjoy the sky or try to find the constellations on your own. When you enter sky mode, both start on.</li>
+  <li><b>Another city</b>: in the sky panel, type another city and click <b>Go</b>. You immediately start looking at the sky from there (the local time changes according to the time zone). Useful for comparing, for example, the sky of Lisbon and of Teresina on the same night.</li>
+  <li><b>Search in sky mode</b>: searching for a planet, a star or a constellation turns the camera toward it, instead of traveling there.</li>
+  <li><b>Deep sky</b> (toggle in the sky panel): the 110 Messier objects and 5,288 more from the NGC and IC (nebulae, clusters, planetary nebulae and galaxies down to magnitude 14), with real size, shape and orientation. On-screen brightness follows surface brightness: large, spread-out objects, such as the Helix and Andromeda, look faint; compact ones, such as globular clusters, look vivid. They appear according to what the eye or the telescope could reach. The most famous have common names (Omega Centauri, Carina Nebula, Tarantula, Veil, Rosette, Jewel Box…); the rest appear by their number in the telescope. Search for "m13", "ngc 7000" or by name; click the name to pick it as a target.</li>
+  <li><b>Light pollution</b>: choose between natural sky (default), very dark countryside, rural area, suburb, city and big-city center (Bortle scale 1 to 9). The more light, the fewer stars, the fewer Messier objects and the browner-orange the sky near the horizon; the Milky Way disappears from the suburb level on.</li>
+  <li><b>Refraction</b> (on by default): lifts bodies near the horizon, as the air really does.</li>
+  <li><b>Asteroids and comets</b> (along with the deep sky): 8,726 asteroids (from Ceres down to ones of about 15 km) and 1,991 comets, each on its own orbit, with elements from the JPL database and brightness calculated as in the official ephemerides. Checked against JPL Horizons on October 12, 2026: Ceres and Vesta at the right position to 0.01° and the right magnitude to 0.01. They appear according to what the eye or the telescope could reach; the largest asteroids and the brightest comets get a name. Search for "Vesta" or a comet's name. Limit: the orbit is calculated without the planets' pull, so very old comets or ones that passed close to Jupiter may be out of place.</li>
+  <li><b>Meteor showers</b> (toggle in the sky panel): the main annual showers (Quadrantids, Lyrids, Eta Aquariids, Perseids, Orionids, Leonids, Geminids and others), with radiant, peak, rate and speed from the International Meteor Organization calendar, plus sporadic meteors (~5 per hour). The panel says which are active and how many meteors per hour would fit right now, depending on the radiant's altitude, the Moon and light pollution. As in real life, you need patience: 20 per hour is one every three minutes. The <b>10× more</b> toggle speeds up only the meteors. The streaks are drawn at random; they are not records of real meteors.</li>
+</ul>
+<h3>Telescope</h3>
+<ul>
+  <li>In the sky panel, turn on <b>Telescope</b>. The screen becomes a round eyepiece, and the panels give way to a dedicated panel in the dark margins (at the sides with the screen in landscape; top and bottom with the screen in portrait): magnification, field of view, limiting magnitude, the target with altitude and direction (and whether it is out of the field or below the horizon), the time, and the <b>−</b> and <b>+</b> buttons, <b>Point at target</b>, <b>Track the stars</b> and <b>Exit telescope</b>. <kbd>Esc</kbd> also exits.</li>
+  <li><b>Magnification</b>: from 1× to 500×, with the bar or the mouse wheel. The panel shows the field of view (the whole Moon fits in about 30').</li>
+  <li><b>More stars</b>: the higher the magnification, the larger the imagined aperture of the telescope and the more faint stars appear, down to magnitude ~13. Stars remain points, as in a real telescope; only planets, the Moon and galaxies show a shape.</li>
+  <li><b>Point at target</b>: click a name in the sky (or search for an object) and use the button; the camera centers the target. The arrow keys and mouse move slowly, in proportion to the magnification.</li>
+  <li><b>Track the stars</b> (on by default): like a telescope's motor, it compensates for the Earth's rotation and the object stays still in the center. With <b>Telescope fixed</b>, the sky drifts across the eyepiece: at 200×, a planet crosses the field in less than a minute.</li>
+  <li>Good targets: Saturn and its rings (almost edge-on in 2025–2026), Jupiter and its four moons, the phases of Venus, the craters of the Moon, Mars near opposition and the Andromeda Galaxy (an elongated smudge).</li>
+</ul>
+<h3>Example: the sky on a date in the past</h3>
+<ol class="passos">
+  <li>Search for the city (for example, "Teresina") and wait for the ship to arrive.</li>
+  <li>Press <kbd>Z</kbd>.</li>
+  <li>In the sky panel, pick the date (August 20, 1978) and the time (11:00 pm) and leave it on <b>official time</b>.</li>
+</ol>
+<p>On that night, the panel shows the nearly full Moon at 41° in the east, with strong moonlight, and no planet visible to the naked eye (Neptune was above the horizon, but only with a telescope). When you leave sky mode, the simulation stays on the chosen date; use <b>Now</b> to return to the present.</p>
+<p>Planets and the Moon are accurate for thousands of years backward and forward. Outside 1800–2050 the program warns you for another reason: the stars do not include their own motion (some, like Barnard's Star, move several degrees in two thousand years), and the Earth's rotation (ΔT) becomes increasingly uncertain in the distant past.</p>
+
+<h3>What to look for in each season (at night, around 10 pm)</h3>
+<table>
+  <tr><th>Months</th><th>Southern Hemisphere (Brazil)</th><th>Northern Hemisphere</th></tr>
+  <tr><td>Dec–Feb</td><td>Orion and the Three Marys (Orion's Belt) high up; Sirius, the brightest star; Taurus with Aldebaran and the Pleiades</td><td>Orion in the south; Gemini; Taurus</td></tr>
+  <tr><td>Mar–May</td><td>Southern Cross high; Centaurus with Alpha Centauri; Leo to the north</td><td>Leo; Ursa Major very high</td></tr>
+  <tr><td>Jun–Aug</td><td>Scorpius with Antares almost at the zenith; the Milky Way at its brightest, toward Sagittarius</td><td>Summer Triangle: Vega, Deneb and Altair</td></tr>
+  <tr><td>Sep–Nov</td><td>Pegasus to the north; Fomalhaut; the Magellanic Clouds to the south</td><td>Pegasus and Andromeda; Cassiopeia</td></tr>
+</table>
+
+<h2 id="tempo">Earth through time</h2>
+<p>In the "Earth" panel:</p>
+<ul>
+  <li><b>Epoch</b>:
+    <ul>
+      <li><b>Today</b>;</li>
+      <li><b>Ice Age</b> (20,000 years): sea 120 m lower, land bridges such as Beringia and Doggerland, and ice sheets with approximate outlines;</li>
+      <li><b>End of the dinosaurs</b> (66 million years);</li>
+      <li><b>Pangaea</b> (250 million years);</li>
+      <li><b>Cambrian</b> (500 million years).</li>
+    </ul>
+  </li>
+  <li><b>Timeline</b>: any epoch from 0 to 540 million years, in steps of 5 million, using the PALEOMAP maps. The geological period appears alongside.</li>
+  <li><b>Sea level</b>: from −130 m to +100 m. At −120 m the Ice Age appears; at +70 m, what the Earth would look like if all the ice melted.</li>
+</ul>
+<div class="nota">Ancient Earth has a resolution of 1° (about 110 km) and illustrative colors, because the vegetation of each place is unknown. In past epochs, today's cities, borders and clouds are hidden.</div>
+
+<h2 id="eclipses">Eclipses</h2>
+<p>The <b>Eclipses</b> button (in the sky panel and in "Time and display") opens NASA's official calendar (Espenak and Meeus) from 1900 to 2100, starting from the simulation date.</p>
+<ul>
+  <li><b>View from the ground</b>: takes you to the point of maximum eclipse, at the right date and time, in sky mode, looking at the Sun (or the Moon). In a total eclipse, it starts 1.5 minutes before totality, in real time: the sky darkens, the brightest stars and planets appear and the corona shows up around the Moon. Use the telescope to see the corona up close.</li>
+  <li><b>View from space</b>: in a solar eclipse, it shows the Earth with the Moon's shadow passing over (1 minute per second); in a lunar one, the Moon entering the Earth's shadow and turning coppery (5 minutes per second).</li>
+  <li><b>Seen from another place</b>: after "View from the ground", switch cities in the sky panel ("Another city" field) and click <b>Maximum of the eclipse from here</b>. The simulation searches for the time when the eclipse is strongest at that place and tells you how much of the Sun is covered (or how long totality lasts), setting the clock a little earlier. It also works without the calendar, for any date: it looks for an eclipse up to 4 hours before or after the simulation time. Example, on August 2, 2027: Madrid sees 87% of the Sun covered; Seville, 99%; Málaga and Luxor, a total eclipse.</li>
+  <li>The shadow is calculated from the real geometry of the Sun, Moon and Earth, so any date shows what would happen. The Moon's copper color comes from light passing through our atmosphere, like all the Earth's sunsets at once.</li>
+  <li>The calculation uses the apparent Sun (with the aberration of light), the Moon's dynamical time (ΔT) and the Earth's flattening for those on the ground, like the official calculations.</li>
+  <li>Accuracy: compared with the eclipse search of the astronomy-engine library, the coverage of the Sun matches to within 1% and the duration of totality is off by about 10 to 15 seconds (Luxor, August 2, 2027: 6 min 10 s versus 6 min 25 s). The Earth is drawn as a sphere; the flattening only enters the calculation for those on the ground.</li>
+</ul>
+
+<h2 id="roteiros">Guided tours</h2>
+<p>On the <b>Home</b> screen, four ready-made tours, advanced at your own pace with <b>Next</b> and <b>Previous</b>; you can leave at any moment.</p>
+<ul>
+  <li><b>Solar System Grand Tour</b>: from Earth to Pluto, with a curiosity at each stop, ending with the Sun seen from afar.</li>
+  <li><b>Following Voyager 1</b>: the mission's milestones, from 1977 to the Pale Blue Dot and the exit from the heliosphere, and where it is today.</li>
+  <li><b>From Earth to the edge of the universe</b>: the scales of the cosmos, always 12 seconds per stage: the Sun, Alpha Centauri, the galactic center, Andromeda, Virgo and the edge of the observable universe.</li>
+  <li><b>A night in the sky</b>: lands in the city typed on Home (or Rio de Janeiro) and shows tonight's sky at 9 pm: a high constellation, the Moon or a planet, the telescope, a Messier object and, finally, the same sky with light pollution. What appears depends on the place, the date and the time.</li>
+</ul>
+
+<h2 id="chaves">All the toggles</h2>
+<table>
+  <tr><th>Toggle</th><th>Key</th><th>Options</th></tr>
+  <tr><td>Orbits</td><td><kbd>T</kbd></td><td>moving · paused</td></tr>
+  <tr><td>Speed effect</td><td><kbd>B</kbd></td><td>warp (cinema) · relativity (real) · none</td></tr>
+  <tr><td>Sound</td><td><kbd>M</kbd></td><td>on · off</td></tr>
+  <tr><td>Terrain</td><td><kbd>X</kbd></td><td>real · exaggerated ×10</td></tr>
+  <tr><td>Appearance</td><td><kbd>V</kbd></td><td>photos · procedural</td></tr>
+  <tr><td>Ground detail</td><td><kbd>I</kbd></td><td>invented · real data only</td></tr>
+  <tr><td>Sky</td><td><kbd>K</kbd></td><td>naked-eye · enhanced</td></tr>
+  <tr><td>Distant galaxies</td><td><kbd>U</kbd></td><td>illustrative · catalogued only</td></tr>
+  <tr><td>Horizon</td><td><kbd>N</kbd></td><td>level · free</td></tr>
+  <tr><td>Rotate with the planet</td><td><kbd>J</kbd></td><td>yes · no</td></tr>
+  <tr><td>Airplane mode</td><td><kbd>Y</kbd></td><td>on · off</td></tr>
+  <tr><td>Look at the sky</td><td><kbd>Z</kbd></td><td>enter · leave</td></tr>
+  <tr><td>Names · orbit lines</td><td><kbd>L</kbd> · <kbd>O</kbd></td><td>on · off</td></tr>
+  <tr><td>Constellation lines and names</td><td>buttons in the sky panel</td><td>on · off</td></tr>
+  <tr><td>Atmosphere</td><td>button in "Time and display"</td><td>physical · simple</td></tr>
+  <tr><td>3D buildings</td><td>"Earth" panel</td><td>on · off</td></tr>
+  <tr><td>Milky Way</td><td>"Time and display"</td><td>real map (NASA) · model</td></tr>
+  <tr><td>Clouds · cloud motion</td><td>"Earth" panel</td><td>daily · generic · moving (illustrative) · still</td></tr>
+  <tr><td>Meteors · 10× more</td><td>sky panel</td><td>on · off · 10× · real rate</td></tr>
+  <tr><td>Probe view</td><td>"On board" panel</td><td>inside · outside (3D)</td></tr>
+  <tr><td>Deep sky · refraction · light pollution</td><td>sky panel</td><td>on · off · on · off · natural to Bortle 9</td></tr>
+  <tr><td>Telescope · track the stars</td><td>sky panel (mouse wheel = magnification)</td><td>on · off · track · fixed</td></tr>
+  <tr><td>Photo mode</td><td><kbd>Tab</kbd></td><td>panels visible · hidden</td></tr>
+  <tr><td>Focus mode</td><td><kbd>.</kbd></td><td>panels visible · view only</td></tr>
+</table>
+
+<h2 id="real">Real or illustrative?</h2>
+<table>
+  <tr><th>Element</th><th>Status</th></tr>
+  <tr><td>Planet positions</td><td><span class="real">Real</span> (VSOP87; arcseconds, over millennia)</td></tr>
+  <tr><td>Moon position</td><td><span class="real">Real</span> (full model; arcseconds; eclipses within seconds or a few minutes of the tables)</td></tr>
+  <tr><td>Position of the other moons</td><td><span class="real">Real</span> between 1970 and 2040 (JPL Horizons, with the planet's flattening); outside that, <span class="ilus">approximate</span></td></tr>
+  <tr><td>ISS, Hubble and Tiangong</td><td><span class="real">Real</span>, right now (CelesTrak + SGP4; ~1 km of error near the date of the elements, getting worse over the weeks)</td></tr>
+  <tr><td>Color of the sky and of the sunset (Earth and Mars)</td><td><span class="real">Physical</span> (Rayleigh and Mie scattering); deep twilight is <span class="ilus">approximate</span></td></tr>
+  <tr><td>Stars: position, brightness and color</td><td><span class="real">Real</span> (out to a few hundred light-years; less precise beyond that)</td></tr>
+  <tr><td>Size and color of stars seen up close</td><td><span class="ilus">Estimated</span> from physics (~30–50% margin)</td></tr>
+  <tr><td>Terrain of the Moon, Mars and Mercury</td><td><span class="real">Real</span>, 0.7–1.3 km across the whole body and 170–330 m in highlighted regions; finer detail <span class="ilus">invented</span> (toggle)</td></tr>
+  <tr><td>Exoplanets: size, orbit, year</td><td><span class="real">Real</span> (NASA Exoplanet Archive); position along the orbit real for those that transit; orientation in the sky <span class="ilus">approximate</span>; appearance <span class="ilus">illustrative</span></td></tr>
+  <tr><td>Close-up imagery of Mars, Moon and Mercury</td><td><span class="real">Real</span> (NASA Trek, 100–330 m per pixel)</td></tr>
+  <tr><td>Earth: terrain, satellite imagery, lights, places</td><td><span class="real">Real</span></td></tr>
+  <tr><td>Milky Way seen from here</td><td><span class="real">Real</span> (NASA map); from afar, a <span class="ilus">model</span> based on published measurements</td></tr>
+  <tr><td>Stars down to magnitude 12</td><td><span class="real">Real</span> (HYG + Gaia DR3); distances of faint stars without a good parallax are <span class="ilus">estimated</span></td></tr>
+  <tr><td>22 famous galaxies</td><td><span class="real">Real</span> position, <span class="ilus">drawn</span> shape</td></tr>
+  <tr><td>43,000 galaxies from 2MRS</td><td><span class="real">Real</span> (distance by Hubble's law)</td></tr>
+  <tr><td>Galaxies beyond ~1 billion light-years</td><td><span class="ilus">Illustrative</span> (toggle)</td></tr>
+  <tr><td>Edge of the observable universe</td><td><span class="real">Real</span> distance, <span class="ilus">illustrative</span> appearance</td></tr>
+  <tr><td>Ice Age: sea level · ice</td><td><span class="real">Real</span> · <span class="ilus">approximate outlines</span></td></tr>
+  <tr><td>Ancient Earth</td><td><span class="real">Scientific</span> terrain (PALEOMAP), <span class="ilus">illustrative</span> colors</td></tr>
+  <tr><td>Eclipses (shadow, corona, coppery Moon)</td><td><span class="real">Real</span> geometry; corona appearance <span class="ilus">drawn</span></td></tr>
+  <tr><td>Clouds</td><td><span class="real">Real</span> for the day (since 2000); motion <span class="ilus">illustrative</span> (toggle)</td></tr>
+  <tr><td>Meteors</td><td><span class="real">Real</span> rates and radiants; each streak <span class="ilus">drawn at random</span></td></tr>
+  <tr><td>Travel above light speed</td><td><span class="ilus">Fiction</span></td></tr>
+</table>
+
+<h2 id="normal">Is this normal? Situations that look like bugs</h2>
+<p>Some things look like defects, but they are a natural consequence of physics or of the data, or were made that way on purpose. They are grouped by situation.</p>
+
+<h3>Speed and travel</h3>
+<table>
+  <tr><th>What you see</th><th>Why</th></tr>
+  <tr><td>"Moving now" is lower than the chosen speed</td><td>The <b>proximity brake</b> reduces speed near planets and stars, and the autopilot brakes on arrival ("braking"). Turn the brake off in "Time and display" if you want to fly right past.</td></tr>
+  <tr><td>"Stopped", but the Earth (or another planet) moves across the screen</td><td>Speed is measured relative to the body you are <b>following</b>. Stopped relative to the Earth, you travel along with it at ~30 km/s around the Sun.</td></tr>
+  <tr><td>The planets look like tiny dots or don't show up at all</td><td>The scale is real: space is almost entirely empty. Seen from Neptune, the Sun is just a very bright star. A marker helps you find each planet; to really see it, get close.</td></tr>
+  <tr><td>I can't enter the Sun or a star</td><td>The ship stops 2,000 km from the surface of stars (and 50 km above the cloud tops of the gas giants, which have no ground).</td></tr>
+  <tr><td>At the speed of light, the trip to a star takes years</td><td>That's the real time. Use "arrive in N seconds" or speeds in light-years per second.</td></tr>
+  <tr><td>The warp streaks only show up above light speed</td><td>That's the threshold chosen for the movie effect: it starts near 1 times the speed of light and becomes intense around 300 times. When you brake, the streaks vanish.</td></tr>
+</table>
+
+<h3>In relativity mode</h3>
+<table>
+  <tr><th>What you see</th><th>Why</th></tr>
+  <tr><td>The whole sky bunches up ahead and behind is nearly empty</td><td><b>Aberration of light</b>: near the speed of light, light from every direction seems to come from the front. It's what a traveler would truly see.</td></tr>
+  <tr><td>Blue stars ahead, red and dim ones behind</td><td><b>Doppler effect</b>: light from what you are approaching arrives compressed (bluer and stronger); light from what you leave behind arrives stretched (redder and fainter).</td></tr>
+  <tr><td>The Milky Way becomes an arc ahead</td><td>This is also aberration, acting on the galaxy's band.</td></tr>
+  <tr><td>The names pile up ahead</td><td>They follow the stars, which have bunched together. Turn off the names (<kbd>L</kbd>) to enjoy the view.</td></tr>
+  <tr><td>Above light speed, the sky stops changing</td><td>There is no real physics above light speed. The sky is shown as it would be at 99.5% of light speed, and the panel warns you.</td></tr>
+  <tr><td>"1 s on board = 2.29 s on Earth"</td><td><b>Time dilation</b>: those who travel near light speed age less. The pilot also shows the onboard travel time.</td></tr>
+  <tr><td>Planets shift but don't deform</td><td>It's a simplification: the center of each planet shifts like the stars, but the shape isn't distorted. In practice you barely notice, because near planets you are moving slowly.</td></tr>
+  <tr><td>The glare ahead isn't blinding</td><td>In real physics, the front would be blinding and much of the light would turn into invisible ultraviolet. The brightness was deliberately limited.</td></tr>
+</table>
+
+<h3>Far from the Sun</h3>
+<table>
+  <tr><th>What you see</th><th>Why</th></tr>
+  <tr><td>The constellations deform and their lines disappear</td><td>The constellations are the pattern that <b>we</b> see from here. As you travel, the stars change position in the sky. The lines fade out between 50 and 200 light-years from the Sun, because they stop making sense.</td></tr>
+  <tr><td>The star names in the sky change</td><td>The 30 brightest named stars <b>as seen from your point</b> get a name. A star that is faint from here may be the brightest in the sky over there.</td></tr>
+  <tr><td>The Sun becomes an ordinary star, or vanishes</td><td>The Sun is an ordinary star: at ~70 light-years it's already invisible to the naked eye. Use "Enhanced sky" (<kbd>K</kbd>) to keep seeing it farther out.</td></tr>
+  <tr><td>Thousands of light-years out, the sky has few stars</td><td>The catalog of individual stars (Hipparcos) only covers the Sun's neighborhood. Farther out, the galaxy appears as star clouds, not as separate stars.</td></tr>
+  <tr><td>The Milky Way changes appearance between ~1,000 and ~5,000 light-years</td><td>Near the Sun, the band comes from a sky map; far away, from the 3D particle model. The two forms blend during this transition.</td></tr>
+  <tr><td>Inside the Milky Way, almost no galaxy has a name</td><td>From inside, only the ones visible to the naked eye get names: Andromeda, Triangulum and the Magellanic Clouds. Once you leave the Milky Way, they all appear.</td></tr>
+  <tr><td>"You have left the radio bubble"</td><td>You passed the point to which human transmissions have reached (~106 light-years).</td></tr>
+  <tr><td>At the edge of the universe, the light takes "13.8 billion years", not 46</td><td>The universe expanded while the light was traveling. Today's distance (~46 billion light-years) is greater than the travel time. Beyond ~100 million light-years, "Light from Earth" starts to show how long the light from here takes to reach the Earth; the light leaving the Earth today would never get that far.</td></tr>
+  <tr><td>At the edge, half of the sky is a colored patch</td><td>It's the illustrative representation of the cosmic microwave background, the limit of what can be observed.</td></tr>
+</table>
+
+<h3>Solar System and planets</h3>
+<table>
+  <tr><th>What you see</th><th>Why</th></tr>
+  <tr><td>Saturn's rings look very thin, seen from Earth</td><td>In March 2025 the Earth crossed the plane of the rings; in 2026 they are still barely open (about 7°). It's real.</td></tr>
+  <tr><td>"Closest" shows a moon (Mimas, Rhea…) while you follow Saturn</td><td>"Closest" is the nearest body; "Following" is the one that dominates the motion there. They can differ.</td></tr>
+  <tr><td>The nearest stars always have names, even faint ones (Wolf 359, Lalande 21185)</td><td>The 6 stars closest to you get a sphere and a name, so you can visit them.</td></tr>
+  <tr><td>The rings are dark on one side</td><td>Seen from the side the Sun doesn't light, the ring only lets a little light through.</td></tr>
+  <tr><td>The Moon always shows the same face</td><td>Tidal locking: it rotates once per orbit around the Earth. The same goes for the other moons.</td></tr>
+  <tr><td>I reached a planet and I only see the dark side</td><td>It's night on that side. Change position, or change the time with the time pace.</td></tr>
+  <tr><td>The Earth spins fast</td><td>The time pace is sped up ("1 hour per second" or more). In "real time" it spins as it truly does.</td></tr>
+  <tr><td>Near the ground, the sky spins and the ground stays still</td><td>With <b>Rotate with the planet</b> on, you follow the rotation, like someone standing. Turn it off (<kbd>J</kbd>) to see the planet spin beneath you.</td></tr>
+  <tr><td>On Mars the sky is caramel-colored; on the Moon it's black by day</td><td>Mars has a thin, dusty atmosphere; the Moon has no atmosphere.</td></tr>
+  <tr><td>On Mars, the sunset is bluish</td><td>Real (photographed by the Spirit and Curiosity rovers): fine dust scatters blue light more forward, in a halo around the Sun, while the rest of the sky looks yellowish.</td></tr>
+  <tr><td>Seen from space, the Earth has a blue veil, and the edge is brighter</td><td>With the <b>Physical atmosphere</b>, the air scatters blue light over the ground, more at the edge, where the layer of air is longer. Photos from the DSCOVR probe show the same.</td></tr>
+  <tr><td>The stars behind the edge of Mars vanish</td><td>Martian dust, seen edge-on, is thick enough to extinguish light coming from behind.</td></tr>
+  <tr><td>After landing, the speed became "on foot"</td><td>When landing or entering sky mode, the speed goes to 5 km/h; in airplane mode, to 300 or 900 km/h. When you take off (<kbd>R</kbd>), leave the mode or travel somewhere else, it goes back to what it was.</td></tr>
+  <tr><td>At very old dates, the stars look out of place</td><td>Planets and Moon remain accurate, but the stars are at today's positions: their proper motion is not applied.</td></tr>
+</table>
+
+<h3>On Earth</h3>
+<table>
+  <tr><th>What you see</th><th>Why</th></tr>
+  <tr><td>On arrival, the image is blurry for a few seconds</td><td>The terrain and satellite tiles are arriving over the internet: detail increases as they load.</td></tr>
+  <tr><td>From very close to the ground, everything is blurry</td><td>Satellite images have ~10 m per pixel and the terrain ~30 m. It's best to fly between 1 and 10 km.</td></tr>
+  <tr><td>Different colors between neighboring regions</td><td>The satellite images are a mosaic of several dates.</td></tr>
+  <tr><td>A city doesn't show up in the search</td><td>The places database (Natural Earth) only has the larger cities, about 7,300 worldwide.</td></tr>
+  <tr><td>Right after landing, the ground "settles" a few meters</td><td>When a more detailed terrain tile arrives, the ground height is smoothly corrected, in under a second.</td></tr>
+  <tr><td>The Ice Age and sea level don't show up when seen from very far</td><td>They act on the detailed tiles, which only appear below ~19,000 km of altitude. Farther out, the Earth is drawn as today.</td></tr>
+  <tr><td>The clouds disappear as you descend</td><td>The cloud layer fades out between ~75 km and ~15 km of altitude, because up close it isn't realistic (it's a generic image, not the day's clouds).</td></tr>
+</table>
+
+<h3>Probes and comets</h3>
+<table>
+  <tr><th>What you see</th><th>Why</th></tr>
+  <tr><td>The probe doesn't appear, or the panel says "outside the data period"</td><td>Each probe only exists between launch and the end of the data (Cassini until 2017, Rosetta until 2016). If you board outside the period, the date moves to the first moment of the mission.</td></tr>
+  <tr><td>The comet has no tail</td><td>Far from the Sun (beyond ~5 AU), the comet is just a dark, icy nucleus; the tail grows as it approaches the Sun.</td></tr>
+  <tr><td>Looking at the comet head-on, the tail vanishes</td><td>The tail points away from the Sun. Seen from the front or the back, it looks "foreshortened"; from the side, it appears in full.</td></tr>
+  <tr><td>Before 1970 or after 2040, a moon isn't where it should be</td><td>Outside this interval, the moons of the other planets fall back to an approximate orbit (real size and period, estimated position along it).</td></tr>
+  <tr><td>On a flyby, the panel's minimum distance differs slightly from the official one</td><td>The simulation measures to a sphere of mean radius; NASA usually gives the distance to the cloud tops or to the center. Differences of a few tens of kilometers are normal.</td></tr>
+  <tr><td>The James Webb moves in a spiral, far from the Earth</td><td>It orbits the L2 point, 1.5 million km beyond the Earth, in a "halo" orbit that makes one lap every ~6 months.</td></tr>
+  <tr><td>Juno passes over Jupiter's poles</td><td>It's real: Juno's orbit is polar and very elongated, to dive close to the clouds and avoid the radiation belts.</td></tr>
+  <tr><td>Up close, the comet's nucleus is dark</td><td>Real: nuclei are covered in dark dust, almost like charcoal (they reflect ~4% of the light). The brightness comes from the coma and the tails.</td></tr>
+  <tr><td>Searching "atlas" takes you to comet 3I/ATLAS</td><td>It's the most common nickname; the full name also works.</td></tr>
+  <tr><td>Pioneer 10 keeps moving away after 2003</td><td>Contact was lost in 2003; the trajectory after that is calculated.</td></tr>
+  <tr><td>From very far away, the asteroid belt vanishes</td><td>Seen from tens of AU, it would be invisible; the simulation fades it out gradually.</td></tr>
+  <tr><td>The buildings end abruptly a few kilometers out</td><td>To keep it light, only the buildings within a 3 × 3 tile radius (2 to 7 km, depending on latitude) are drawn. As you fly, the area follows.</td></tr>
+  <tr><td>A small city shows up with only low buildings, or none</td><td>It depends on OpenStreetMap's volunteer mapping: in many cities the outlines exist but without height (they become two floors), and in others they are still missing.</td></tr>
+  <tr><td>The ISS vanishes and reappears in the sky, or its dot is dimmed</td><td>It only shines when it receives sunlight. In the Earth's shadow (half of each lap), it's dark.</td></tr>
+  <tr><td>On board the ISS, the Earth below is dark, but the panel says "lit by the Sun"</td><td>At 420 km of height, the station sees the Sun before the ground right below: dawn arrives up there a few minutes earlier.</td></tr>
+  <tr><td>Satellite "outside the period", with a notice to use "Now"</td><td>Orbital elements are valid for a few weeks. The simulation only shows satellites up to 20 days before or after their date. Without internet, it uses a stored, less current copy.</td></tr>
+  <tr><td>A satellite's name doesn't show up</td><td>It is on the other side of the Earth. Names and points hidden by the planet are not drawn.</td></tr>
+</table>
+
+<h3>In "look at the sky" mode</h3>
+<table>
+  <tr><th>What you see</th><th>Why</th></tr>
+  <tr><td>The time shown differs from the clock</td><td>Check the selector: in <b>solar time</b>, the difference from the clock can reach 1.5–3 h in some countries, plus the equation of time (±16 min). In <b>official time</b>, the zone comes from the nearest city; far from cities, it is estimated from the longitude.</td></tr>
+  <tr><td>Neptune and Uranus appear in the sky list</td><td>They are above the horizon, but too faint for the eye; the list marks "telescope only".</td></tr>
+  <tr><td>Near the horizon, bodies appear a little higher than the calculated position</td><td>It's <b>refraction</b>: the air bends the light and lifts the image ~0.5° at the horizon (almost nothing high in the sky). That's why the Sun still appears whole when, in a straight line, it has already set, and the times match the tables. You can turn it off in the sky panel.</td></tr>
+  <tr><td>With light pollution, the Milky Way vanishes and few stars remain</td><td>Real: in the center of a big city (Bortle 9) only stars down to about magnitude 4 appear, and the sky turns brownish-orange near the horizon. The sky mode default is the natural sky, without pollution.</td></tr>
+  <tr><td>A Messier object shows up in the telescope but not to the naked eye</td><td>Almost all are faint and diffuse: with the naked eye, in a dark sky, you only see Andromeda, Orion, the Pleiades, the Beehive and a few clusters well. Surface brightness makes a diffuse object look fainter than a star of the same magnitude.</td></tr>
+  <tr><td>After leaving sky mode, I'm still on the old date</td><td>On purpose: the chosen date applies to the whole simulation. A notice reminds you; use <b>Now</b>.</td></tr>
+  <tr><td>There are no stars by day</td><td>As in reality: the bright sky hides them. Use "Tonight, 10 pm".</td></tr>
+  <tr><td>In a place very far north or south, the Sun doesn't set (or doesn't rise)</td><td>Midnight Sun and polar night, near the poles, in summer and winter.</td></tr>
+  <tr><td>The Moon appears by day, near the Sun</td><td>Natural: for much of the month the Moon is above the horizon during the day. Near the new moon, it sits next to the Sun and is nearly invisible.</td></tr>
+  <tr><td>With a full Moon there are fewer stars</td><td>Moonlight brightens the sky, as in reality.</td></tr>
+  <tr><td>Polaris doesn't show up in Brazil; the Southern Cross doesn't show up in Europe</td><td>Each hemisphere sees a different part of the sky.</td></tr>
+  <tr><td>Mountains hide low stars</td><td>The real terrain of the place blocks the horizon.</td></tr>
+  <tr><td>A dark sky like in the countryside, even in a big city</td><td>It's on purpose: sky mode removes clouds and light pollution.</td></tr>
+  <tr><td>With the Sun on the horizon, the top of the sky stays blue and the horizon turns orange</td><td>Sunlight crosses a lot of air to reach the horizon and loses its blue on the way. Ozone absorbs some of the orange high up and keeps the zenith blue.</td></tr>
+  <tr><td>After sunset, there is still a pinkish band and a deep blue sky for about 30 minutes</td><td>Twilight: the top of the atmosphere still receives sun. The stars appear gradually, the first ones with the Sun about 4° below the horizon.</td></tr>
+  <tr><td>In the telescope, the Moon or a planet gets blurry at maximum magnification</td><td>Images of the planets and the Moon seen from afar have limited resolution (the close-up ones only load below an altitude equal to the radius). A real telescope also has a limit: above ~250×, air turbulence usually blurs the image.</td></tr>
+  <tr><td>In the telescope, faint stars stop appearing past a certain magnification</td><td>The catalog goes down to magnitude 12 (HYG + Gaia, some 3 million stars). At maximum magnification, a real telescope would show even more, down to magnitude 13 or 14.</td></tr>
+  <tr><td>The Andromeda Galaxy is just a faint smudge</td><td>Real: from the ground, galaxies have low surface brightness. The colorful photos are long exposures.</td></tr>
+  <tr><td>The sky is brighter at dusk than I expected</td><td>The simulation imitates the eye, which adapts to low light. A camera with a fixed exposure would show a darker sky.</td></tr>
+</table>
+
+<h3>Earth through time</h3>
+<table>
+  <tr><th>What you see</th><th>Why</th></tr>
+  <tr><td>Pangaea looks like "just ocean"</td><td>You are looking at the side of the Panthalassa ocean, which covered almost half the planet. Rotate to the other side.</td></tr>
+  <tr><td>The ancient continents are in strange places</td><td>The continents have moved: the map shows where they were at that time.</td></tr>
+  <tr><td>No cities, borders or clouds in the past</td><td>They didn't exist, or don't apply to that epoch, so they are hidden.</td></tr>
+  <tr><td>Beige areas on the coast with low sea; light blue where there was land with high sea</td><td>They are the exposed seabed and the flooded land. The colors are approximate.</td></tr>
+  <tr><td>The edges of the glacial ice look drawn</td><td>The outlines of the ice sheets are approximate, not measured.</td></tr>
+  <tr><td>Ancient Earth looks "low resolution"</td><td>The paleogeographic maps have a resolution of 1° (~110 km). That's why the surface is faceted: in the middle of each facet, the ground is a few tens of meters below the ideal sphere, which can make absolute altitudes look a little odd.</td></tr>
+  <tr><td>"End of the dinosaurs" shows the 65-million-year map</td><td>PALEOMAP has one map every 5 million years; the 65 one is the closest to 66.</td></tr>
+</table>
+
+<h2 id="limites">System limits</h2>
+<ul>
+  <li><b>Data accuracy:</b>
+    <ul>
+      <li>star distances reliable out to a few hundred light-years;</li>
+      <li>terrain of the Moon, Mars and Mercury with 0.7–1.3 km of detail (170–330 m in highlighted regions);</li>
+      <li>Earth with ~30 m terrain, ~10 m imagery and ~600 m night lights;</li>
+      <li>ancient Earth at ~110 km.</li>
+    </ul>
+  </li>
+  <li><b>Internet:</b> required for the Earth up close. If a tile server fails, the program tries again, but a patch may take a while to become sharp.</li>
+  <li><b>What doesn't exist (yet):</b>
+    <ul>
+      <li>3D buildings;</li>
+      <li>the real hour-by-hour motion of clouds (only each day's photo);</li>
+      <li>eclipse shadows (the Moon's shadow on the Earth, Jupiter's on its moons);</li>
+      <li>shadow of the rings on Saturn;</li>
+      <li>exoplanets;</li>
+      <li>artificial satellites other than the ISS, Hubble and Tiangong;</li>
+      <li>the exact position of the moons of the other planets before 1970 and after 2040;</li>
+      <li>the Sagittarius Dwarf Galaxy as it is: in reality it is invisible to the naked eye, and here it appears only as a very faint smudge.</li>
+    </ul>
+  </li>
+  <li><b>Simplifications:</b>
+    <ul>
+      <li>relativity shifts and colors, but doesn't deform, the planets;</li>
+      <li>the physical atmosphere calculates single scattering per light ray and approximates the rest (deep twilight is estimated). Only the Earth and Mars get this calculation; Venus, Titan and the giants use the simple atmosphere. There are no rainbows, ice halos or real clouds;</li>
+      <li>refraction uses the standard atmosphere; on very cold or hot nights, the real one changes by a few arcminutes;</li>
+      <li>the size and color of stars up close are estimates.</li>
+    </ul>
+  </li>
+  <li><b>Illustrations:</b>
+    <ul>
+      <li>the shape of the 22 famous galaxies;</li>
+      <li>galaxies beyond ~1 billion light-years (toggle <kbd>U</kbd>);</li>
+      <li>the edge of the universe;</li>
+      <li>the invented ground detail (toggle <kbd>I</kbd>);</li>
+      <li>the colors of ancient Earth;</li>
+      <li>the glacial ice.</li>
+    </ul>
+  </li>
+  <li><b>Performance:</b> weaker computers may slow down when flying low and fast over the Earth or with everything on. See "Common problems".</li>
+  <li><b>Phone and tablet:</b> they work with touch buttons, but the experience is designed for keyboard and mouse.</li>
+</ul>
+
+<h2 id="fontes">Data sources</h2>
+<ul>
+  <li><b>Orbits</b>: approximate orbital elements from JPL/NASA; planet orientation: IAU.</li>
+  <li><b>Planet textures</b>: Solar System Scope (CC BY 4.0), based on NASA images.</li>
+  <li><b>Terrain of the Moon, Mars and Mercury</b>: global mosaics from the USGS Astrogeology Science Center, converted into tiles (dados/gerar_relevo.py): the Moon from the 118 m LRO LOLA LDEM (NASA/GSFC); Mars from the 200 m HRSC and MOLA blend (Mars Express, ESA/DLR/FU Berlin, and Mars Global Surveyor, NASA); Mercury from the 665 m MESSENGER (NASA/JHUAPL/Carnegie Institution). Seen from afar, Mars uses MOLA via NASA Trek.</li>
+  <li><b>Stars</b>: HYG v4.1 catalog (astronexus, CC BY-SA 4.0), from Hipparcos, Yale and Gliese.</li>
+  <li><b>Galaxies</b>: 2MASS Redshift Survey (Huchra et al., 2012).</li>
+  <li><b>Probes and comets</b>: trajectories from the JPL Horizons system (NASA/JPL-Caltech).</li>
+  <li><b>Moons of the other planets</b>: positions and velocities from JPL Horizons (1970–2040), propagated with each planet's flattening.</li>
+  <li><b>Satellites</b>: orbital elements from CelesTrak (T. S. Kelso), calculated with the satellite.js library (MIT license).</li>
+  <li><b>Ephemerides</b>: astronomy-engine library, © Don Cross (MIT license), with VSOP87 (Bretagnon and Francou) for the planets.</li>
+  <li><b>Close-up imagery of Mars, Moon and Mercury</b>: NASA Trek (NASA/JPL-Caltech), with the LRO WAC mosaics (NASA/GSFC/Arizona State University), Viking MDIM 2.1 color (NASA/USGS) and MESSENGER MDIS (NASA/JHUAPL/Carnegie Institution).</li>
+  <li><b>Asteroids and comets</b>: JPL Small-Body Database (NASA/JPL-Caltech).</li>
+  <li><b>Exoplanets</b>: NASA Exoplanet Archive, Planetary Systems Composite Parameters table (NASA/Caltech-IPAC; dados/baixar_exoplanetas.py). Habitable zone: Kopparapu et al. (2013), ApJ 765, 131.</li>
+  <li><b>Eclipses</b>: Five Millennium Canon of Solar/Lunar Eclipses, F. Espenak and J. Meeus (NASA/GSFC, public domain).</li>
+  <li><b>Daily clouds</b>: NASA GIBS/Worldview, VIIRS (Suomi NPP) and MODIS (Terra) images, corrected reflectance.</li>
+  <li><b>Meteor showers</b>: International Meteor Organization calendar (average values).</li>
+  <li><b>3D probe models</b>: NASA 3D Resources (royalty-free); Draco decompression (Google, Apache 2.0).</li>
+  <li><b>Gaia stars</b>: ESA/Gaia/DPAC, Gaia Data Release 3 (CC BY-SA 3.0 IGO).</li>
+  <li><b>Milky Way map</b>: NASA/Goddard Space Flight Center Scientific Visualization Studio, Deep Star Maps 2020 (public domain), with data from Gaia DR2, Hipparcos-2 and Tycho-2.</li>
+  <li><b>Buildings</b>: © OpenStreetMap contributors (ODbL license), in OpenFreeMap tiles.</li>
+  <li><b>Messier objects</b>: OpenNGC, © Mattia Verga and contributors (CC BY-SA 4.0).</li>
+  <li><b>Visit counter</b>: GoatCounter, with no cookies and no personal data.</li>
+  <li><b>Physical atmosphere</b>: scattering coefficients published by E. Bruneton and S. Hillaire (Earth); for Mars, typical dust values measured by NASA's rovers. Chapman approximation by C. Schüler.</li>
+  <li><b>Mission photos</b>: NASA/JPL-Caltech, NASA Ames, NASA/JHUAPL/SwRI, Space Science Institute, MSSS, STScI and partners, according to each photo's credit (NASA images, free to use). Two exceptions, both with an open license or in the public domain: comet 67P, from Rosetta's navigation camera (ESA/Rosetta/NAVCAM, CC BY-SA IGO 3.0), and Halley seen from Earth in 1986 (NASA/W. Liller, International Halley Watch).</li>
+  <li><b>Constellation lines</b>: d3-celestial, © 2015 Olaf Frohn (3-clause BSD license). Constellation names: International Astronomical Union.</li>
+  <li><b>Earth</b>:
+    <ul>
+      <li>Sentinel-2 cloudless 2023 imagery from EOX IT Services GmbH, containing modified Copernicus Sentinel data (CC BY-NC-SA 4.0);</li>
+      <li>terrain from the Terrain Tiles (Mapzen/AWS: SRTM, GMTED, ETOPO1 and others);</li>
+      <li>NASA Black Marble night lights (GIBS);</li>
+      <li>places and borders from Natural Earth (public domain).</li>
+    </ul>
+  </li>
+  <li><b>Ancient Earth</b>: PALEOMAP PaleoDEMs (Scotese & Wright, 2018, CC BY 4.0).</li>
+</ul>
+
+<h2 id="problemas">Common problems</h2>
+<table>
+  <tr><th>What happens</th><th>What to do</th></tr>
+  <tr><td>The page doesn't open</td><td>The server isn't running: open it through <b>Abrir Viagem.command</b>.</td></tr>
+  <tr><td>In Safari, "localhost" doesn't open</td><td>Use <code>http://127.0.0.1:8743</code> (the launcher already uses this address).</td></tr>
+  <tr><td>A change doesn't show up</td><td>Reload once with <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd>.</td></tr>
+  <tr><td>The Earth up close is blurry for a few seconds</td><td>The tiles are arriving over the internet. If a server drops the connection, the program tries again by itself.</td></tr>
+  <tr><td>No sound</td><td>Click once on the screen (the browser requires a gesture) and check that the button says <b>Sound on</b>.</td></tr>
+  <tr><td>The screen turns white and shows "the graphics card ran out of memory"</td><td>It happens after a long time flying low over the Earth, with thousands of tiles. The simulation reloads by itself and returns to the same place, date and epoch. If it happens again in under a minute, close heavy tabs and reload by hand.</td></tr>
+  <tr><td>Slow</td><td>Turn off Belts and Orbits, use "Naked-eye sky" and avoid flying very low and very fast over the Earth.</td></tr>
+  <tr><td>Slow only near the ground of the Earth or Mars</td><td>The <b>Physical atmosphere</b> does a calculation for every point on the screen. Switch to <b>Atmosphere: simple</b>.</td></tr>
+</table>
+</main>
+</div>
+</body>
+</html>

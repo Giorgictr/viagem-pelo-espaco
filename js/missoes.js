@@ -3,6 +3,7 @@
 // "momentos" marcantes de cada missão, com fotos reais (NASA e parceiros).
 import * as THREE from '../vendor/three.module.js';
 import { deltaT } from './corpos.js';
+import { t } from './idioma.js';
 
 const UA = 1.495978707e8;
 const jdDe = (iso) => Date.parse(iso) / 86400000 + 2440587.5;
@@ -294,7 +295,7 @@ export function criarMissoes(cena, PORID, materialRochoso) {
       for (let k = 0; k < dados.length; k += 7) dados[k] -= deltaT(dados[k]) / 86400;
       for (const sg of it.segmentos) { sg.jd0 -= deltaT(sg.jd0) / 86400; sg.jd1 -= deltaT(sg.jd1) / 86400; }
       const o = {
-        ...it, dados, abs: new THREE.Vector3(), ativo: false, vel: new THREE.Vector3(), jd0: Infinity, jd1: -Infinity,
+        ...it, nome: t(it.nome), dados, abs: new THREE.Vector3(), ativo: false, vel: new THREE.Vector3(), jd0: Infinity, jd1: -Infinity,
         raio: it.tipo === 'cometa' ? COMETAS[it.id][0] : 0.005, cor: it.tipo === 'cometa' ? 0xcfe3ff : 0xffe0a0,
         momentos: (MOMENTOS[it.id] || []).map((m) => ({ ...m, jd: jdDe(m.iso), fotoInfo: m.foto ? fotos[m.foto] : null })),
         qOri: new THREE.Quaternion(), qOriAnt: new THREE.Quaternion(),

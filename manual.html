@@ -46,6 +46,10 @@
   .destaque { border: 1px solid rgba(127,127,127,.3); border-radius: 10px; padding: 10px 12px; }
   .destaque b.num { display: block; font-size: 22px; line-height: 1.2; }
   .destaque span { font-size: 14px; opacity: .85; }
+  nav.idiomas { position: static; max-height: none; overflow: visible; columns: auto; text-align: right; font-size: 13px; margin: 0 0 12px; color: var(--fraco); }
+  nav.idiomas a { display: inline; color: var(--acento); text-decoration: none; padding: 0; }
+  nav.idiomas a:hover { text-decoration: underline; }
+  nav.idiomas b { display: inline; margin: 0; font-size: inherit; letter-spacing: normal; text-transform: none; color: var(--texto); }
 </style>
 <script data-goatcounter="https://viagem-pelo-espaco.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -84,6 +88,7 @@
 </nav>
 
 <main>
+<nav class="idiomas" aria-label="Idioma"><b>Português</b> · <a href="manual.en.html">English</a> · <a href="manual.es.html">Español</a></nav>
 <header>
   <h1>Viagem pelo Espaço: manual</h1>
   <p class="lead">Uma viagem em 3D pelo universo conhecido, da sua rua à borda do universo observável, com posições, distâncias e tempos de luz reais, e velocidade regulável até 10¹⁸ vezes a da luz.</p>

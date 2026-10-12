@@ -3,11 +3,12 @@
 // é confiável a algumas semanas da data dos elementos.
 import * as THREE from '../vendor/three.module.js';
 import * as sat from '../vendor/satellite.js';
+import { t } from './idioma.js';
 
 const LISTA = [
-  { id: 'iss', nome: 'Estação Espacial Internacional (ISS)', catnr: 25544, cor: 0xffffff },
-  { id: 'hubble', nome: 'Telescópio Hubble', catnr: 20580, cor: 0xdfe8ff },
-  { id: 'tiangong', nome: 'Estação Tiangong', catnr: 48274, cor: 0xffe6d0 },
+  { id: 'iss', nome: t('Estação Espacial Internacional (ISS)'), catnr: 25544, cor: 0xffffff },
+  { id: 'hubble', nome: t('Telescópio Hubble'), catnr: 20580, cor: 0xdfe8ff },
+  { id: 'tiangong', nome: t('Estação Tiangong'), catnr: 48274, cor: 0xffe6d0 },
 ];
 const VALIDADE = 20; // dias para cada lado da data dos elementos
 

@@ -1,5 +1,6 @@
 // Som sintetizado na hora (Web Audio): motor, vento perto dos corpos, entrada/saída de dobra
 // e música ambiente gerada, que muda de clima por região. Também toca músicas da pasta musica/.
+import { t as tr } from './idioma.js';
 let ctx = null, mestre, busMusica, eco;
 let motor, vento;
 const estadoSom = { ligado: true, volume: 0.6, musica: 'gerada', regiao: 'sistema' };
@@ -201,7 +202,7 @@ export const proximaFaixa = () => tocarFaixa(iFaixa + 1);
 export async function mudarMusica(modo) {
   estadoSom.musica = modo;
   if (modo === 'minhas') {
-    if (!(await listarFaixas())) { player.pause(); return 'Nenhuma música encontrada: coloque arquivos MP3 na pasta "musica" e escolha de novo.'; }
+    if (!(await listarFaixas())) { player.pause(); return tr('Nenhuma música encontrada: coloque arquivos MP3 na pasta "musica" e escolha de novo.'); }
     tocarFaixa(0);
   } else player.pause();
   return '';

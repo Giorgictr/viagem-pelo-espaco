@@ -4,8 +4,9 @@
 // então mexer a cabeça 1 m desloca a vista 1 m, não 1 km.
 import * as THREE from '../vendor/three.module.js';
 import { VRButton } from '../vendor/VRButton.js';
+import { t } from './idioma.js';
 
-const TEXTOS = { 'ENTER VR': 'Entrar em VR', 'EXIT VR': 'Sair da VR', 'VR NOT SUPPORTED': 'VR não disponível', 'VR NOT ALLOWED': 'VR não permitida' };
+const TEXTOS = { 'ENTER VR': t('Entrar em VR'), 'EXIT VR': t('Sair da VR'), 'VR NOT SUPPORTED': t('VR não disponível'), 'VR NOT ALLOWED': t('VR não permitida') };
 const ZONA = 0.15; // zona morta dos joysticks
 const GIRO = Math.PI / 6; // giro em saltos de 30°
 

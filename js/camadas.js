@@ -1,6 +1,7 @@
 // Camadas da Terra (Natural Earth): cidades, países, mares, picos, regiões e fronteiras.
-// Nomes em português quando o Natural Earth os tem. Tudo fica guardado no projeto (sem internet).
+// Nomes no idioma da interface quando o Natural Earth os tem (dados/gerar_lugares_idiomas.py). Tudo fica guardado no projeto (sem internet).
 import * as THREE from '../vendor/three.module.js';
+import { idioma, LOCALE } from './idioma.js';
 
 const GRAU = Math.PI / 180;
 // Mesma convenção da Terra: longitude 0 em +x, leste em −z, norte em +y
@@ -32,10 +33,15 @@ const FRONTEIRA_F = /* glsl */ `
   }`;
 
 export async function criarCamadas(cena, raio, camadaRot, aoClicar) {
-  const [dados, bin] = await Promise.all([
+  const [dados, bin, nomes] = await Promise.all([
     fetch('dados/terra_camadas.json').then((r) => r.json()),
     fetch('dados/fronteiras.bin').then((r) => r.arrayBuffer()),
+    idioma === 'pt' ? null : fetch(`dados/idiomas/lugares.${idioma}.json`).then((r) => r.json()).catch(() => null),
   ]);
+  if (nomes) {
+    for (const tipo of ['cidades', 'paises', 'mares', 'picos', 'regioes']) dados[tipo].forEach((it, i) => { if (nomes[tipo]?.[i]) it[0] = nomes[tipo][i]; });
+    dados.cidades.forEach((it, i) => { it[6] = it[4]; if (nomes.paisDasCidades?.[i]) it[4] = nomes.paisDasCidades[i]; }); // o fuso horário procura o país em português
+  }
   // Fronteiras: segmentos lat/lon → pontos na esfera, 300 m acima do mar
   const ll = new Float32Array(bin), pos = new Float32Array((ll.length / 2) * 3), v = new THREE.Vector3();
   for (let i = 0; i < ll.length / 2; i++) dirLatLon(ll[i * 2], ll[i * 2 + 1], v).multiplyScalar(raio + 0.3).toArray(pos, i * 3);
@@ -55,7 +61,7 @@ export async function criarCamadas(cena, raio, camadaRot, aoClicar) {
   const add = (tipo, nome, lat, lon, extra) => itens.push({ tipo, nome, dir: dirLatLon(lat, lon), lat, lon, ...extra });
   for (const [nome, lat, lon, rank] of dados.paises) add('pais', nome, lat, lon, { rank });
   for (const [nome, lat, lon, rank] of dados.mares) add('mar', nome, lat, lon, { rank });
-  for (const [nome, lat, lon, pop, pais, estado] of dados.cidades) add('cidade', nome, lat, lon, { pop, pais, estado });
+  for (const [nome, lat, lon, pop, pais, estado, paisPt] of dados.cidades) add('cidade', nome, lat, lon, { pop, pais, estado, paisPt: paisPt ?? pais });
   for (const [nome, lat, lon, elev, rank] of dados.picos) add('pico', nome, lat, lon, { elev, rank });
   for (const [nome, lat, lon, cla, rank] of dados.regioes) add('regiao', nome, lat, lon, { rank, cla });
 
@@ -106,7 +112,7 @@ export async function criarCamadas(cena, raio, camadaRot, aoClicar) {
           _w.applyMatrix4(camera.projectionMatrix);
           const x = (_w.x * 0.5 + 0.5) * innerWidth, y = (-_w.y * 0.5 + 0.5) * innerHeight;
           if (x < 0 || x > innerWidth || y < 0 || y > innerHeight) continue;
-          const texto = it.tipo === 'pico' ? `▲ ${it.nome} · ${it.elev.toLocaleString('pt-BR')} m` : it.tipo === 'pais' ? it.nome.toUpperCase() : it.nome;
+          const texto = it.tipo === 'pico' ? `▲ ${it.nome} · ${it.elev.toLocaleString(LOCALE)} m` : it.tipo === 'pais' ? it.nome.toUpperCase() : it.nome;
           const w = texto.length * (it.tipo === 'pais' ? 8 : 6.5) + 14;
           const caixa = it.tipo === 'cidade' || it.tipo === 'pico' ? [x, y - 8, x + w, y + 8] : [x - w / 2, y - 9, x + w / 2, y + 9];
           if (postos.some((b) => caixa[0] < b[2] && caixa[2] > b[0] && caixa[1] < b[3] && caixa[3] > b[1])) continue;

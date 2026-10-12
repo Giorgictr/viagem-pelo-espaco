@@ -5,3 +5,4 @@ musica/*
 !musica/LEIA-ME.txt
 __pycache__/
 dados/relevo/
+dados/idiomas/faltantes.*.json

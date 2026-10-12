@@ -1,4 +1,5 @@
 import * as THREE from '../vendor/three.module.js';
+import { t as tr, tn, LOCALE, idioma, IDIOMAS, trocarIdioma, manual as manualIdioma } from './idioma.js';
 import { C, UA, AL, PC, GRAU, distancia, duracao, velocidade, data, jdAgora, sig } from './unidades.js';
 import { CORPOS, PORID, atualizarPosicoes, pontosOrbita } from './corpos.js';
 import { eixos, mouse, ligarMouse, aoTeclar, teclas } from './controles.js';
@@ -53,8 +54,8 @@ tela.addEventListener('webglcontextlost', (e) => {
   try { ultima = +sessionStorage.getItem('viagemRecarga') || 0; } catch { /* sem armazenamento */ }
   const repetida = Date.now() - ultima < 60000;
   el.textContent = repetida
-    ? 'A placa de vídeo ficou sem memória de novo. Feche outras abas pesadas e recarregue a página (Cmd+R).'
-    : 'A placa de vídeo ficou sem memória (comum depois de muito tempo voando baixo sobre a Terra). Recarregando no mesmo lugar e na mesma data…';
+    ? tr('A placa de vídeo ficou sem memória de novo. Feche outras abas pesadas e recarregue a página (Cmd+R).')
+    : tr('A placa de vídeo ficou sem memória (comum depois de muito tempo voando baixo sobre a Terra). Recarregando no mesmo lugar e na mesma data…');
   document.body.append(el);
   if (repetida) return;
   try {
@@ -70,16 +71,16 @@ tela.addEventListener('webglcontextlost', (e) => {
 const vr = criarVR(renderer, cena, camera, {
   aoEntrar: () => entrarVR(), aoSair: () => sairVR(),
   textoPainel: () => textoPainelVR(),
-  escolherNaDirecao: (dir) => { const c = alvoNaDirecao(dir); if (c) { escolherAlvo(c); aviso(`Alvo: ${c.nome}`); } else aviso('Nada nessa direção.'); },
+  escolherNaDirecao: (dir) => { const c = alvoNaDirecao(dir); if (c) { escolherAlvo(c); aviso(tr('Alvo: {c}', { c })); } else aviso(tr('Nada nessa direção.')); },
   direcaoAlvo: (out) => (estado.alvo && estado.alvo !== estado.embarcado ? out.copy(estado.alvo.abs).sub(camAbs()).normalize() : null),
   nomeAlvo: () => estado.alvo?.nome ?? '',
   multiplicarV: (f) => definirV(estado.v * f),
   embarcarOuDesembarcar: () => {
     if (estado.embarcado) { desembarcar(); escolherRef(); aviso('Desembarcou.'); }
     else if (estado.alvo && missoes.objetos.includes(estado.alvo)) embarcar(estado.alvo);
-    else aviso(estado.alvo ? `Não dá para embarcar ${com('em', estado.alvo)}.` : 'Escolha um alvo primeiro (gatilho direito).');
+    else aviso(estado.alvo ? tr('Não dá para embarcar {em:c}.', { c: estado.alvo }) : tr('Escolha um alvo primeiro (gatilho direito).'));
   },
-  irAoAlvo: () => { if (estado.alvo) irPara(estado.alvo); else aviso('Escolha um alvo primeiro (gatilho direito).'); },
+  irAoAlvo: () => { if (estado.alvo) irPara(estado.alvo); else aviso(tr('Escolha um alvo primeiro (gatilho direito).')); },
   parar: () => { pararTudo(); aviso('Parado.'); },
   trocarEfeito: () => { trocarEfeito(); aviso(EFEITOS[estado.efeito]); },
 });
@@ -518,14 +519,8 @@ function direcaoBonita(c) {
 }
 
 const _m = new THREE.Matrix4(), _up = new THREE.Vector3(), ORIGEM = new THREE.Vector3();
-// Artigos: "ao Sol", "à Lua", "da Terra", "na Lua", "em Marte"
-const FEM = ['terra', 'lua'], MASC = ['sol'];
-function com(prep, c) {
-  const f = FEM.includes(c.id) || /^(Galáxia|Via Láctea|Grande Nuvem|Pequena Nuvem|Estrela|Borda)/.test(c.nome);
-  const m = MASC.includes(c.id) || /^(Centro|Aglomerado|Grande Atrator|Quasar)/.test(c.nome);
-  const t = { a: f ? 'à' : m ? 'ao' : 'a', de: f ? 'da' : m ? 'do' : 'de', em: f ? 'na' : m ? 'no' : 'em' }[prep];
-  return `${t} ${c.nome}`;
-}
+// Artigos: "ao Sol", "à Lua", "da Terra", "na Lua", "em Marte" (e os equivalentes em cada idioma, em idioma.js)
+const com = (prep, c) => tr(`{${prep}:c}`, { c });
 function quatOlhando(dir, out = new THREE.Quaternion(), up = null) {
   if (up) _up.copy(up); else _up.set(0, 1, 0).applyQuaternion(estado.q);
   if (!Number.isFinite(_up.x + _up.y + _up.z) || _up.lengthSq() < 1e-12) _up.set(0, 1, 0);
@@ -581,10 +576,10 @@ function pousar() {
   const r = estado.ref;
   const c = r && ['planeta', 'lua', 'anao'].includes(r.tipo) ? r : proximo;
   const altC = c === proximo ? altProx : camAbs().distanceTo(c.abs) - raioSuperficie(c, camAbs().sub(c.abs));
-  if (!c || !['planeta', 'lua', 'anao'].includes(c.tipo)) return aviso('Chegue perto de um planeta ou lua para pousar.');
-  if (GASOSOS.includes(c.id)) return aviso(`${c.nome} é um gigante gasoso: não tem chão para pousar.`);
-  if (c.gasoso) return aviso(`${c.nome} não é rochoso (${c.tipoExo}): não tem chão para pousar.`);
-  if (altC > c.raio * 30) return aviso(`Chegue mais perto ${com('de', c)} para pousar (menos de ${distancia(c.raio * 30)}).`);
+  if (!c || !['planeta', 'lua', 'anao'].includes(c.tipo)) return aviso(tr('Chegue perto de um planeta ou lua para pousar.'));
+  if (GASOSOS.includes(c.id)) return aviso(tr('{c} é um gigante gasoso: não tem chão para pousar.', { c }));
+  if (c.gasoso) return aviso(tr('{c} não é rochoso ({tipo}): não tem chão para pousar.', { c, tipo: tr(c.tipoExo) }));
+  if (altC > c.raio * 30) return aviso(tr('Chegue mais perto {de:c} para pousar (menos de {d}).', { c, d: distancia(c.raio * 30) }));
   mudarRef(c);
   estado.cruzeiro = false;
   const dirCena = estado.local.clone().normalize();
@@ -612,7 +607,7 @@ const PRESETS = [
 ];
 for (const [nome, v] of PRESETS) {
   const b = document.createElement('button');
-  b.textContent = nome;
+  b.textContent = tr(nome);
   b.onclick = () => definirV(v);
   $('presets').append(b);
 }
@@ -638,7 +633,7 @@ const GRUPOS = [
 for (const sel of [$('selDestino'), $('selPartida')]) {
   for (const [nome, f] of GRUPOS) {
     const g = document.createElement('optgroup');
-    g.label = nome;
+    g.label = tr(nome);
     for (const c of CORPOS.filter(f)) g.append(new Option(c.nome + (c.tipo === 'lua' ? ` (${c.paiObj.nome})` : ''), c.id));
     if (nome === 'Estrelas') g.id = `${sel.id}Estrelas`;
     if (g.children.length || nome === 'Estrelas') sel.append(g);
@@ -664,14 +659,14 @@ function escolherAlvo(c) {
 function preencherEstrelas() {
   for (const sel of [$('selDestino'), $('selPartida')]) {
     const g = $(`${sel.id}Estrelas`);
-    for (const nome of DESTAQUES) if (cat.porNome.has(nome)) g.append(new Option(nome, `hyg${cat.porNome.get(nome)}`));
+    for (const nome of DESTAQUES) if (cat.porNome.has(nome)) g.append(new Option(cat.nomeDe.get(cat.porNome.get(nome)), `hyg${cat.porNome.get(nome)}`));
   }
-  for (const { i, nome } of cat.nomes) addBusca(`${nome} · estrela`, nome, 1e9, () => irPara(estrelaObj(i)));
+  for (const { i, nome } of cat.nomes) addBusca(`${nome} · ${tr('estrela')}`, nome, 1e9, () => irPara(estrelaObj(i)));
   // exoplanetas e suas estrelas (as mais perto pesam mais)
   for (const e of exo.estrelas) {
     const n = e.pl.length, peso = 5e8 / (1 + e.d / 10);
-    addBusca(`${e.nome} · estrela com ${n} planeta${n > 1 ? 's' : ''}`, e.nome, peso, () => irPara(hospedeira(e)));
-    e.pl.slice(0, NEXO).forEach((p) => addBusca(`${p.n} · exoplaneta`, p.n, peso * 0.9, () => irPara(planetaExo(e, p))));
+    addBusca(`${e.nome} · ${tn(n, 'estrela com {n} planeta', 'estrela com {n} planetas')}`, e.nome, peso, () => irPara(hospedeira(e)));
+    e.pl.slice(0, NEXO).forEach((p) => addBusca(`${p.n} · ${tr('exoplaneta')}`, p.n, peso * 0.9, () => irPara(planetaExo(e, p))));
   }
 }
 // Estrela hospedeira e planetas como corpos (criados na primeira vez)
@@ -697,16 +692,16 @@ function irPara(c) {
   if (c.soCeu) { estado.alvo = c; return apontar(c); }
   escolherAlvo(c);
   if (estado.ceuModo) return apontar(c); // olhando o céu, a busca aponta em vez de viajar
-  iniciarViagem(c); aviso(`Indo para ${c.nome}…`);
+  iniciarViagem(c); aviso(tr('Indo para {c}…', { c }));
 }
 // Vira a câmera para um astro (no modo céu, mantendo o horizonte embaixo)
 function apontar(c) {
-  if (!c) return aviso('Escolha um alvo: clique num nome no céu ou use a busca.');
+  if (!c) return aviso(tr('Escolha um alvo: clique num nome no céu ou use a busca.'));
   const up = estado.local.clone().normalize();
   const dir = c.abs.clone().sub(camAbs());
   quatOlhando(dir, estado.q, up);
-  if (estado.ceuModo && dir.normalize().dot(up) < 0) aviso(`${c.nome} está abaixo do horizonte agora.`);
-  else aviso(`Apontando para ${c.nome}.`);
+  if (estado.ceuModo && dir.normalize().dot(up) < 0) aviso(tr('{c} está abaixo do horizonte agora.', { c }));
+  else aviso(tr('Apontando para {c}.', { c }));
 }
 // Limite de magnitude: o olho (6,5), o "céu realçado" (9,5) e, no telescópio, quanto mais aumento, mais abertura
 function limiteMag() {
@@ -733,14 +728,14 @@ function refratar(p) {
   return p.multiplyScalar(Math.cos(r)).addScaledVector(_rt, (Math.sin(r) * L) / tl);
 }
 const TIPO_CORPO = { estrela: 'estrela', planeta: 'planeta', anao: 'planeta anão', galaxia: 'galáxia', marco: 'lugar do universo' };
-for (const c of CORPOS) addBusca(`${c.nome} · ${c.tipo === 'lua' ? `lua ${com('de', c.paiObj)}` : TIPO_CORPO[c.tipo]}`, c.nome, 1e13, () => irPara(c));
+for (const c of CORPOS) addBusca(`${c.nome} · ${c.tipo === 'lua' ? tr('lua {de:p}', { p: c.paiObj }) : tr(TIPO_CORPO[c.tipo])}`, c.nome, 1e13, () => irPara(c));
 const TIPO_LUGAR = { cidade: 'cidade', pais: 'país', mar: 'mar', pico: 'pico', regiao: 'região' };
 const PESO_LUGAR = { mar: 3e6, pico: 2e6, regiao: 1e5 }; // países: pelo tamanho (abaixo); metrópoles vencem mares
 function preencherLugares(itens) {
   for (const it of itens) {
-    const extra = it.tipo === 'cidade' ? [it.estado, it.pais].filter(Boolean).join(', ') : it.tipo === 'pico' ? `${it.elev.toLocaleString('pt-BR')} m` : '';
+    const extra = it.tipo === 'cidade' ? [it.estado, it.pais].filter(Boolean).join(', ') : it.tipo === 'pico' ? `${it.elev.toLocaleString(LOCALE)} m` : '';
     const peso = it.tipo === 'cidade' ? it.pop : it.tipo === 'pais' ? 3e7 / (it.rank || 5) ** 2 : PESO_LUGAR[it.tipo];
-    addBusca(`${it.nome} · ${TIPO_LUGAR[it.tipo]}${extra ? `, ${extra}` : ''}`, it.nome, peso, () => voarPara(it));
+    addBusca(`${it.nome} · ${tr(TIPO_LUGAR[it.tipo])}${extra ? `, ${extra}` : ''}`, it.nome, peso, () => voarPara(it));
   }
 }
 const APELIDOS = { atlas: '3i/atlas', '3i': '3i/atlas', sp: 'sao paulo', rj: 'rio de janeiro', bh: 'belo horizonte', ny: 'nova york', titan: 'tita', poa: 'porto alegre', bsb: 'brasilia' };
@@ -756,7 +751,7 @@ function buscar(v) {
 }
 $('busca').onchange = () => {
   const e = buscar($('busca').value);
-  if (!e) return aviso('Não encontrei esse nome entre os corpos do céu, as estrelas e os lugares da Terra.');
+  if (!e) return aviso(tr('Não encontrei esse nome entre os corpos do céu, as estrelas e os lugares da Terra.'));
   $('busca').value = '';
   $('busca').blur();
   e.acao();
@@ -780,14 +775,14 @@ function voarPara(it, depois = null) {
     modo: 'lugar', alvo: T, lugar: it, depois, t: 0, altFinal, dirLocal: dirCam, d0, dir0: estado.local.clone().normalize(),
     dur: Math.min(Math.max(6 + 1.6 * Math.log10(Math.max(d0 / d1, 1)), 6), 22),
   };
-  aviso(`Voando para ${it.nome}…`);
+  aviso(tr('Voando para {c}…', { c: it.nome }));
 }
 
 // Modo avião: segue o relevo a uma altitude constante; ↑↓ sobem e descem, ←→ viram
 function alternarAviao() {
   if (estado.aviao) { estado.aviao = false; restaurarV(); return; }
   const r = estado.ref;
-  if (!r || !r.malha || r.tipo === 'estrela' || altRef > 300) return aviso('Desça a menos de 300 km de um planeta ou lua para voar de avião.');
+  if (!r || !r.malha || r.tipo === 'estrela' || altRef > 300) return aviso(tr('Desça a menos de 300 km de um planeta ou lua para voar de avião.'));
   estado.aviao = true;
   estado.pousado = null;
   estado.piloto = null;
@@ -807,7 +802,7 @@ function alternarAviao() {
 const pintores = [];
 function chave(id, rotulos, ler, alternar, tecla) {
   const b = $(id);
-  const pintar = () => { b.textContent = rotulos[ler() ? 0 : 1]; b.classList.toggle('ativo', !!ler()); };
+  const pintar = () => { b.textContent = tr(rotulos[ler() ? 0 : 1]); b.classList.toggle('ativo', !!ler()); };
   pintores.push(pintar);
   const f = () => { alternar(); pintar(); };
   b.onclick = f;
@@ -824,7 +819,7 @@ chave('btInventado', ['Detalhe inventado', 'Só dado real'], () => estado.invent
 chave('btCeu', ['Céu realçado', 'Céu a olho nu'], () => estado.ceuRealcado, () => (estado.ceuRealcado = !estado.ceuRealcado), 'KeyK');
 // Efeito visual da velocidade: dobra (cinema) → relatividade (física real) → nenhum
 const EFEITOS = { dobra: 'Efeito: dobra (cinema)', relatividade: 'Efeito: relatividade (real)', nenhum: 'Efeito: nenhum' };
-function pintarEfeito() { $('btDobra').textContent = EFEITOS[estado.efeito]; $('btDobra').classList.toggle('ativo', estado.efeito !== 'nenhum'); }
+function pintarEfeito() { $('btDobra').textContent = tr(EFEITOS[estado.efeito]); $('btDobra').classList.toggle('ativo', estado.efeito !== 'nenhum'); }
 function trocarEfeito() {
   const ordem = Object.keys(EFEITOS);
   estado.efeito = ordem[(ordem.indexOf(estado.efeito) + 1) % ordem.length];
@@ -900,7 +895,7 @@ const EPOCAS = {
   cambriano: { ma: 500, nivel: 0, texto: 'Há ~500 milhões de anos, no Cambriano: continentes espalhados e praticamente sem vida em terra firme, enquanto a vida complexa se diversifica nos mares.' },
 };
 const PERIODOS = [[2.6, 'Quaternário'], [23, 'Neógeno'], [66, 'Paleógeno'], [145, 'Cretáceo'], [201, 'Jurássico'], [252, 'Triássico'], [299, 'Permiano'], [359, 'Carbonífero'], [419, 'Devoniano'], [444, 'Siluriano'], [485, 'Ordoviciano'], [541, 'Cambriano']];
-const periodo = (ma) => (PERIODOS.find(([fim]) => ma < fim) || PERIODOS[PERIODOS.length - 1])[1];
+const periodo = (ma) => tr((PERIODOS.find(([fim]) => ma < fim) || PERIODOS[PERIODOS.length - 1])[1]);
 let indicePaleo = null, texDiaTerra = null, texNoiteTerra = null, pedidoPaleo = 0;
 fetch('dados/paleo/indice.json').then((r) => r.json()).then((j) => (indicePaleo = j));
 
@@ -949,8 +944,8 @@ async function aplicarEpoca(id, maLivre) {
   estado.gelo = !!ep.gelo;
   estado.nivelMar = ep.nivel;
   $('tempoMa').value = ep.ma;
-  $('tempoMaTxt').textContent = ep.ma ? `há ${ep.ma} milhões de anos · ${periodo(ep.ma)}` : 'hoje';
-  $('textoEpoca').textContent = ep.texto || (ep.ma ? `Há ${ep.ma} milhões de anos (${periodo(ep.ma)}).` : '');
+  $('tempoMaTxt').textContent = ep.ma ? tr('há {n} milhões de anos · {p}', { n: ep.ma, p: periodo(ep.ma) }) : tr('hoje');
+  $('textoEpoca').textContent = ep.texto ? tr(ep.texto) : ep.ma ? tr('Há {n} milhões de anos ({p}).', { n: ep.ma, p: periodo(ep.ma) }) : '';
   $('fonteEpoca').hidden = !ep.ma;
   if (!ep.ma) {
     paleoAtual = null;
@@ -1006,7 +1001,7 @@ for (const b of document.querySelectorAll('[data-nivel]')) b.onclick = () => { e
 // Pousa no ponto da Terra abaixo da câmera, olha para o céu (norte, 35° acima do horizonte), sem nuvens
 // e sem luzes de cidade; o tempo corre normalmente e dá para escolher hora e data.
 let antesDoCeu = null;
-function pintarGira() { $('btGira').textContent = estado.giraJunto ? 'Girar com o planeta' : 'Não girar com o planeta'; $('btGira').classList.toggle('ativo', estado.giraJunto); }
+function pintarGira() { $('btGira').textContent = tr(estado.giraJunto ? 'Girar com o planeta' : 'Não girar com o planeta'); $('btGira').classList.toggle('ativo', estado.giraJunto); }
 function eixosLocais(d) {
   const E = PORID.terra;
   const polo = new THREE.Vector3(0, 1, 0).applyQuaternion(E.qOri);
@@ -1018,7 +1013,7 @@ function eixosLocais(d) {
 function olharCeu() {
   if (estado.ceuModo) return sairDoCeu();
   const E = PORID.terra;
-  if (estado.ref !== E || altRef > E.raio * 3) return aviso('Vá até a Terra (ou busque uma cidade) para olhar o céu de lá.');
+  if (estado.ref !== E || altRef > E.raio * 3) return aviso(tr('Vá até a Terra (ou busque uma cidade) para olhar o céu de lá.'));
   estado.piloto = null; estado.cruzeiro = false; estado.aviao = false;
   let d = estado.local.clone().normalize();
   const ul = estado.ultimoLugar;
@@ -1047,7 +1042,7 @@ function olharCeu() {
 function sairDoCeu() {
   restaurarV();
   if (estado.telescopio) alternarTelescopio();
-  if (Math.abs(estado.jd - jdAgora()) > 1) aviso(`A simulação continua em ${data(estado.jd)}. Use "Agora" para voltar ao presente.`);
+  if (Math.abs(estado.jd - jdAgora()) > 1) aviso(tr('A simulação continua em {d}. Use "Agora" para voltar ao presente.', { d: data(estado.jd) }));
   estado.ceuModo = false;
   document.body.classList.remove('modoCeu');
   if (antesDoCeu) {
@@ -1064,17 +1059,17 @@ function definirZoom(z) {
   estado.zoom = Math.min(Math.max(z, 1), 500);
   $('zoomSlider').value = Math.log10(estado.zoom);
   const campo = 60 / estado.zoom * (innerWidth / innerHeight); // campo horizontal aproximado
-  $('zoomTxt').textContent = `${Math.round(estado.zoom)}× · campo de ${campo >= 1 ? `${sig(campo)}°` : `${Math.round(campo * 60)}'`}`;
+  $('zoomTxt').textContent = tr('{z}× · campo de {c}', { z: Math.round(estado.zoom), c: campo >= 1 ? `${sig(campo)}°` : `${Math.round(campo * 60)}'` });
   hudTelescopio();
 }
 function alternarTelescopio() {
   estado.telescopio = !estado.telescopio;
-  if (estado.telescopio && !estado.ceuModo) { estado.telescopio = false; return aviso('O telescópio é usado no modo céu (Z).'); }
+  if (estado.telescopio && !estado.ceuModo) { estado.telescopio = false; return aviso(tr('O telescópio é usado no modo céu (Z).')); }
   document.body.classList.toggle('telescopio', estado.telescopio);
   $('ocular').hidden = !estado.telescopio;
   for (const id of ['linhaZoom', 'linhaTel', 'zoomTxt']) $(id).hidden = !estado.telescopio;
   if (estado.telescopio) { definirZoom(estado.zoom); hudTelescopio(); }
-  $('btTelescopio').textContent = estado.telescopio ? 'Telescópio: ligado' : 'Telescópio: desligado';
+  $('btTelescopio').textContent = tr(estado.telescopio ? 'Telescópio: ligado' : 'Telescópio: desligado');
   $('btTelescopio').classList.toggle('ativo', estado.telescopio);
 }
 chave('btTelescopio', ['Telescópio: ligado', 'Telescópio: desligado'], () => estado.telescopio, alternarTelescopio);
@@ -1082,7 +1077,7 @@ chave('btRastrear', ['Acompanhar as estrelas', 'Telescópio parado'], () => esta
 $('zoomSlider').oninput = (e) => definirZoom(10 ** +e.target.value);
 $('btApontar').onclick = () => apontar(estado.alvo);
 // Dados e botões nas bordas escuras da ocular
-const pintarRastrear = () => { $('hudRastrear').textContent = estado.rastrear ? 'Acompanhando as estrelas' : 'Telescópio parado'; $('hudRastrear').classList.toggle('ativo', estado.rastrear); $('btRastrear').textContent = estado.rastrear ? 'Acompanhar as estrelas' : 'Telescópio parado'; $('btRastrear').classList.toggle('ativo', estado.rastrear); };
+const pintarRastrear = () => { $('hudRastrear').textContent = tr(estado.rastrear ? 'Acompanhando as estrelas' : 'Telescópio parado'); $('hudRastrear').classList.toggle('ativo', estado.rastrear); $('btRastrear').textContent = tr(estado.rastrear ? 'Acompanhar as estrelas' : 'Telescópio parado'); $('btRastrear').classList.toggle('ativo', estado.rastrear); };
 $('hudMenos').onclick = () => definirZoom(estado.zoom / 1.5);
 $('hudMais').onclick = () => definirZoom(estado.zoom * 1.5);
 $('hudApontar').onclick = () => apontar(estado.alvo);
@@ -1093,8 +1088,8 @@ function hudTelescopio() {
   if (!estado.telescopio) return;
   const campo = 60 / estado.zoom * (innerWidth / Math.max(innerHeight, 1));
   $('hudZoom').textContent = `${Math.round(estado.zoom)}×`;
-  $('hudCampo').textContent = `Campo: ${campo >= 1 ? `${sig(campo)}°` : `${Math.max(1, Math.round(campo * 60))}'`}`;
-  $('hudLim').textContent = `Estrelas até a magnitude ${limiteMag().toFixed(1).replace('.', ',')}`;
+  $('hudCampo').textContent = tr('Campo: {c}', { c: campo >= 1 ? `${sig(campo)}°` : `${Math.max(1, Math.round(campo * 60))}'` });
+  $('hudLim').textContent = tr('Estrelas até a magnitude {m}', { m: limiteMag().toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) });
   const a = estado.alvo;
   if (a && a.abs) {
     const up = estado.local.clone().normalize(), { norte, leste } = eixosLocais(up);
@@ -1102,8 +1097,8 @@ function hudTelescopio() {
     const alt = Math.asin(Math.max(-1, Math.min(1, d.dot(up)))) / GRAU;
     const az = ((Math.atan2(d.dot(leste), d.dot(norte)) / GRAU) + 360) % 360;
     const fora = new THREE.Vector3(0, 0, -1).applyQuaternion(estado.q).angleTo(d) / GRAU > campo / 2;
-    $('hudAlvo').textContent = `Alvo: ${a.nome} · ${Math.round(alt)}° de altura, ${PONTOS[Math.round(az / 22.5) % 16]} (${Math.round(az)}°)${alt < 0 ? ' · abaixo do horizonte' : fora ? ' · fora do campo' : ''}`;
-  } else $('hudAlvo').textContent = 'Sem alvo: clique num nome no céu';
+    $('hudAlvo').textContent = tr('Alvo: {c} · {alt}° de altura, {ponto} ({az}°)', { c: a, alt: Math.round(alt), ponto: PONTOS[Math.round(az / 22.5) % 16], az: Math.round(az) }) + (alt < 0 ? tr(' · abaixo do horizonte') : fora ? tr(' · fora do campo') : '');
+  } else $('hudAlvo').textContent = tr('Sem alvo: clique num nome no céu');
   $('hudHora').textContent = $('ceuHoraLocal').textContent;
   pintarRastrear();
 }
@@ -1252,7 +1247,7 @@ function criarCatalogoProfundo(nMax, deveRotular) {
     el.className = 'messier';
     el.textContent = o.textoRotulo;
     el.style.display = 'none';
-    el.onclick = () => { estado.alvo = o; aviso(`${o.nome} · ${o.tipo}${o.mag ? `, magnitude ${String(o.mag).replace('.', ',')}` : ''}`); };
+    el.onclick = () => { estado.alvo = o; aviso(`${o.nome} · ${tr(o.tipo)}${o.mag ? `, ${tr('magnitude')} ${o.mag.toLocaleString(LOCALE)}` : ''}`); };
     camadaRot.append(el);
     o.el = el;
     return el;
@@ -1307,26 +1302,28 @@ function criarCatalogoProfundo(nMax, deveRotular) {
   }
   return { lista, adicionar, desenhar };
 }
-const irParaProfundo = (obj) => { estado.alvo = obj; if (estado.ceuModo) apontar(obj); else aviso(`${obj.nome}: olhe o céu de um lugar da Terra (Z) e use o telescópio.`); };
+const irParaProfundo = (obj) => { estado.alvo = obj; if (estado.ceuModo) apontar(obj); else aviso(tr('{c}: olhe o céu de um lugar da Terra (Z) e use o telescópio.', { c: obj.nome })); };
 // Messier: todos com nome quando visíveis
 const catMessier = criarCatalogoProfundo(110, (o, a) => a > 0.06);
 const messier = catMessier.lista;
 fetch('dados/messier.json').then((r) => r.json()).then((lista) => {
   for (const o of lista) {
+    if (o.nome) o.nome = tr(o.nome);
     const rotulo = `M${o.m}${o.nome ? ` · ${o.nome}` : ''}`;
     const obj = catMessier.adicionar({ ...o, id: `m${o.m}`, nome: rotulo, textoRotulo: o.nome ? `M${o.m} ${o.nome}` : `M${o.m}` });
-    addBusca(`${rotulo} · ${o.tipo} (Messier)`, `m${o.m}`, 1e10, () => irParaProfundo(obj));
+    addBusca(`${rotulo} · ${tr(o.tipo)} (Messier)`, `m${o.m}`, 1e10, () => irParaProfundo(obj));
     if (o.nome) addBusca(`${o.nome} · M${o.m}`, o.nome, 1e10, () => irParaProfundo(obj));
   }
 });
 // NGC e IC: só os famosos (com nome) ou, no telescópio, os bem visíveis ganham o nome escrito
 const catNGC = criarCatalogoProfundo(6000, (o, a) => (o.nomePt ? a > 0.08 : estado.telescopio && a > 0.3));
 fetch('dados/ngc.json').then((r) => r.json()).then(({ tipos, objetos }) => {
-  for (const [ra, dec, mag, tam, tamMin, ang, t, id, nomePt] of objetos) {
+  for (const [ra, dec, mag, tam, tamMin, ang, t, id, nomeOriginal] of objetos) {
+    const nomePt = nomeOriginal && tr(nomeOriginal); // (nome no idioma da interface)
     const nome = nomePt ? `${id} · ${nomePt}` : id;
     const obj = catNGC.adicionar({ ra, dec, mag, tam, tamMin, ang, tipo: tipos[t], id: id.replace(' ', '').toLowerCase(), nome, nomePt, textoRotulo: nomePt || id });
     if (!obj) break;
-    addBusca(`${nome} · ${tipos[t]}`, id, nomePt ? 5e9 : 1e6, () => irParaProfundo(obj));
+    addBusca(`${nome} · ${tr(tipos[t])}`, id, nomePt ? 5e9 : 1e6, () => irParaProfundo(obj));
     if (nomePt) addBusca(`${nomePt} · ${id}`, nomePt, 5e9, () => irParaProfundo(obj));
   }
 });
@@ -1379,10 +1376,10 @@ function taxasMeteoros() {
 }
 function textoMeteoros() {
   const t = taxasMeteoros().sort((a, b) => b.zhr - a.zhr);
-  if (!t.length) return 'nenhuma chuva ativa; só os esporádicos (~5 por hora num céu escuro)';
+  if (!t.length) return tr('nenhuma chuva ativa; só os esporádicos (~5 por hora num céu escuro)');
   return t.slice(0, 3).map(({ c, d, hr }) => {
-    const pico = Math.abs(d) < 0.6 ? 'no pico' : d < 0 ? `pico em ${Math.round(-d)} dia${Math.round(-d) > 1 ? 's' : ''}` : `pico há ${Math.round(d)} dia${Math.round(d) > 1 ? 's' : ''}`;
-    return `${c.nome} (${pico}; ${hr < 0.5 ? 'radiante baixo ou abaixo do horizonte agora' : `~${Math.round(hr)} por hora agora`})`;
+    const pico = Math.abs(d) < 0.6 ? tr('no pico') : d < 0 ? tn(Math.round(-d), 'pico em {n} dia', 'pico em {n} dias') : tn(Math.round(d), 'pico há {n} dia', 'pico há {n} dias');
+    return `${tr(c.nome)} (${pico}; ${hr < 0.5 ? tr('radiante baixo ou abaixo do horizonte agora') : tr('~{n} por hora agora', { n: Math.round(hr) })})`;
   }).join(' · ');
 }
 // desenho: riscos que saem do radiante (linhas) com a cabeça brilhante (ponto)
@@ -1542,7 +1539,7 @@ function posicionarVistaFora() {
   const dist = (TAMANHO_M[nome] / 1000) * 2.5;
   estado.local.copy(new THREE.Vector3(0, 0, -1).applyQuaternion(estado.q)).multiplyScalar(-dist);
 }
-function pintarVista() { $('mVista').textContent = estado.vistaFora ? 'Vista: de fora (sonda em 3D)' : 'Vista: de dentro'; $('mVista').classList.toggle('ativo', estado.vistaFora); }
+function pintarVista() { $('mVista').textContent = tr(estado.vistaFora ? 'Vista: de fora (sonda em 3D)' : 'Vista: de dentro'); $('mVista').classList.toggle('ativo', estado.vistaFora); }
 $('mVista').onclick = () => {
   estado.vistaFora = !estado.vistaFora;
   if (!estado.vistaFora) estado.local.set(0.001, 0, 0);
@@ -1568,7 +1565,7 @@ function desenharFrota(abs) {
   if (!perto || !estado.satGrupo) { pontosFrota.visible = false; if (!estado.satGrupo && frotaSat.frota.grupo) frotaSat.carregar(null); return; }
   frotaSat.carregar(estado.satGrupo);
   const f = frotaSat.frota;
-  if (f.falhou) { f.falhou = false; estado.satGrupo = 'visual'; $('selSatelites').value = 'visual'; aviso('O CelesTrak só libera a lista completa a cada 2 horas; por enquanto, os satélites mais brilhantes.'); }
+  if (f.falhou) { f.falhou = false; estado.satGrupo = 'visual'; $('selSatelites').value = 'visual'; aviso(tr('O CelesTrak só libera a lista completa a cada 2 horas; por enquanto, os satélites mais brilhantes.')); }
   if (!f.n) { pontosFrota.visible = false; return; }
   if (capFrota < f.n) {
     capFrota = f.n;
@@ -1692,7 +1689,7 @@ function desenharPequenos(abs, postos) {
     const caixa = [x, y - 8, x + o.textoRotulo.length * 6.2 + 12, y + 8];
     if (o !== estado.alvo && postos.some((b) => caixa[0] < b[2] && caixa[2] > b[0] && caixa[1] < b[3] && caixa[3] > b[1])) continue;
     postos.push(caixa);
-    if (!o.el) { o.el = document.createElement('div'); o.el.className = 'messier'; o.el.textContent = o.textoRotulo; o.el.onclick = () => { estado.alvo = o; aviso(`${o.nome} · ${o.tipo.trim()}, magnitude ${o.mag.toFixed(1).replace('.', ',')} agora`); }; camadaRot.append(o.el); }
+    if (!o.el) { o.el = document.createElement('div'); o.el.className = 'messier'; o.el.textContent = o.textoRotulo; o.el.onclick = () => { estado.alvo = o; aviso(tr('{c} · {tipo}, magnitude {m} agora', { c: o.nome, tipo: tr(o.tipo.trim()), m: o.mag.toLocaleString(LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) })); }; camadaRot.append(o.el); }
     o.el.style.left = `${x}px`; o.el.style.top = `${y}px`; o.el.style.display = '';
     o.el.classList.toggle('alvo', o === estado.alvo);
   }
@@ -1700,9 +1697,9 @@ function desenharPequenos(abs, postos) {
   geoPeq.attributes.position.needsUpdate = true; geoPeq.attributes.alfa.needsUpdate = true; geoPeq.attributes.tamanho.needsUpdate = true;
 }
 function pintarCeuBotoes() {
-  $('btLinhasConst').textContent = estado.linhasConst ? 'Desenho das constelações: ligado' : 'Desenho das constelações: desligado';
+  $('btLinhasConst').textContent = tr(estado.linhasConst ? 'Desenho das constelações: ligado' : 'Desenho das constelações: desligado');
   $('btLinhasConst').classList.toggle('ativo', estado.linhasConst);
-  $('btNomesConst').textContent = estado.constelacoes ? 'Nomes das constelações: ligados' : 'Nomes das constelações: desligados';
+  $('btNomesConst').textContent = tr(estado.constelacoes ? 'Nomes das constelações: ligados' : 'Nomes das constelações: desligados');
   $('btNomesConst').classList.toggle('ativo', estado.constelacoes);
   $('ckLinhasConst').checked = estado.linhasConst;
   $('ckConst').checked = estado.constelacoes;
@@ -1715,21 +1712,22 @@ pintarCeuBotoes();
 // Constelações (nomes no centro de cada uma, como vistas do Sistema Solar)
 let constelacoes = [];
 fetch('dados/constelacoes.json').then((r) => r.json()).then((lista) => {
-  constelacoes = lista.map(([nome, x, y, z]) => {
+  constelacoes = lista.map(([nomePt, x, y, z]) => {
+    const nome = idioma === 'en' && nomePt === 'Telescópio' ? 'Telescopium' : tr(nomePt); // "Telescópio" também é botão
     const el = document.createElement('div');
     el.className = 'constelacao';
     el.textContent = nome;
     el.style.display = 'none';
     camadaRot.append(el);
-    return { nome, dir: new THREE.Vector3(x, y, z), el };
+    return { nome, nomePt, dir: new THREE.Vector3(x, y, z), el };
   });
   // na busca: "orion", "escorpiao"… vira a câmera para a constelação e liga o desenho e os nomes
-  for (const c of constelacoes) addBusca(`${c.nome} · constelação`, c.nome, 1e10, () => {
+  for (const c of constelacoes) addBusca(`${c.nome} · ${tr('constelação')}`, c.nome, 1e10, () => {
     estado.constelacoes = true; estado.linhasConst = true; pintarCeuBotoes();
     const up = estado.ceuModo ? estado.local.clone().normalize() : null;
     quatOlhando(c.dir.clone(), estado.q, up);
-    if (estado.ceuModo && c.dir.dot(up) < 0) aviso(`${c.nome} está abaixo do horizonte agora.`);
-    else aviso(`Olhando para ${c.nome}.`);
+    if (estado.ceuModo && c.dir.dot(up) < 0) aviso(tr('{c} está abaixo do horizonte agora.', { c: c.nome }));
+    else aviso(tr('Olhando para {c}.', { c: c.nome }));
   });
 });
 // ------------------------------- sondas e cometas: embarcar, momentos e fotos -------------------------------
@@ -1758,13 +1756,13 @@ function registrarEmbarcaveis(lista, grupos) {
     el.onclick = () => escolherAlvo(o);
     el.ondblclick = () => embarcar(o);
     rotulosMissoes[i] = el;
-    addBusca(`${o.nome} · ${TIPO_EMBARQUE[o.tipo]}`, o.nome, 1e12, () => embarcar(o));
+    addBusca(`${o.nome} · ${tr(TIPO_EMBARQUE[o.tipo])}`, o.nome, 1e12, () => embarcar(o));
   }
   geoM.attributes.cor.needsUpdate = true;
   for (const sel of [$('selDestino'), $('selPartida')]) {
     for (const [titulo, tipo] of grupos) {
       const g = document.createElement('optgroup');
-      g.label = titulo;
+      g.label = tr(titulo);
       for (const o of lista.filter((x) => x.tipo === tipo)) g.append(new Option(o.nome, o.id));
       sel.append(g);
     }
@@ -1856,7 +1854,7 @@ function embarcar(o) {
   estado.ritmo = 1; estado.orbitasMovem = true; $('selRitmo').value = '1';
   montarPainelMissao(o);
   document.body.classList.add('embarcado');
-  aviso(`A bordo ${o.tipo === 'sonda' ? 'da sonda' : o.tipo === 'satelite' ? (o.id === 'hubble' ? 'do' : 'da') : 'do'} ${o.nome}.`);
+  aviso(o.tipo === 'sonda' ? tr('A bordo da sonda {c}.', { c: o.nome }) : tr('A bordo {de:c}.', { c: o.tipo === 'satelite' && o.id !== 'hubble' ? { id: 'lua', nome: o.nome } : o }));
 }
 // Vista de lado em relação ao Sol, fora da coma: núcleo, coma e cauda (que aponta para longe do Sol) de perfil
 function enquadrarCometa(o) {
@@ -1881,7 +1879,7 @@ function montarPainelMissao(o) {
   for (const m of o.momentos) {
     const b = document.createElement('button');
     b.className = 'momento';
-    b.textContent = `${new Date((m.jd - 2440587.5) * 86400000).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} · ${m.titulo}${m.foto ? ' 📷' : ''}`;
+    b.textContent = `${new Date((m.jd - 2440587.5) * 86400000).toLocaleDateString(LOCALE, { timeZone: 'UTC' })} · ${tr(m.titulo)}${m.foto ? ' 📷' : ''}`;
     b.onclick = () => irMomento(o, m);
     lista.append(b);
   }
@@ -1890,46 +1888,47 @@ function montarPainelMissao(o) {
   // satélites dão uma volta em hora e meia: ritmos curtos; sondas e cometas, ritmos de dias a anos
   const ritmos = o.tipo === 'satelite' ? [[1, 'tempo real'], [60, '1 min/s'], [3600, '1 h/s'], [86400, '1 dia/s']]
     : [[1, 'tempo real'], [86400, '1 dia/s'], [2629800, '1 mês/s'], [31557600, '1 ano/s']];
-  document.querySelectorAll('#pMissao [data-ritmo]').forEach((b, i) => { b.dataset.ritmo = ritmos[i][0]; b.textContent = ritmos[i][1]; });
+  document.querySelectorAll('#pMissao [data-ritmo]').forEach((b, i) => { b.dataset.ritmo = ritmos[i][0]; b.textContent = tr(ritmos[i][1]); });
 }
 function irMomento(o, m) {
   estado.jd = m.jd;
   atualizarPosicoes(estado.jd);
   missoes.atualizar(estado.jd);
   estado.ritmo = 1; $('selRitmo').value = '1';
-  if (m.olhar === 'cometa') { enquadrarCometa(o); $('mTexto').textContent = m.texto; if (m.foto) mostrarFoto(m); else $('foto').hidden = true; return; }
+  if (m.olhar === 'cometa') { enquadrarCometa(o); $('mTexto').textContent = tr(m.texto); if (m.foto) mostrarFoto(m); else $('foto').hidden = true; return; }
   const alvo = m.olhar ? (PORID[m.olhar] || missoes.porId[m.olhar]) : null;
   const dir = m.olharRaDec ? radecParaCena(m.olharRaDec[0], m.olharRaDec[1], 1) : alvo ? alvo.abs.clone().sub(camAbs()) : null;
   if (dir) quatOlhando(dir, estado.q);
-  $('mTexto').textContent = m.texto;
+  $('mTexto').textContent = tr(m.texto);
   if (m.foto) mostrarFoto(m); else $('foto').hidden = true;
 }
 function mostrarFoto(m) {
   $('fotoImg').src = `dados/fotos/${m.foto}.jpg`;
-  $('fotoImg').alt = m.fotoInfo?.titulo || m.titulo;
-  $('fotoTitulo').textContent = m.titulo;
-  $('fotoTexto').textContent = m.texto;
-  $('fotoCredito').textContent = `Foto real: ${m.credito || 'NASA'}${m.fotoInfo?.titulo ? ` · "${m.fotoInfo.titulo}"` : ''}. Ao fundo, a cena simulada do mesmo momento.`;
+  $('fotoImg').alt = m.fotoInfo?.titulo || tr(m.titulo);
+  $('fotoTitulo').textContent = tr(m.titulo);
+  $('fotoTexto').textContent = tr(m.texto);
+  $('fotoCredito').textContent = tr('Foto real: {c}. Ao fundo, a cena simulada do mesmo momento.', { c: `${m.credito || 'NASA'}${m.fotoInfo?.titulo ? ` · "${m.fotoInfo.titulo}"` : ''}` });
   $('foto').hidden = false;
 }
 let jdAnteriorMomentos = 0;
 function avisarMomentos() {
   const o = estado.embarcado;
-  if (o && estado.ritmo > 1) for (const m of o.momentos) if (jdAnteriorMomentos < m.jd && m.jd <= estado.jd) aviso(`${m.titulo}: veja em "Momentos" no painel da missão.`);
+  if (o && estado.ritmo > 1) for (const m of o.momentos) if (jdAnteriorMomentos < m.jd && m.jd <= estado.jd) aviso(tr('{t}: veja em "Momentos" no painel da missão.', { t: tr(m.titulo) }));
   jdAnteriorMomentos = estado.jd;
 }
 function painelMissao() {
   const o = estado.embarcado, abs = camAbs();
   $('mData').textContent = data(estado.jd);
   if (!o.ativo) {
-    $('mInfo').textContent = o.tipo === 'satelite' ? `Os elementos orbitais valem perto de ${data(o.epoca)} (±${Math.round(o.jd1 - o.epoca)} dias). Use "Agora".` : `Fora do período com dados (${data(o.jd0)} a ${data(o.jd1)}).`;
+    $('mInfo').textContent = o.tipo === 'satelite' ? tr('Os elementos orbitais valem perto de {d} (±{n} dias). Use "Agora".', { d: data(o.epoca), n: Math.round(o.jd1 - o.epoca) }) : tr('Fora do período com dados ({d0} a {d1}).', { d0: data(o.jd0), d1: data(o.jd1) });
   } else if (o.tipo === 'satelite') {
     const periodo = (2 * Math.PI) / o.rec.no; // minutos
     const la = o.lat / GRAU, lo = o.lon / GRAU;
-    $('mInfo').textContent = `Altitude ${sig(o.alt)} km · ${sig(o.velTerra * 3600)} km/h em relação à Terra · uma volta na Terra a cada ${Math.round(periodo)} min · sobre ${sig(Math.abs(la))}° ${la >= 0 ? 'N' : 'S'}, ${sig(Math.abs(lo))}° ${lo >= 0 ? 'L' : 'O'} · ${o.sombra ? 'na sombra da Terra' : o.id === 'hubble' ? 'iluminado pelo Sol' : 'iluminada pelo Sol'}${o.reserva ? ' · sem internet: elementos guardados, menos precisos' : ''}`;
+    $('mInfo').textContent = tr('Altitude {alt} km · {v} km/h em relação à Terra · uma volta na Terra a cada {p} min · sobre {lat}, {lon}', { alt: sig(o.alt), v: sig(o.velTerra * 3600), p: Math.round(periodo), lat: `${sig(Math.abs(la))}° ${la >= 0 ? 'N' : 'S'}`, lon: `${sig(Math.abs(lo))}° ${lo >= 0 ? PONTOS[4] : PONTOS[12]}` })
+      + ` · ${tr(o.sombra ? 'na sombra da Terra' : o.id === 'hubble' ? 'iluminado pelo Sol' : 'iluminada pelo Sol')}${o.reserva ? tr(' · sem internet: elementos guardados, menos precisos') : ''}`;
   } else {
     const dT = abs.distanceTo(PORID.terra.abs);
-    $('mInfo').textContent = `Do Sol: ${distancia(o.abs.distanceTo(PORID.sol.abs))} · da Terra: ${distancia(dT)} · velocidade em relação ao Sol: ${sig(o.vel.length())} km/s · ${o.tipo === 'sonda' ? 'um sinal daqui leva' : 'a luz daqui leva'} ${duracao(dT / C)} até a Terra`;
+    $('mInfo').textContent = tr(o.tipo === 'sonda' ? 'Do Sol: {s} · da Terra: {t} · velocidade em relação ao Sol: {v} km/s · um sinal daqui leva {d} até a Terra' : 'Do Sol: {s} · da Terra: {t} · velocidade em relação ao Sol: {v} km/s · a luz daqui leva {d} até a Terra', { s: distancia(o.abs.distanceTo(PORID.sol.abs)), t: distancia(dT), v: sig(o.vel.length()), d: duracao(dT / C) });
   }
   if (document.activeElement !== $('mLinha')) $('mLinha').value = estado.jd;
 }
@@ -1938,7 +1937,7 @@ for (const b of document.querySelectorAll('#pMissao [data-ritmo]')) b.onclick = 
 $('mPausa').onclick = () => { estado.orbitasMovem = false; };
 $('mAgora').onclick = () => { estado.jd = jdAgora(); estado.ritmo = 1; estado.orbitasMovem = true; $('selRitmo').value = '1'; };
 $('mSair').onclick = () => { desembarcar(); escolherRef(); };
-$('btEmbarcar').onclick = () => { const c = obterCorpo($('selDestino').value); if (c && (c.tipo === 'sonda' || c.tipo === 'cometa')) embarcar(c); else aviso('Escolha uma sonda ou um cometa no destino para embarcar.'); };
+$('btEmbarcar').onclick = () => { const c = obterCorpo($('selDestino').value); if (c && (c.tipo === 'sonda' || c.tipo === 'cometa')) embarcar(c); else aviso(tr('Escolha uma sonda ou um cometa no destino para embarcar.')); };
 $('fotoFechar').onclick = () => ($('foto').hidden = true);
 
 let bussola = []; // criada depois da camada de rótulos
@@ -2038,7 +2037,7 @@ function acharCidade(txt) {
 }
 function pousarNaCidade(txt, ceu) {
   const it = acharCidade(txt);
-  if (!it) return aviso(txt ? `Não achei a cidade "${txt}". Escolha uma da lista.` : 'Escreva o nome de uma cidade.');
+  if (!it) return aviso(txt ? tr('Não achei a cidade "{c}". Escolha uma da lista.', { c: txt }) : tr('Escreva o nome de uma cidade.'));
   const E = PORID.terra;
   if (estado.ceuModo) {
     // já no modo céu: muda de lugar na hora, no mesmo instante
@@ -2049,7 +2048,7 @@ function pousarNaCidade(txt, ceu) {
     estado.q.setFromRotationMatrix(_m.lookAt(ORIGEM, norte.clone().multiplyScalar(Math.cos(35 * GRAU)).addScaledVector(d, Math.sin(35 * GRAU)), d));
     estado.zonaCache = null;
     aplicarCeuPendente();
-    aviso(`Céu de ${it.nome}${it.pais ? `, ${it.pais}` : ''}`);
+    aviso(tr('Céu de {c}', { c: `${it.nome}${it.pais ? `, ${it.pais}` : ''}` }));
     return;
   }
   if (estado.embarcado) desembarcar();
@@ -2076,7 +2075,7 @@ let gaia12 = null, gaia12Pedido = false;
 function talvezGaia12() {
   if (gaia12Pedido || !ceu || estado.leve || limiteMag() < 10) return;
   gaia12Pedido = true;
-  aviso('Carregando mais 2 milhões de estrelas do Gaia para o telescópio…');
+  aviso(tr('Carregando mais 2 milhões de estrelas do Gaia para o telescópio…'));
   carregarGaia(ceu.material, 'dados/gaia12.bin').then((p) => { gaia12 = p; cena.add(gaia12); }).catch(() => { gaia12Pedido = false; });
 }
 let gaia = null, gaiaPedido = false;
@@ -2236,7 +2235,7 @@ function entrarVR() {
   estado.atmFisica = false;
   if (estado.efeito === 'dobra') estado.efeito = 'relatividade';
   pintarVR();
-  aviso('Óculos: modo leve (sem Terra em ladrilhos, atmosfera simples, sem a dobra).');
+  aviso(tr('Óculos: modo leve (sem Terra em ladrilhos, atmosfera simples, sem a dobra).'));
 }
 function sairVR() {
   if (antesVR) {
@@ -2247,7 +2246,7 @@ function sairVR() {
   pintarVR();
 }
 function pintarVR() {
-  $('btAtm').textContent = estado.atmFisica ? 'Atmosfera: física' : 'Atmosfera: simples';
+  $('btAtm').textContent = tr(estado.atmFisica ? 'Atmosfera: física' : 'Atmosfera: simples');
   $('btAtm').classList.toggle('ativo', estado.atmFisica);
   pintarEfeito();
 }
@@ -2256,11 +2255,11 @@ function textoPainelVR() {
   const a = estado.alvo;
   const linhas = [
     vel.principal,
-    a ? `Alvo: ${a.nome}` : 'Alvo: nenhum (aponte + gatilho direito)',
-    a && a !== estado.embarcado && !a.soCeu ? `a ${distancia(Math.max(camAbs().distanceTo(a.abs) - (a.raio ?? 0), 0))}` : '',
+    a ? tr('Alvo: {c}', { c: a }) : tr('Alvo: nenhum (aponte + gatilho direito)'),
+    a && a !== estado.embarcado && !a.soCeu ? tr('a {d}', { d: distancia(Math.max(camAbs().distanceTo(a.abs) - (a.raio ?? 0), 0)) }) : '',
     data(estado.jd),
-    estado.embarcado ? `A bordo: ${estado.embarcado.nome} · A desembarca` : a && missoes.objetos.includes(a) ? 'A embarca · B vai até o alvo' : 'B vai até o alvo',
-    performance.now() < avisoAte ? $('aviso').textContent : 'Gatilho esq. acelera · aperto freia · X para',
+    estado.embarcado ? tr('A bordo: {c} · A desembarca', { c: estado.embarcado }) : a && missoes.objetos.includes(a) ? tr('A embarca · B vai até o alvo') : tr('B vai até o alvo'),
+    performance.now() < avisoAte ? $('aviso').textContent : tr('Gatilho esq. acelera · aperto freia · X para'),
   ];
   return linhas;
 }
@@ -2521,7 +2520,7 @@ function passo() {
     if (!p.olharLivre) estado.q.slerp(quatOlhando(olhar, tmpQ, dir), 1 - Math.exp(-dt * 2.2));
     if (u >= 1) {
       estado.piloto = null; estado.pousado = p.alvo; if (estado.vAntes === undefined) estado.vAntes = estado.v; definirV(5 / 3600);
-      aviso(p.lugar ? `Pouso em ${p.lugar.nome}. Ande com as setas; R para decolar; Z para olhar o céu.` : `Pouso ${com('em', p.alvo)}. Ande com as setas; R para decolar.`);
+      aviso(p.lugar ? tr('Pouso em {c}. Ande com as setas; R para decolar; Z para olhar o céu.', { c: p.lugar.nome }) : tr('Pouso {em:c}. Ande com as setas; R para decolar.', { c: p.alvo }));
       if (p.depois === 'ceu') olharCeu();
     }
   } else if (p && p.modo === 'lugar') {
@@ -2923,8 +2922,8 @@ function desenhar() {
   desenharFrota(abs);
   $('pTerra').style.display = altT < T.raio * 10 && !document.body.classList.contains('foto') ? '' : 'none';
   const comSolo = CORPOS.find((c) => c.solo?.ativo);
-  $('creditos').textContent = terra.ativo ? (estado.ceuModo ? 'Terreno: EOX/Sentinel-2 · NASA · Mapzen/AWS · Natural Earth (créditos completos no manual)' : CREDITOS + (predios.visiveis() ? ' · Construções: © colaboradores do OpenStreetMap (OpenFreeMap)' : ''))
-    : comSolo ? `Relevo (aqui, um ponto a cada ${Math.round(comSolo.solo.resolucao(_dl.copy(camAbs().sub(comSolo.abs)).normalize().applyQuaternion(_qi.copy(comSolo.qOri).invert())).metros)} m): ${comSolo.solo.credito}` + (estado.texturas && CAMADAS[comSolo.id] ? ` · Imagens: ${CAMADAS[comSolo.id].credito}` : '') : '';
+  $('creditos').textContent = terra.ativo ? (estado.ceuModo ? tr('Terreno: EOX/Sentinel-2 · NASA · Mapzen/AWS · Natural Earth (créditos completos no manual)') : tr(CREDITOS) + (predios.visiveis() ? tr(' · Construções: © colaboradores do OpenStreetMap (OpenFreeMap)') : ''))
+    : comSolo ? tr('Relevo (aqui, um ponto a cada {m} m): {c}', { m: Math.round(comSolo.solo.resolucao(_dl.copy(camAbs().sub(comSolo.abs)).normalize().applyQuaternion(_qi.copy(comSolo.qOri).invert())).metros), c: tr(comSolo.solo.credito) }) + (estado.texturas && CAMADAS[comSolo.id] ? tr(' · Imagens: {c}', { c: tr(CAMADAS[comSolo.id].credito) }) : '') : '';
 
   // Bolha do rádio (centrada na Terra); escala escolhida para caber inteira na profundidade
   const rb = raioBolha();
@@ -2941,7 +2940,7 @@ function desenhar() {
   }
   const agoraDentro = dB < rb;
   if (agoraDentro !== dentroBolha && rb > 0) {
-    aviso(agoraDentro ? 'De volta à bolha do rádio: aqui já chegam as transmissões humanas.' : `Você saiu da bolha do rádio: nenhum sinal humano chegou aqui ainda (${Math.round(rb / AL)} anos-luz da Terra).`);
+    aviso(agoraDentro ? tr('De volta à bolha do rádio: aqui já chegam as transmissões humanas.') : tr('Você saiu da bolha do rádio: nenhum sinal humano chegou aqui ainda ({n} anos-luz da Terra).', { n: Math.round(rb / AL) }));
     dentroBolha = agoraDentro;
   }
 
@@ -3088,15 +3087,15 @@ function tempoLuzAnos(distAl) {
   return t0 + ((t1 - t0) * Math.min(Math.max((distAl - d0) / (d1 - d0), 0), 1));
 }
 function quandoSaiu(seg) {
-  if (seg < 1) return ['agora mesmo', ''];
-  if (seg < 365.25 * 86400) return [`há ${duracao(seg)}`, ''];
+  if (seg < 1) return [tr('agora mesmo'), ''];
+  if (seg < 365.25 * 86400) return [tr('há {d}', { d: duracao(seg) }), ''];
   const ano = anoSim(estado.jd) - seg / (365.25 * 86400);
   let quando;
-  if (ano >= 1) quando = `no ano ${Math.floor(ano)}${ano < 1000 ? ' d.C.' : ''}`;
-  else if (ano > -10000) quando = `no ano ${Math.max(Math.ceil(-ano), 1)} a.C.`;
-  else quando = `há ${duracao(seg)}`;
+  if (ano >= 1) quando = tr(ano < 1000 ? 'no ano {a} d.C.' : 'no ano {a}', { a: Math.floor(ano) });
+  else if (ano > -10000) quando = tr('no ano {a} a.C.', { a: Math.max(Math.ceil(-ano), 1) });
+  else quando = tr('há {d}', { d: duracao(seg) });
   const era = ERAS.find(([inicio]) => ano >= inicio);
-  return [quando, era ? `na Terra: ${era[1]}` : 'antes de a Terra existir'];
+  return [quando, era ? tr('na Terra: {e}', { e: tr(era[1]) }) : tr('antes de a Terra existir')];
 }
 
 // Nomes das constelações (perto do Sol), bússola e informações do céu no modo "olhar para o céu"
@@ -3143,7 +3142,11 @@ function desenharCeu(abs, postos) {
   }
 }
 
-const PONTOS = ['N', 'NNE', 'NE', 'LNE', 'L', 'LSE', 'SE', 'SSE', 'S', 'SSO', 'SO', 'OSO', 'O', 'ONO', 'NO', 'NNO'];
+const PONTOS = {
+  pt: ['N', 'NNE', 'NE', 'LNE', 'L', 'LSE', 'SE', 'SSE', 'S', 'SSO', 'SO', 'OSO', 'O', 'ONO', 'NO', 'NNO'],
+  en: ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'],
+  es: ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSO', 'SO', 'OSO', 'O', 'ONO', 'NO', 'NNO'],
+}[idioma];
 const pontoCardeal = (az) => PONTOS[Math.round((((az % 360) + 360) % 360) / 22.5) % 16];
 function painelCeu() {
   const E = PORID.terra;
@@ -3155,22 +3158,21 @@ function painelCeu() {
   const solar = new Date(msUTC + (lo / 15) * 3600000);
   const dt = horaLocalAgora();
   const h2 = (x) => String(x).padStart(2, '0');
-  const meses = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-  $('ceuHoraLocal').textContent = `${h2(dt.getUTCHours())}:${h2(dt.getUTCMinutes())} · ${dt.getUTCDate()} de ${meses[dt.getUTCMonth()]} de ${dt.getUTCFullYear()}`;
+  $('ceuHoraLocal').textContent = `${h2(dt.getUTCHours())}:${h2(dt.getUTCMinutes())} · ${dt.toLocaleDateString(LOCALE, { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' })}`;
   if (usarOficial()) {
     const z = zonaAqui();
-    $('ceuTipoHora').textContent = `hora oficial (${rotuloUTC(deslocamento(z.zona, msUTC))}${z.estimada ? ', fuso estimado pela longitude' : z.cidade ? `, fuso de ${z.cidade.nome}` : ''}) · hora solar ${h2(solar.getUTCHours())}:${h2(solar.getUTCMinutes())}`;
-  } else $('ceuTipoHora').textContent = 'hora solar média do lugar (pela longitude)';
+    $('ceuTipoHora').textContent = tr('hora oficial ({z}) · hora solar {h}', { z: rotuloUTC(deslocamento(z.zona, msUTC)) + (z.estimada ? tr(', fuso estimado pela longitude') : z.cidade ? tr(', fuso de {c}', { c: z.cidade.nome }) : ''), h: `${h2(solar.getUTCHours())}:${h2(solar.getUTCMinutes())}` });
+  } else $('ceuTipoHora').textContent = tr('hora solar média do lugar (pela longitude)');
   // estação do ano (hemisfério do lugar)
   const diaAno = (Date.UTC(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate()) - Date.UTC(dt.getUTCFullYear(), 0, 0)) / 86400000;
   const norteEst = diaAno < 79 || diaAno >= 355 ? 'inverno' : diaAno < 172 ? 'primavera' : diaAno < 265 ? 'verão' : 'outono';
   const oposto = { inverno: 'verão', verão: 'inverno', primavera: 'outono', outono: 'primavera' };
-  $('ceuEstacao').textContent = `${la >= 0 ? norteEst : oposto[norteEst]} no hemisfério ${la >= 0 ? 'norte' : 'sul'} · ${sig(Math.abs(la))}° ${la >= 0 ? 'N' : 'S'}, ${sig(Math.abs(lo))}° ${lo >= 0 ? 'L' : 'O'}`;
+  $('ceuEstacao').textContent = `${tr(`{e} no hemisfério ${la >= 0 ? 'norte' : 'sul'}`, { e: tr(la >= 0 ? norteEst : oposto[norteEst]) })} · ${sig(Math.abs(la))}° ${la >= 0 ? 'N' : 'S'}, ${sig(Math.abs(lo))}° ${lo >= 0 ? PONTOS[4] : PONTOS[12]}`;
   // para onde se olha
   const fr = new THREE.Vector3(0, 0, -1).applyQuaternion(estado.q);
   const alt = Math.asin(Math.max(-1, Math.min(1, fr.dot(up)))) / GRAU;
   const az = Math.atan2(fr.dot(leste), fr.dot(norte)) / GRAU;
-  $('ceuOlhando').textContent = `${pontoCardeal(az)} (${Math.round(((az % 360) + 360) % 360)}°), ${Math.round(alt)}° ${alt >= 0 ? 'acima' : 'abaixo'} do horizonte`;
+  $('ceuOlhando').textContent = tr(alt >= 0 ? '{p} ({az}°), {alt}° acima do horizonte' : '{p} ({az}°), {alt}° abaixo do horizonte', { p: pontoCardeal(az), az: Math.round(((az % 360) + 360) % 360), alt: Math.round(alt) });
   // o que está acima do horizonte agora
   const abs = camAbs(), lista = [];
   for (const c of CORPOS) {
@@ -3180,14 +3182,14 @@ function painelCeu() {
     const a = Math.asin(v.dot(up)) / GRAU;
     if (a < 0) continue;
     const z = Math.atan2(v.dot(leste), v.dot(norte)) / GRAU;
-    lista.push(`${c.nome}: ${pontoCardeal(z)}, ${Math.round(a)}°${c.id === 'urano' || c.id === 'netuno' ? ' (só com telescópio)' : ''}`);
+    lista.push(`${c.nome}: ${pontoCardeal(z)}, ${Math.round(a)}°${c.id === 'urano' || c.id === 'netuno' ? tr(' (só com telescópio)') : ''}`);
   }
-  $('ceuVisiveis').textContent = lista.length ? lista.join(' · ') : 'nenhum planeta acima do horizonte agora';
+  $('ceuVisiveis').textContent = lista.length ? lista.join(' · ') : tr('nenhum planeta acima do horizonte agora');
   $('ceuMeteoros').textContent = textoMeteoros();
   const ano = 2000 + (estado.jd - 2451545) / 365.25;
   const sol = PORID.sol.abs.clone().sub(abs).normalize(), aSol = Math.asin(sol.dot(up)) / GRAU;
-  $('ceuSituacao').textContent = (ano < 1800 || ano > 2050 ? 'Atenção: fora de 1800–2050 as estrelas ficam nas posições de hoje. ' : '')
-    + (aSol > 0 ? 'Dia: o céu claro esconde as estrelas.' : aSol > -6 ? 'Crepúsculo civil: só os astros mais brilhantes.' : aSol > -18 ? 'Crepúsculo: as estrelas vão aparecendo.'
+  $('ceuSituacao').textContent = (ano < 1800 || ano > 2050 ? tr('Atenção: fora de 1800–2050 as estrelas ficam nas posições de hoje.') + ' ' : '')
+    + tr(aSol > 0 ? 'Dia: o céu claro esconde as estrelas.' : aSol > -6 ? 'Crepúsculo civil: só os astros mais brilhantes.' : aSol > -18 ? 'Crepúsculo: as estrelas vão aparecendo.'
       : luar > 0.3 ? 'Noite com luar forte: a Lua apaga as estrelas fracas e a Via Láctea.' : luar > 0.05 ? 'Noite com algum luar.' : 'Noite fechada: céu escuro, sem nuvens e sem luzes de cidade.');
 }
 
@@ -3197,34 +3199,34 @@ function painel() {
   const abs = camAbs();
   const vr = velocidade(velMedida);
   if (estado.pousado && !estado.cruzeiro && !eixos().frente && !eixos().lado) velMedida = 0; // parado no chão é parado
-  $('velReal').textContent = velMedida < 1e-6 ? 'parado' : vr.principal;
-  const relA = estado.ref ? `em relação ${com('a', estado.ref)}` : '';
-  $('velRealSub').textContent = velMedida < 1e-6 ? '' : [vr.secundaria, freando ? 'freando' : '', relA].filter(Boolean).join(' · ');
+  $('velReal').textContent = velMedida < 1e-6 ? tr('parado') : vr.principal;
+  const relA = estado.ref ? tr('em relação {a:c}', { c: estado.ref }) : '';
+  $('velRealSub').textContent = velMedida < 1e-6 ? '' : [vr.secundaria, freando ? tr('freando') : '', relA].filter(Boolean).join(' · ');
 
   let rel = '';
   if (estado.efeito === 'relatividade' && velMedida > 0.01 * C) {
     if (velMedida < C) {
       const g = 1 / Math.sqrt(1 - (velMedida / C) ** 2);
-      rel = `γ = ${sig(g)} · 1 s a bordo = ${duracao(g)} na Terra`;
-    } else rel = 'Acima de c não há física real: o céu é mostrado como a 99,5% de c';
+      rel = tr('γ = {g} · 1 s a bordo = {d} na Terra', { g: sig(g), d: duracao(g) });
+    } else rel = tr('Acima de c não há física real: o céu é mostrado como a 99,5% de c');
   }
   $('relInfo').textContent = rel;
-  $('refFrame').textContent = (estado.ref ? estado.ref.nome : 'espaço (fixo)') + (estado.pousado ? ' · pousado' : '');
+  $('refFrame').textContent = (estado.ref ? estado.ref.nome : tr('espaço (fixo)')) + (estado.pousado ? tr(' · pousado') : '');
   $('maisPerto').textContent = proximo ? proximo.nome : '—';
   const pe = [estado.ref, estado.alvo, proximo].find((c) => c?.exo);
   const est = !pe && sistemaExo ? sistemaExo.exoSistema : null;
   $('rotExo').hidden = $('exoInfo').hidden = !pe && !est;
   if (pe) { $('rotExo').textContent = pe.nome; $('exoInfo').textContent = resumoPlaneta(pe, sig); }
-  else if (est) { $('rotExo').textContent = 'Planetas'; $('exoInfo').textContent = `${est.pl.length} conhecido${est.pl.length > 1 ? 's' : ''} em volta ${com('de', sistemaExo)} (NASA Exoplanet Archive, ${exo.data.split('-').reverse().join('/')}); órbitas reais, orientação no céu aproximada`; }
+  else if (est) { $('rotExo').textContent = tr('Planetas'); $('exoInfo').textContent = tn(est.pl.length, '{n} conhecido em volta {de:c} (NASA Exoplanet Archive, {d}); órbitas reais, orientação no céu aproximada', '{n} conhecidos em volta {de:c} (NASA Exoplanet Archive, {d}); órbitas reais, orientação no céu aproximada', { c: sistemaExo, d: new Date(exo.data).toLocaleDateString(LOCALE, { timeZone: 'UTC' }) }); }
   $('altitude').textContent = proximo ? distancia(Math.max(altProx, 0)) : '—';
   if (proximo && altProx < proximo.raio * 2 && proximo.tipo !== 'estrela') {
     const [la, lo] = latLon(proximo, abs.clone().sub(proximo.abs));
-    $('coord').textContent = `${sig(Math.abs(la))}° ${la >= 0 ? 'N' : 'S'} · ${sig(Math.abs(lo))}° ${lo >= 0 ? 'L' : 'O'}`;
+    $('coord').textContent = `${sig(Math.abs(la))}° ${la >= 0 ? 'N' : 'S'} · ${sig(Math.abs(lo))}° ${lo >= 0 ? PONTOS[4] : PONTOS[12]}`;
   } else $('coord').textContent = '—';
   const dT = abs.distanceTo(PORID.terra.abs);
   $('daTerra').textContent = distancia(dT);
   const segLuz = tempoLuzAnos(dT / AL) * 365.25 * 86400;
-  $('luzTerra').textContent = dT > 1e8 * AL ? `${duracao(segLuz)} para a luz daqui chegar à Terra (com a expansão do universo)` : duracao(segLuz) + (dT > 1e8 * AL ? ' (com a expansão do universo)' : '');
+  $('luzTerra').textContent = dT > 1e8 * AL ? tr('{d} para a luz daqui chegar à Terra (com a expansão do universo)', { d: duracao(segLuz) }) : duracao(segLuz);
   const [quando, epoca] = quandoSaiu(segLuz);
   $('luzSaiu').textContent = quando;
   $('epoca').textContent = epoca;
@@ -3232,29 +3234,29 @@ function painel() {
   $('doSol').textContent = distancia(abs.distanceTo(PORID.sol.abs));
   $('dataSim').textContent = data(estado.jd);
   const ano = 2000 + (estado.jd - 2451545) / 365.25;
-  $('avisoData').textContent = ano < 1800 || ano > 2050 ? 'Fora de 1800–2050: estrelas sem o movimento próprio (planetas e Lua continuam precisos).' : '';
+  $('avisoData').textContent = ano < 1800 || ano > 2050 ? tr('Fora de 1800–2050: estrelas sem o movimento próprio (planetas e Lua continuam precisos).') : '';
   const fz = -new Date().getTimezoneOffset() / 60;
-  $('fusoTxt').textContent = `hora do seu computador (UTC${fz >= 0 ? '+' : '−'}${Math.abs(fz)})`;
+  $('fusoTxt').textContent = tr('hora do seu computador ({z})', { z: `UTC${fz >= 0 ? '+' : '−'}${Math.abs(fz)}` });
 
   const p = estado.piloto;
   let st = '';
   if (p && p.modo === 'vel') {
     const t = (p.resta || 0) / Math.max(velMedida, 1e-9);
-    const bordo = estado.efeito === 'relatividade' && velMedida < C ? ` (a bordo: ${duracao(t * Math.sqrt(1 - (velMedida / C) ** 2))})` : '';
-    st = `A caminho ${com('de', p.alvo)}: faltam ${distancia(p.resta || 0)} · chegada em ${duracao(t)}${bordo}`;
+    const bordo = estado.efeito === 'relatividade' && velMedida < C ? tr(' (a bordo: {d})', { d: duracao(t * Math.sqrt(1 - (velMedida / C) ** 2)) }) : '';
+    st = tr('A caminho {de:c}: faltam {d} · chegada em {t}', { c: p.alvo, d: distancia(p.resta || 0), t: duracao(t) }) + bordo;
   }
-  else if (p && p.modo === 'tempo') st = `A caminho ${com('de', p.alvo)}: ${distancia(abs.distanceTo(p.alvo.abs))} · ${duracao(Math.max(p.dur - p.t, 0))} restantes`;
-  else if (p && p.modo === 'pouso') st = `Pousando ${com('em', p.alvo)}: altitude ${distancia(Math.max(altProx, 0))}`;
-  else if (p && p.modo === 'lugar') st = `Voando para ${p.lugar.nome}: ${distancia(Math.max(altProx, 0))} de altitude`;
-  else if (estado.aviao) st = `Modo avião: ${distancia(estado.altAviao)} sobre o chão · ↑↓ sobe/desce · ←→ vira · Y desliga`;
-  else if (estado.pousado) st = `No chão ${com('de', estado.pousado)}. Setas para andar, R para decolar.`;
-  else if (estado.alvo?.soCeu) st = `${estado.alvo.nome} · ${estado.alvo.tipo}: um objeto do céu, para ver com o telescópio no modo céu`;
+  else if (p && p.modo === 'tempo') st = tr('A caminho {de:c}: {d} · {t} restantes', { c: p.alvo, d: distancia(abs.distanceTo(p.alvo.abs)), t: duracao(Math.max(p.dur - p.t, 0)) });
+  else if (p && p.modo === 'pouso') st = tr('Pousando {em:c}: altitude {d}', { c: p.alvo, d: distancia(Math.max(altProx, 0)) });
+  else if (p && p.modo === 'lugar') st = tr('Voando para {c}: {d} de altitude', { c: p.lugar.nome, d: distancia(Math.max(altProx, 0)) });
+  else if (estado.aviao) st = tr('Modo avião: {d} sobre o chão · ↑↓ sobe/desce · ←→ vira · Y desliga', { d: distancia(estado.altAviao) });
+  else if (estado.pousado) st = tr('No chão {de:c}. Setas para andar, R para decolar.', { c: estado.pousado });
+  else if (estado.alvo?.soCeu) st = tr('{c} · {tipo}: um objeto do céu, para ver com o telescópio no modo céu', { c: estado.alvo.nome, tipo: tr(estado.alvo.tipo.trim()) });
   else if (estado.alvo) {
     const dc = distChegada(estado.alvo);
     const d = abs.distanceTo(estado.alvo.abs) - dc;
-    st = d < dc * 0.02 ? `Você está ${com('em', estado.alvo)}.` : `${estado.alvo.nome}: ${distancia(d)} · na velocidade escolhida, ${duracao(d / estado.v)}`;
+    st = d < dc * 0.02 ? tr('Você está {em:c}.', { c: estado.alvo }) : tr('{c}: {d} · na velocidade escolhida, {t}', { c: estado.alvo, d: distancia(d), t: duracao(d / estado.v) });
   }
-  if (estado.cruzeiro) st = st ? `Cruzeiro ligado (C para desligar) · ${st}` : 'Cruzeiro ligado (C para desligar)';
+  if (estado.cruzeiro) st = st ? `${tr('Cruzeiro ligado (C para desligar)')} · ${st}` : tr('Cruzeiro ligado (C para desligar)');
   $('statusViagem').textContent = st;
   if (performance.now() > avisoAte) $('aviso').textContent = '';
 }
@@ -3264,7 +3266,7 @@ renderer.setAnimationLoop(passo); // (e não requestAnimationFrame: nos óculos 
 if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
   fetch('https://viagem-pelo-espaco.goatcounter.com/counter/TOTAL.json').then((r) => (r.ok ? r.json() : null)).then((j) => {
     if (!j?.count) return;
-    $('visitas').textContent = `${String(j.count).replace(/[\s\u202f,]/g, '.')} visitas desde a publicação`;
+    $('visitas').textContent = tr('{n} visitas desde a publicação', { n: Number(String(j.count).replace(/[\s\u202f,.]/g, '')).toLocaleString(LOCALE) });
     $('visitas').hidden = false;
   }).catch(() => {});
 }
@@ -3275,15 +3277,15 @@ function aplicarCeuPendente() {
   const { ano, mes, dia, hh, mm } = ceuPendente;
   ceuPendente = null;
   definirHoraLocal(ano, mes, dia, hh, mm);
-  aviso(`O céu de ${String(dia).padStart(2, '0')}/${String(mes).padStart(2, '0')}/${ano}, às ${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}.`);
+  aviso(tr('O céu de {d}, às {h}.', { d: new Date(Date.UTC(ano, mes - 1, dia)).toLocaleDateString(LOCALE, { timeZone: 'UTC' }), h: `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}` }));
 }
 const lerGuardado = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
 const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch { /* sem armazenamento */ } };
 // aparelho modesto? (tela de toque, pouca memória ou poucos núcleos)
 function aparelhoModesto() {
-  if (matchMedia('(pointer: coarse)').matches) return 'parece um celular ou tablet';
-  if (navigator.deviceMemory && navigator.deviceMemory <= 4) return 'o aparelho tem pouca memória';
-  if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) return 'o processador tem poucos núcleos';
+  if (matchMedia('(pointer: coarse)').matches) return tr('parece um celular ou tablet');
+  if (navigator.deviceMemory && navigator.deviceMemory <= 4) return tr('o aparelho tem pouca memória');
+  if (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) return tr('o processador tem poucos núcleos');
   return '';
 }
 function aplicarLeve(ligar, motivo = '') {
@@ -3296,7 +3298,7 @@ function aplicarLeve(ligar, motivo = '') {
   if (ligar) { estado.cinturoes = false; $('ckCint').checked = false; }
   pintores.forEach((f) => f());
   $('bvLeve').checked = ligar;
-  $('bvLeveMotivo').textContent = motivo ? `(Ligado porque ${motivo}.)` : '';
+  $('bvLeveMotivo').textContent = motivo ? tr('(Ligado porque {m}.)', { m: motivo }) : '';
 }
 {
   const g = lerGuardado('viagemLeve');
@@ -3314,27 +3316,34 @@ function vigiarDesempenho(agora) {
   const t = (agora - vigia.ini) / 1000;
   if (t > 10) {
     vigia.feito = true;
-    if (vigia.quadros / t < 18) { aplicarLeve(true, 'a simulação estava lenta neste aparelho'); aviso('Liguei o modo leve porque estava lento. Dá para desligar em "Início".'); }
+    if (vigia.quadros / t < 18) { aplicarLeve(true, tr('a simulação estava lenta neste aparelho')); aviso(tr('Liguei o modo leve porque estava lento. Dá para desligar em "Início".')); }
   }
 }
 function abrirBoasVindas() { $('boasVindas').hidden = false; }
 function fecharBoasVindas() { $('boasVindas').hidden = true; guardar('viagemVisitou', '1'); }
 $('btInicio').onclick = abrirBoasVindas;
+// Idioma: seletor (Português, English, Español) e o manual no idioma escolhido
+for (const sel of document.querySelectorAll('.selIdioma')) {
+  for (const [k, nome] of Object.entries(IDIOMAS)) sel.append(new Option(nome, k));
+  sel.value = idioma;
+  sel.onchange = () => trocarIdioma(sel.value);
+}
+for (const a of document.querySelectorAll('a[href="manual.html"]')) a.href = manualIdioma;
 $('bvExplorar').onclick = fecharBoasVindas;
-$('bvPousar').onclick = () => { if (!cidadesLista.length) { aviso('Carregando a lista de cidades…'); return setTimeout(() => $('bvPousar').click(), 500); } const t = $('bvCidade').value; if (!acharCidade(t)) return aviso('Escolha uma cidade da lista.'); fecharBoasVindas(); pousarNaCidade(t, false); };
+$('bvPousar').onclick = () => { if (!cidadesLista.length) { aviso(tr('Carregando a lista de cidades…')); return setTimeout(() => $('bvPousar').click(), 500); } const t = $('bvCidade').value; if (!acharCidade(t)) return aviso(tr('Escolha uma cidade da lista.')); fecharBoasVindas(); pousarNaCidade(t, false); };
 $('bvCidade').onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); $('bvPousar').click(); } };
 $('bvCeu').onclick = () => {
-  if (!cidadesLista.length) { aviso('Carregando a lista de cidades…'); return setTimeout(() => $('bvCeu').click(), 500); }
+  if (!cidadesLista.length) { aviso(tr('Carregando a lista de cidades…')); return setTimeout(() => $('bvCeu').click(), 500); }
   const t = $('bvCidade2').value, d = $('bvData').value, h = $('bvHora').value || '21:00';
-  if (!acharCidade(t)) return aviso('Escolha uma cidade da lista.');
+  if (!acharCidade(t)) return aviso(tr('Escolha uma cidade da lista.'));
   if (d) { const [ano, mes, dia] = d.split('-').map(Number), [hh, mm] = h.split(':').map(Number); ceuPendente = { ano, mes, dia, hh, mm }; }
   fecharBoasVindas();
   pousarNaCidade(t, true);
 };
-$('bvISS').onclick = () => { const o = missoes.porId.iss; if (!o) return aviso('A ISS ainda está carregando; tente de novo em alguns segundos.'); fecharBoasVindas(); embarcar(o); };
+$('bvISS').onclick = () => { const o = missoes.porId.iss; if (!o) return aviso(tr('A ISS ainda está carregando; tente de novo em alguns segundos.')); fecharBoasVindas(); embarcar(o); };
 $('bvVoyager').onclick = () => {
   const o = missoes.porId.voyager1;
-  if (!o) return aviso('As sondas ainda estão carregando; tente de novo em alguns segundos.');
+  if (!o) return aviso(tr('As sondas ainda estão carregando; tente de novo em alguns segundos.'));
   fecharBoasVindas(); embarcar(o);
   const m = o.momentos.find((x) => x.titulo.includes('Pálido'));
   if (m) irMomento(o, m);
@@ -3344,7 +3353,7 @@ $('bvSaturno').onclick = () => {
   document.querySelector('input[name=modo][value=tempo]').checked = true;
   escolherAlvo(PORID.saturno);
   iniciarViagem(PORID.saturno);
-  aviso('Rumo a Saturno: 1,3 bilhão de km em 12 segundos.');
+  aviso(tr('Rumo a Saturno: 1,3 bilhão de km em 12 segundos.'));
 };
 $('bvPangeia').onclick = () => { fecharBoasVindas(); teleportar(PORID.terra); $('selEpoca').value = 'pangeia'; aplicarEpoca('pangeia'); };
 // ------------------------------- roteiros guiados -------------------------------
@@ -3370,7 +3379,7 @@ function maisAlto(lista, dirDe) {
 }
 const dirCorpo = (c) => c && c.abs.clone().sub(camAbs()).normalize();
 function hoje21h() { const t = horaLocalAgora(); return { ano: t.getUTCFullYear(), mes: t.getUTCMonth() + 1, dia: t.getUTCDate(), hh: 21, mm: 0 }; }
-function precisaCeu() { if (!estado.ceuModo) { aviso('Espere o pouso terminar e o céu aparecer; depois clique em "Próximo".'); return false; } return true; }
+function precisaCeu() { if (!estado.ceuModo) { aviso(tr('Espere o pouso terminar e o céu aparecer; depois clique em "Próximo".')); return false; } return true; }
 function telescopioEm(c, zoom) { if (!estado.telescopio) alternarTelescopio(); definirZoom(zoom); estado.alvo = c; apontar(c); }
 
 const ROTEIROS = {
@@ -3388,10 +3397,10 @@ const ROTEIROS = {
   voyager: { titulo: 'Seguindo a Voyager 1', passos: () => {
     const o = missoes.porId.voyager1;
     if (!o) return [];
-    const p = o.momentos.map((m) => ({ nome: m.titulo, texto: m.texto, acao: () => { if (estado.embarcado !== o) embarcar(o); irMomento(o, m); } }));
+    const p = o.momentos.map((m) => ({ nome: tr(m.titulo), texto: tr(m.texto), acao: () => { if (estado.embarcado !== o) embarcar(o); irMomento(o, m); } }));
     p.push({ nome: 'Hoje', texto: () => {
       const dSol = o.abs.distanceTo(PORID.sol.abs), dT = o.abs.distanceTo(PORID.terra.abs);
-      return `Lançada em 1977, a Voyager 1 é o objeto feito pelo ser humano mais distante: agora está a ${sig(dSol / UA)} UA do Sol, ou ${sig(dSol / 1e9)} bilhões de km. Um sinal de rádio leva ${duracao(dT / C)} para chegar até nós. Ela ainda manda dados.`;
+      return tr('Lançada em 1977, a Voyager 1 é o objeto feito pelo ser humano mais distante: agora está a {ua} UA do Sol, ou {d}. Um sinal de rádio leva {t} para chegar até nós. Ela ainda manda dados.', { ua: sig(dSol / UA), d: distancia(dSol).split(' · ')[0], t: duracao(dT / C) });
     }, acao: () => { if (estado.embarcado !== o) embarcar(o); estado.jd = jdAgora(); estado.ritmo = 1; $('selRitmo').value = '1'; } });
     return p;
   } },
@@ -3408,25 +3417,25 @@ const ROTEIROS = {
   noite: { titulo: 'Uma noite no céu', passos: () => {
     const cidade = $('cidadePouso').value || $('bvCidade').value || $('bvCidade2').value || 'Rio de Janeiro';
     return [
-      { nome: `O céu de ${acharCidade(cidade)?.nome ?? cidade}`, texto: 'Vamos pousar e olhar o céu desta noite, às 21 h, sem nuvens e sem as luzes da cidade, como num campo bem escuro.', acao: () => { if (estado.embarcado) desembarcar(); ceuPendente = hoje21h(); pousarNaCidade(cidade, true); } },
-      { nome: 'Uma constelação', texto: () => (estado.rotConst ? `Esta é ${estado.rotConst}. As linhas ligam as estrelas como os antigos imaginavam a figura; as estrelas de uma constelação em geral estão a distâncias muito diferentes de nós.` : 'Arraste para olhar em volta: os nomes e as linhas das constelações estão ligados.'), acao: () => {
+      { nome: tr('O céu de {c}', { c: acharCidade(cidade)?.nome ?? cidade }), texto: 'Vamos pousar e olhar o céu desta noite, às 21 h, sem nuvens e sem as luzes da cidade, como num campo bem escuro.', acao: () => { if (estado.embarcado) desembarcar(); ceuPendente = hoje21h(); pousarNaCidade(cidade, true); } },
+      { nome: 'Uma constelação', texto: () => (estado.rotConst ? tr('Esta é {c}. As linhas ligam as estrelas como os antigos imaginavam a figura; as estrelas de uma constelação em geral estão a distâncias muito diferentes de nós.', { c: estado.rotConst }) : tr('Arraste para olhar em volta: os nomes e as linhas das constelações estão ligados.')), acao: () => {
         if (!precisaCeu()) return;
         estado.constelacoes = true; estado.linhasConst = true; pintarCeuBotoes();
-        const c = maisAlto(constelacoes.filter((k) => ['Órion', 'Escorpião', 'Cruzeiro do Sul', 'Sagitário', 'Leão', 'Cisne', 'Pégaso', 'Touro', 'Ursa Maior', 'Cassiopeia', 'Centauro', 'Gêmeos'].includes(k.nome)), (k) => k.dir);
+        const c = maisAlto(constelacoes.filter((k) => ['Órion', 'Escorpião', 'Cruzeiro do Sul', 'Sagitário', 'Leão', 'Cisne', 'Pégaso', 'Touro', 'Ursa Maior', 'Cassiopeia', 'Centauro', 'Gêmeos'].includes(k.nomePt)), (k) => k.dir);
         estado.rotConst = c?.nome;
         if (c) quatOlhando(c.dir.clone(), estado.q, estado.local.clone().normalize());
       } },
-      { nome: 'A Lua e os planetas', texto: () => (estado.rotAstro ? `${estado.rotAstro.nome} está bem alto agora. Os planetas não piscam como as estrelas e mudam de lugar, devagar, de uma noite para outra.` : 'Nenhum planeta brilhante está alto agora; tente "+1 h" no painel do céu.'), acao: () => {
+      { nome: 'A Lua e os planetas', texto: () => (estado.rotAstro ? tr('{o:c} está bem alto agora. Os planetas não piscam como as estrelas e mudam de lugar, devagar, de uma noite para outra.', { c: estado.rotAstro }) : tr('Nenhum planeta brilhante está alto agora; tente "+1 h" no painel do céu.')), acao: () => {
         if (!precisaCeu()) return;
         const a = maisAlto(['lua', 'venus', 'jupiter', 'saturno', 'marte'].map((id) => PORID[id]), dirCorpo);
         estado.rotAstro = a;
         if (a) { estado.alvo = a; apontar(a); }
       } },
-      { nome: 'Pelo telescópio', texto: () => (estado.rotAstro ? `${estado.rotAstro.nome} com ${estado.rotAstro.id === 'lua' ? '40' : '150'} vezes de aumento. Use − e + nas bordas, ou a roda do mouse.` : 'Sem planeta alto agora: o telescópio fica para o próximo passo.'), acao: () => {
+      { nome: 'Pelo telescópio', texto: () => (estado.rotAstro ? tr('{o:c} com {n} vezes de aumento. Use − e + nas bordas, ou a roda do mouse.', { c: estado.rotAstro, n: estado.rotAstro.id === 'lua' ? 40 : 150 }) : tr('Sem planeta alto agora: o telescópio fica para o próximo passo.')), acao: () => {
         if (!precisaCeu() || !estado.rotAstro) return;
         telescopioEm(estado.rotAstro, estado.rotAstro.id === 'lua' ? 40 : 150);
       } },
-      { nome: 'O céu profundo', texto: () => (estado.rotProfundo ? `${estado.rotProfundo.nome}: ${estado.rotProfundo.tipo}. A olho nu seria uma mancha fraca ou nem apareceria; no telescópio, a forma surge.` : 'Nenhum dos objetos mais famosos está alto agora.'), acao: () => {
+      { nome: 'O céu profundo', texto: () => (estado.rotProfundo ? tr('{c}: {tipo}. A olho nu seria uma mancha fraca ou nem apareceria; no telescópio, a forma surge.', { c: estado.rotProfundo.nome, tipo: tr(estado.rotProfundo.tipo) }) : tr('Nenhum dos objetos mais famosos está alto agora.')), acao: () => {
         if (!precisaCeu()) return;
         const famosos = [42, 31, 45, 13, 8, 7, 22, 44, 11, 20, 57, 27].map((n) => messier.find((m) => m.m === n)).filter(Boolean);
         const o = maisAlto(famosos, (m) => m.dir);
@@ -3446,7 +3455,7 @@ let roteiro = null;
 function iniciarRoteiro(id) {
   const r = ROTEIROS[id];
   const passos = typeof r.passos === 'function' ? r.passos() : r.passos;
-  if (!passos.length) return aviso('Este roteiro ainda está carregando; tente de novo em alguns segundos.');
+  if (!passos.length) return aviso(tr('Este roteiro ainda está carregando; tente de novo em alguns segundos.'));
   fecharBoasVindas();
   roteiro = { r, passos, i: -1 };
   document.body.classList.add('emRoteiro');
@@ -3459,14 +3468,14 @@ function irPasso(i) {
   roteiro.i = Math.max(0, i);
   const p = roteiro.passos[roteiro.i];
   try { p.acao(); } catch (e) { console.warn(e); }
-  $('rotTitulo').textContent = roteiro.r.titulo;
-  $('rotPasso').textContent = `${roteiro.i + 1} de ${roteiro.passos.length}`;
-  $('rotNome').textContent = p.nome;
-  const pintar = () => { if (roteiro && roteiro.passos[roteiro.i] === p) $('rotTexto').textContent = typeof p.texto === 'function' ? p.texto() : p.texto; };
+  $('rotTitulo').textContent = tr(roteiro.r.titulo);
+  $('rotPasso').textContent = tr('{i} de {n}', { i: roteiro.i + 1, n: roteiro.passos.length });
+  $('rotNome').textContent = tr(p.nome);
+  const pintar = () => { if (roteiro && roteiro.passos[roteiro.i] === p) $('rotTexto').textContent = typeof p.texto === 'function' ? p.texto() : tr(p.texto); };
   pintar();
   if (typeof p.texto === 'function') setTimeout(pintar, 600); // textos que dependem do lugar ou da data
   $('rotAnterior').disabled = roteiro.i === 0;
-  $('rotProximo').textContent = roteiro.i === roteiro.passos.length - 1 ? 'Terminar' : 'Próximo ▶';
+  $('rotProximo').textContent = tr(roteiro.i === roteiro.passos.length - 1 ? 'Terminar' : 'Próximo ▶');
 }
 function sairRoteiro() { roteiro = null; $('roteiro').hidden = true; document.body.classList.remove('emRoteiro'); }
 $('rotProximo').onclick = () => irPasso(roteiro.i + 1);
@@ -3483,7 +3492,7 @@ function perto(lat, lon) {
   const d = new THREE.Vector3(Math.cos(lat * GRAU) * Math.cos(lon * GRAU), Math.sin(lat * GRAU), -Math.cos(lat * GRAU) * Math.sin(lon * GRAU));
   let melhor = null, ang = 0.1; // até ~600 km
   for (const c of cidadesLista) { const a = c.dir.angleTo(d); if (a < ang && (c.pop > 3e5 || a < 0.05)) { ang = a; melhor = c; } }
-  return melhor ? `perto de ${melhor.nome}${melhor.pais ? `, ${melhor.pais}` : ''}` : 'no mar ou longe de cidades';
+  return melhor ? tr('perto de {c}', { c: `${melhor.nome}${melhor.pais ? `, ${melhor.pais}` : ''}` }) : tr('no mar ou longe de cidades');
 }
 async function abrirEclipses() {
   if (!eclipses) {
@@ -3498,21 +3507,21 @@ function listarEclipses() {
   const lista = $('eclLista');
   lista.textContent = '';
   for (const e of eclipses.slice(eclInicio, eclInicio + 12)) {
-    const data = `${String(e.d).padStart(2, '0')}/${String(e.m).padStart(2, '0')}/${e.a}`;
+    const data = new Date(Date.UTC(e.a, e.m - 1, e.d)).toLocaleDateString(LOCALE, { timeZone: 'UTC' });
     const hora = new Date((e.jd - 2440587.5) * 86400000).toISOString().slice(11, 16);
     let txt;
     if (e.solar) {
-      const tipo = TIPO_SOL[e.tipo[0]] ?? 'parcial';
-      txt = `<b>${data}</b> · Eclipse solar ${tipo}${e.dur ? ` · ${Math.floor(e.dur / 60)} min ${e.dur % 60} s no máximo` : ''} · ${e.tipo[0] === 'P' ? 'visto melhor' : 'máximo'} ${perto(e.lat, e.lon)}, às ${hora} UTC`;
+      const tipo = tr(`Eclipse solar ${TIPO_SOL[e.tipo[0]] ?? 'parcial'}`);
+      txt = `<b>${data}</b> · ${tipo}${e.dur ? tr(' · {m} min {s} s no máximo', { m: Math.floor(e.dur / 60), s: e.dur % 60 }) : ''} · ${tr(e.tipo[0] === 'P' ? 'visto melhor {lugar}, às {h} UTC' : 'máximo {lugar}, às {h} UTC', { lugar: perto(e.lat, e.lon), h: hora })}`;
     } else {
-      const tipo = TIPO_LUA[e.tipo[0]] ?? 'parcial';
-      txt = `<b>${data}</b> · Eclipse lunar ${tipo}${e.durTot ? ` · ${Math.round(e.durTot)} min de totalidade` : ''} · máximo às ${hora} UTC, com a Lua no alto ${perto(e.lat, e.lon)}`;
+      const tipo = tr(`Eclipse lunar ${TIPO_LUA[e.tipo[0]] ?? 'parcial'}`);
+      txt = `<b>${data}</b> · ${tipo}${e.durTot ? tr(' · {m} min de totalidade', { m: Math.round(e.durTot) }) : ''} · ${tr('máximo às {h} UTC, com a Lua no alto {lugar}', { h: hora, lugar: perto(e.lat, e.lon) })}`;
     }
     const div = document.createElement('div');
     div.className = 'eclItem';
     div.innerHTML = `<div class="eclTxt">${txt}</div>`;
-    const b1 = document.createElement('button'); b1.textContent = 'Ver do chão'; b1.onclick = () => verEclipse(e, 'chao');
-    const b2 = document.createElement('button'); b2.textContent = 'Ver do espaço'; b2.onclick = () => verEclipse(e, 'espaco');
+    const b1 = document.createElement('button'); b1.textContent = tr('Ver do chão'); b1.onclick = () => verEclipse(e, 'chao');
+    const b2 = document.createElement('button'); b2.textContent = tr('Ver do espaço'); b2.onclick = () => verEclipse(e, 'espaco');
     div.append(b1, b2);
     lista.append(div);
   }
@@ -3543,7 +3552,7 @@ function verEclipse(e, modo) {
     estado.jd = inicio; estado.ritmo = 1; estado.orbitasMovem = true; $('selRitmo').value = '1';
     estado.constelacoes = false; estado.linhasConst = false; pintarCeuBotoes();
     setTimeout(() => apontar(e.solar ? PORID.sol : PORID.lua), 200);
-    aviso(e.solar ? (e.dur ? 'A totalidade começa em cerca de 1 minuto e meio. Em tempo real.' : 'Eclipse no máximo. Use "+1 h" ou acelere o tempo para ver o avanço.') : 'Eclipse lunar no máximo. Acelere o tempo para ver a sombra da Terra passar.');
+    aviso(tr(e.solar ? (e.dur ? 'A totalidade começa em cerca de 1 minuto e meio. Em tempo real.' : 'Eclipse no máximo. Use "+1 h" ou acelere o tempo para ver o avanço.') : 'Eclipse lunar no máximo. Acelere o tempo para ver a sombra da Terra passar.'));
   } else {
     // do espaço: a 40 mil km da Terra (solar, do lado do Sol) ou a 30 mil km da Lua (lunar)
     const alvo = e.solar ? PORID.terra : PORID.lua;
@@ -3555,12 +3564,12 @@ function verEclipse(e, modo) {
     const dir = paraSol.addScaledVector(lado, 0.35).normalize(); // do lado do Sol (no lunar, é também o lado da Terra: a face que estaria cheia)
     estado.local.copy(dir).multiplyScalar(e.solar ? 40000 : 30000);
     quatOlhando(dir.clone().negate(), estado.q);
-    aviso(e.solar ? 'A sombra da Lua sobre a Terra, 1 minuto por segundo.' : 'A Lua entrando na sombra da Terra, 5 minutos por segundo.');
+    aviso(tr(e.solar ? 'A sombra da Lua sobre a Terra, 1 minuto por segundo.' : 'A Lua entrando na sombra da Terra, 5 minutos por segundo.'));
   }
 }
 // Máximo do eclipse visto daqui: procura, em até 4 horas antes e depois, quando o Sol (ou a Lua) fica mais tapado neste lugar
 function maximoDaqui() {
-  if (!estado.ceuModo) return aviso('Entre no modo céu num lugar da Terra (Z) para procurar o eclipse visto dali.');
+  if (!estado.ceuModo) return aviso(tr('Entre no modo céu num lugar da Terra (Z) para procurar o eclipse visto dali.'));
   const E = PORID.terra, e = estado.eclipseAtual;
   const lunar = e ? !e.solar : false;
   const dl = estado.local.clone().normalize().applyQuaternion(E.qOri.clone().invert()), alt = estado.local.length();
@@ -3586,7 +3595,7 @@ function maximoDaqui() {
   const voltar = (jd) => { atualizarPosicoes(jd); atualizarPosicoes(jd); estado.local.copy(dl).applyQuaternion(E.qOri).multiplyScalar(alt); };
   if (melhor >= 0.999) {
     voltar(estado.jd);
-    return aviso(lunar ? 'Daqui, a Lua fica abaixo do horizonte durante este eclipse.' : 'Daqui, este eclipse não é visível: a sombra da Lua passa longe ou o Sol está abaixo do horizonte.');
+    return aviso(tr(lunar ? 'Daqui, a Lua fica abaixo do horizonte durante este eclipse.' : 'Daqui, este eclipse não é visível: a sombra da Lua passa longe ou o Sol está abaixo do horizonte.'));
   }
   estado.jd = jdM - (total ? (total / 2 + 60) / 86400 : 0);
   voltar(estado.jd);
@@ -3594,9 +3603,9 @@ function maximoDaqui() {
   const t = new Date(horaLocalAgora().getTime() + (total ? (total / 2 + 60) * 1000 : 0));
   const hora = `${String(t.getUTCHours()).padStart(2, '0')}:${String(t.getUTCMinutes()).padStart(2, '0')}`;
   setTimeout(() => apontar(lunar ? PORID.lua : PORID.sol), 100);
-  if (lunar) aviso(`Daqui, o máximo do eclipse é às ${hora} (hora local), com a Lua acima do horizonte.`);
-  else if (total) aviso(`Daqui o eclipse é total: cerca de ${Math.floor(total / 60)} min ${total % 60} s de totalidade, a partir de 1 minuto depois de agora. Máximo às ${hora}.`);
-  else aviso(`Daqui, o máximo é às ${hora} (hora local), com ${Math.round((1 - melhor) * 100)}% do disco do Sol coberto.`);
+  if (lunar) aviso(tr('Daqui, o máximo do eclipse é às {h} (hora local), com a Lua acima do horizonte.', { h: hora }));
+  else if (total) aviso(tr('Daqui o eclipse é total: cerca de {m} min {s} s de totalidade, a partir de 1 minuto depois de agora. Máximo às {h}.', { m: Math.floor(total / 60), s: total % 60, h: hora }));
+  else aviso(tr('Daqui, o máximo é às {h} (hora local), com {p}% do disco do Sol coberto.', { h: hora, p: Math.round((1 - melhor) * 100) }));
 }
 $('btEclipseAqui').onclick = maximoDaqui;
 $('btEclipses').onclick = abrirEclipses;
