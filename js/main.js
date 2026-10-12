@@ -1974,9 +1974,27 @@ const _delta = new THREE.Quaternion(), velVetor = new THREE.Vector3(), betaVec =
 // fração do disco do Sol visível do ponto P (km, cena), com um corpo esférico na frente (mesma conta do shader)
 const _e1 = new THREE.Vector3(), _e2 = new THREE.Vector3(), _e3 = new THREE.Vector3();
 let luzSolAqui = 1, luzSolLua = 1;
+// Sol aparente (com a aberração da luz pela velocidade da Terra, ~20"): é ele que a Lua precisa tapar
+const solAparente = new THREE.Vector3();
+// a Terra é achatada (1/298): a latitude dos mapas (geodésica) fica, no centro da Terra, um pouco mais perto do equador.
+// A simulação desenha uma esfera; para a sombra de um eclipse, corrigimos a posição de quem está no chão.
+function pontoGeocentrico(P) {
+  const E = PORID.terra, rel = _e3.copy(P).sub(E.abs), r = rel.length();
+  if (r > E.raio * 1.1) return P;
+  const qi = E.qOri.clone().invert(), dl = rel.clone().applyQuaternion(qi).normalize();
+  const lat = Math.asin(dl.y), latGc = Math.atan(0.99330562 * Math.tan(lat));
+  const h = Math.hypot(dl.x, dl.z);
+  if (h < 1e-9) return P;
+  dl.set((dl.x / h) * Math.cos(latGc), Math.sin(latGc), (dl.z / h) * Math.cos(latGc));
+  return dl.applyQuaternion(E.qOri).multiplyScalar(r).add(E.abs);
+}
+function atualizarSolAparente() {
+  const S = PORID.sol.abs, d = S.distanceTo(PORID.terra.abs);
+  solAparente.copy(S).addScaledVector(velocidadePlaneta('terra', estado.jd), d / C);
+}
 function luzEclipseJS(P, oc, raioOc) {
   const sol = PORID.sol;
-  const L = _e1.copy(sol.abs).sub(P), dS = L.length();
+  const L = _e1.copy(solAparente).sub(P), dS = L.length();
   L.divideScalar(dS);
   const v = _e2.copy(oc.abs).sub(P), d = v.length();
   if (d < raioOc || v.dot(L) <= 0) return 1;
@@ -1995,6 +2013,7 @@ function uniformsEclipse(c, u, luz) {
   if (!u.eclAtivo) return;
   const oc = c.id === 'terra' ? PORID.lua : c.id === 'lua' ? PORID.terra : null;
   if (!oc) { u.eclAtivo.value = 0; return; }
+  luz.copy(solAparente).sub(c.abs).normalize(); // direção do Sol aparente (a diferença na iluminação é imperceptível)
   const v = u.eclOcl.value.copy(oc.abs).sub(c.abs);
   u.eclAtivo.value = v.clone().normalize().dot(luz) > 0.995 ? 1 : 0; // só quando os três estão quase alinhados
   u.eclRaio.value = c.id === 'terra' ? oc.raio : oc.raio * 1.02;
@@ -2311,7 +2330,8 @@ function desenhar() {
   const pxPorRad = vr.ativo ? vr.pxPorRad() / renderer.getPixelRatio() : innerHeight / (camera.fov * GRAU);
   const sol = PORID.sol;
   const rotulosPostos = [];
-  luzSolLua = luzEclipseJS(abs, PORID.lua, PORID.lua.raio);
+  atualizarSolAparente();
+  luzSolLua = luzEclipseJS(pontoGeocentrico(abs.clone()), PORID.lua, PORID.lua.raio);
   luzSolAqui = Math.min(luzSolLua, estado.ref?.id === 'lua' ? luzEclipseJS(abs, PORID.terra, PORID.terra.raio * 1.02) : 1);
   refrAtiva = estado.ceuModo && estado.refracao;
   if (refrAtiva) zenRefr.copy(estado.local).normalize();
@@ -2532,7 +2552,7 @@ function desenhar() {
   relT.multiplyScalar(sT);
   // prédios: só a Terra de hoje, relevo real e fora do modo céu (no chão de uma cidade, eles tapariam o céu)
   predios.atualizar(camLocal, relT, T.qOri, _luzT, terra.ativo && estado.predios && !estado.ceuModo && !estado.epocaMa && !estado.gelo && estado.exagero === 1, estado.ceuModo);
-  if (terra.ativo) terra.atualizar(camLocal, relT, T.qOri, _luzT.copy(sol.abs).sub(T.abs).normalize(), estado.exagero, estado.atmFisica ? 0 : Math.min(Math.max(1.2 - altT / 300, 0), 1), estado.nivelMar / 1000, estado.gelo ? 1 : 0, camera, estado.ceuModo, estado.ceuModo);
+  if (terra.ativo) terra.atualizar(camLocal, relT, T.qOri, _luzT.copy(solAparente).sub(T.abs).normalize(), estado.exagero, estado.atmFisica ? 0 : Math.min(Math.max(1.2 - altT / 300, 0), 1), estado.nivelMar / 1000, estado.gelo ? 1 : 0, camera, estado.ceuModo, estado.ceuModo);
   else terra.esconder();
   if (camadas) {
     camadas.atualizar(camLocal, relT, T.qOri, sT, camera, rotulosPostos,
@@ -3137,6 +3157,7 @@ function ficarEm(lat, lon) {
 }
 function verEclipse(e, modo) {
   $('eclipses').hidden = true;
+  estado.eclipseAtual = e;
   sairRoteiro();
   const inicio = e.solar && e.dur ? e.jd - (e.dur / 2 + 90) / 86400 : e.jd; // eclipse central: começa 1,5 min antes da totalidade
   estado.jd = inicio;
@@ -3161,6 +3182,47 @@ function verEclipse(e, modo) {
     aviso(e.solar ? 'A sombra da Lua sobre a Terra, 1 minuto por segundo.' : 'A Lua entrando na sombra da Terra, 5 minutos por segundo.');
   }
 }
+// Máximo do eclipse visto daqui: procura, em até 4 horas antes e depois, quando o Sol (ou a Lua) fica mais tapado neste lugar
+function maximoDaqui() {
+  if (!estado.ceuModo) return aviso('Entre no modo céu num lugar da Terra (Z) para procurar o eclipse visto dali.');
+  const E = PORID.terra, e = estado.eclipseAtual;
+  const lunar = e ? !e.solar : false;
+  const dl = estado.local.clone().normalize().applyQuaternion(E.qOri.clone().invert()), alt = estado.local.length();
+  const base = e && Math.abs(e.jd - estado.jd) < 0.5 ? e.jd : estado.jd;
+  const P = new THREE.Vector3(), up = new THREE.Vector3(), dirAstro = new THREE.Vector3();
+  const avaliar = (jd) => {
+    atualizarPosicoes(jd);
+    const j0 = estado.jd; estado.jd = jd; atualizarSolAparente(); estado.jd = j0;
+    up.copy(dl).applyQuaternion(E.qOri);
+    P.copy(up).multiplyScalar(alt).add(E.abs);
+    const astro = lunar ? PORID.lua : PORID.sol;
+    const altura = dirAstro.copy(astro.abs).sub(P).normalize().dot(up);
+    const v = lunar ? luzEclipseJS(PORID.lua.abs, PORID.terra, PORID.terra.raio * 1.02) : luzEclipseJS(pontoGeocentrico(P.clone()), PORID.lua, PORID.lua.raio);
+    return altura > -0.005 ? v : 1;
+  };
+  let melhor = 1, jdM = base;
+  for (let jd = base - 4 / 24; jd <= base + 4 / 24; jd += 2 / 1440) { const v = avaliar(jd); if (v < melhor) { melhor = v; jdM = jd; } }
+  let total = 0;
+  if (melhor < 1) {
+    const ini = jdM;
+    for (let jd = ini - 5 / 1440; jd <= ini + 5 / 1440; jd += 5 / 86400) { const v = avaliar(jd); if (v < melhor || (v === melhor && v === 0)) { if (v < melhor) jdM = jd; melhor = v; } if (v === 0) total += 5; }
+  }
+  const voltar = (jd) => { atualizarPosicoes(jd); atualizarPosicoes(jd); estado.local.copy(dl).applyQuaternion(E.qOri).multiplyScalar(alt); };
+  if (melhor >= 0.999) {
+    voltar(estado.jd);
+    return aviso(lunar ? 'Daqui, a Lua fica abaixo do horizonte durante este eclipse.' : 'Daqui, este eclipse não é visível: a sombra da Lua passa longe ou o Sol está abaixo do horizonte.');
+  }
+  estado.jd = jdM - (total ? (total / 2 + 60) / 86400 : 0);
+  voltar(estado.jd);
+  estado.ritmo = 1; estado.orbitasMovem = true; $('selRitmo').value = '1';
+  const t = new Date(horaLocalAgora().getTime() + (total ? (total / 2 + 60) * 1000 : 0));
+  const hora = `${String(t.getUTCHours()).padStart(2, '0')}:${String(t.getUTCMinutes()).padStart(2, '0')}`;
+  setTimeout(() => apontar(lunar ? PORID.lua : PORID.sol), 100);
+  if (lunar) aviso(`Daqui, o máximo do eclipse é às ${hora} (hora local), com a Lua acima do horizonte.`);
+  else if (total) aviso(`Daqui o eclipse é total: cerca de ${Math.floor(total / 60)} min ${total % 60} s de totalidade, a partir de 1 minuto depois de agora. Máximo às ${hora}.`);
+  else aviso(`Daqui, o máximo é às ${hora} (hora local), com ${Math.round((1 - melhor) * 100)}% do disco do Sol coberto.`);
+}
+$('btEclipseAqui').onclick = maximoDaqui;
 $('btEclipses').onclick = abrirEclipses;
 $('btEclipses2').onclick = abrirEclipses;
 $('eclFechar').onclick = () => ($('eclipses').hidden = true);
@@ -3168,4 +3230,4 @@ $('eclAntes').onclick = () => { eclInicio = Math.max(0, eclInicio - 12); listarE
 $('eclDepois').onclick = () => { eclInicio = Math.min(eclipses.length - 12, eclInicio + 12); listarEclipses(); };
 $('eclHoje').onclick = () => { eclInicio = Math.max(0, eclipses.findIndex((e) => e.jd >= jdAgora() - 1)); listarEclipses(); };
 if (lerGuardado('viagemVisitou') === null && !veioDeRecarga) abrirBoasVindas();
-window.__sim = { modelos, testeMeteoros: (n) => { const up = estado.local.clone().normalize(); const c = CHUVAS.find((x) => x.nome === "Oriônidas"); for (let i = 0; i < n; i++) { novoMeteoro(c.dir, c.v, up); if (meteoros.length) meteoros[meteoros.length - 1].t = 0.45; } }, quadros: (n = 1) => { for (let i = 0; i < n; i++) { tAnterior = performance.now() - 16; passo(); } }, luzEclipseJS, coroa, verEclipse, ficarEm, abrirEclipses, predios, vr, alvoNaDirecao, textoPainelVR, satelites, embarcar: (o) => embarcar(o), estado, PORID, camAbs, cat, estrelaObj, vagas, THREE, terra, buscar, indiceBusca, missoes, atualizarPosicoes };
+window.__sim = { maximoDaqui, modelos, testeMeteoros: (n) => { const up = estado.local.clone().normalize(); const c = CHUVAS.find((x) => x.nome === "Oriônidas"); for (let i = 0; i < n; i++) { novoMeteoro(c.dir, c.v, up); if (meteoros.length) meteoros[meteoros.length - 1].t = 0.45; } }, quadros: (n = 1) => { for (let i = 0; i < n; i++) { tAnterior = performance.now() - 16; passo(); } }, luzEclipseJS, coroa, verEclipse, ficarEm, abrirEclipses, predios, vr, alvoNaDirecao, textoPainelVR, satelites, embarcar: (o) => embarcar(o), estado, PORID, camAbs, cat, estrelaObj, vagas, THREE, terra, buscar, indiceBusca, missoes, atualizarPosicoes };

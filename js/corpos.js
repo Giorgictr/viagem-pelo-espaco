@@ -255,6 +255,22 @@ function posLuaCircular(c, d, out) {
 }
 
 // Atualiza posições absolutas e orientações para a data juliana jd
+// ΔT = TT − UT (segundos): a simulação conta o tempo civil (UT), mas as fórmulas da Lua usam o tempo dinâmico (TT).
+// Polinômios de Espenak e Meeus (NASA), os mesmos do catálogo de eclipses. Sem isso, a Lua fica ~40" adiantada hoje
+// e a faixa de um eclipse total se desloca dezenas de quilômetros.
+export function deltaT(jd) {
+  const y = 2000 + (jd - 2451545.0) / 365.25;
+  let t;
+  if (y < 1900) { t = (y - 1820) / 100; return -20 + 32 * t * t; }
+  if (y < 1920) { t = y - 1900; return -2.79 + 1.494119 * t - 0.0598939 * t * t + 0.0061966 * t ** 3 - 0.000197 * t ** 4; }
+  if (y < 1941) { t = y - 1920; return 21.2 + 0.84493 * t - 0.0761 * t * t + 0.0020936 * t ** 3; }
+  if (y < 1961) { t = y - 1950; return 29.07 + 0.407 * t - t * t / 233 + t ** 3 / 2547; }
+  if (y < 1986) { t = y - 1975; return 45.45 + 1.067 * t - t * t / 260 - t ** 3 / 718; }
+  if (y < 2005) { t = y - 2000; return 63.86 + 0.3345 * t - 0.060374 * t * t + 0.0017275 * t ** 3 + 0.000651814 * t ** 4 + 0.00002373599 * t ** 5; }
+  if (y < 2050) { t = y - 2000; return 62.92 + 0.32217 * t + 0.005589 * t * t; }
+  if (y < 2150) return -20 + 32 * ((y - 1820) / 100) ** 2 - 0.5628 * (2150 - y);
+  t = (y - 1820) / 100; return -20 + 32 * t * t;
+}
 export function atualizarPosicoes(jd) {
   const d = jd - 2451545.0;
   const T = d / 36525;
@@ -262,7 +278,7 @@ export function atualizarPosicoes(jd) {
   // O elemento "terra" é o baricentro Terra–Lua; separa os dois
   const bary = tmp.copy(PORID.terra.abs);
   const L = PORID.lua;
-  lua(d, L.relPai);
+  lua(d + deltaT(jd) / 86400, L.relPai); // em tempo dinâmico
   PORID.terra.abs.copy(bary).addScaledVector(L.relPai, -1 / 82.3);
   for (const c of CORPOS) {
     if (c.orbita) {
