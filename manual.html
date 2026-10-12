@@ -42,6 +42,10 @@
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .real { color: #6fd39b; } }
   @media (max-width: 860px) { .tudo { grid-template-columns: 1fr; gap: 0; padding: 20px 16px 60px; } nav { position: static; max-height: none; margin-bottom: 20px; columns: 2; } h1 { font-size: 28px; } table { font-size: 14px; } }
   @media print { nav { display: none; } .tudo { display: block; } h2 { break-after: avoid; } }
+  .destaques { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin: 12px 0 18px; }
+  .destaque { border: 1px solid rgba(127,127,127,.3); border-radius: 10px; padding: 10px 12px; }
+  .destaque b.num { display: block; font-size: 22px; line-height: 1.2; }
+  .destaque span { font-size: 14px; opacity: .85; }
 </style>
 <script data-goatcounter="https://viagem-pelo-espaco.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -49,6 +53,7 @@
 <div class="tudo">
 <nav aria-label="Índice">
   <b>Índice</b>
+  <a href="#destaques">Destaques</a>
   <a href="#abrir">Como abrir</a>
   <a href="#primeiros">Primeiros passos</a>
   <a href="#controles">Controles</a>
@@ -82,6 +87,29 @@
   <h1>Viagem pelo Espaço: manual</h1>
   <p class="lead">Uma viagem em 3D pelo universo conhecido, da sua rua à borda do universo observável, com posições, distâncias e tempos de luz reais, e velocidade regulável até 10¹⁸ vezes a da luz.</p>
 </header>
+
+<h2 id="destaques">Destaques</h2>
+<p>Do chão da sua cidade até a borda do universo observável, num navegador, sem instalar nada, em português, gratuito e sem anúncios.</p>
+<div class="destaques">
+  <div class="destaque"><b class="num">3 milhões</b><span>de estrelas reais (catálogos HYG e Gaia DR3, da ESA), cada uma na posição 3D, com cor e brilho reais</span></div>
+  <div class="destaque"><b class="num">43 mil</b><span>galáxias reais do levantamento 2MRS, mais a Via Láctea do mapa real da NASA</span></div>
+  <div class="destaque"><b class="num">5.398</b><span>nebulosas, aglomerados e galáxias do céu profundo (Messier, NGC e IC), com forma e tamanho reais</span></div>
+  <div class="destaque"><b class="num">10.717</b><span>asteroides e cometas, cada um na própria órbita (JPL)</span></div>
+  <div class="destaque"><b class="num">30 sondas</b><span>e 5 cometas com as trajetórias reais do JPL, de 1972 a hoje; 20 em 3D e fotos reais dos momentos marcantes</span></div>
+  <div class="destaque"><b class="num">11 mil</b><span>satélites em tempo real, da ISS aos trens da Starlink; embarque na ISS e veja a Terra pela janela</span></div>
+  <div class="destaque"><b class="num">913</b><span>eclipses de 1900 a 2100 (calendário da NASA), com a sombra calculada e o máximo visto de qualquer cidade</span></div>
+  <div class="destaque"><b class="num">Segundos de arco</b><span>de precisão nos planetas e na Lua (VSOP87), por milênios; eclipses a segundos das tabelas de referência</span></div>
+  <div class="destaque"><b class="num">Qualquer céu</b><span>de qualquer lugar e data, com a hora oficial da época, telescópio de 1 a 500×, poluição luminosa, refração, 88 constelações e 13 chuvas de meteoros</span></div>
+  <div class="destaque"><b class="num">10 m</b><span>de imagem de satélite e 30 m de relevo na Terra inteira, 7.335 cidades, prédios em 3D, nuvens reais de cada dia desde 2000 e luzes das cidades à noite</span></div>
+  <div class="destaque"><b class="num">500 milhões de anos</b><span>de Terra antiga: era glacial, fim dos dinossauros, Pangeia e Cambriano, com o nível do mar regulável</span></div>
+  <div class="destaque"><b class="num">100 m</b><span>de imagem real de perto na Lua (LRO), 230 m em Marte (Viking) e 170 m em Mercúrio (MESSENGER)</span></div>
+  <div class="destaque"><b class="num">Céu físico</b><span>azul, pôr do sol laranja e crepúsculo calculados pela física da luz no ar (Terra e Marte, com o pôr do sol azulado marciano)</span></div>
+  <div class="destaque"><b class="num">5 km/h a 10¹⁸ c</b><span>de velocidade, com a relatividade de verdade (aberração, Doppler, tempo a bordo) ou a "dobra" de cinema</span></div>
+  <div class="destaque"><b class="num">4 roteiros</b><span>guiados: Grand Tour do Sistema Solar, Seguindo a Voyager 1, Da Terra à borda do universo e Uma noite no céu</span></div>
+  <div class="destaque"><b class="num">Honesto</b><span>este manual separa o que é real, o que é ilustrativo e o que é limite, e explica o que parece erro mas é natural</span></div>
+  <div class="destaque"><b class="num">Em todo lugar</b><span>computador, celular e tablet (modo leve automático) e, em teste, óculos de realidade virtual (Meta Quest)</span></div>
+  <div class="destaque"><b class="num">Privado</b><span>sem cadastro, sem cookies; o contador de visitas não guarda dados pessoais</span></div>
+</div>
 
 <h2 id="abrir">Como abrir</h2>
 <ol class="passos">
