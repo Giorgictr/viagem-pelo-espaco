@@ -1,7 +1,7 @@
 // Catálogo HYG v4.1 (Hipparcos + Yale + Gliese): ~109 mil estrelas com posição 3D real.
 // dados/estrelas.bin: por estrela, x, y, z (parsecs, já no sistema da cena), magnitude absoluta, índice de cor B−V.
 import * as THREE from '../vendor/three.module.js';
-import { PC, AL, UA } from './unidades.js';
+import { PC, AL, UA, OBLIQUIDADE } from './unidades.js';
 
 export const cat = { n: 0, dados: null, nomes: [], porNome: new Map() };
 
@@ -102,6 +102,37 @@ export function maisProximas(abs, k) {
     }
   }
   return melhores.map(([i]) => i);
+}
+
+// Gaia DR3: ~1,1 milhão de estrelas a mais (até a magnitude 11, sem as que já estão no HYG), 10 bytes cada:
+// ascensão reta e declinação em 24 bits, distância em escala log (16 bits), magnitude absoluta V e B−V (8 bits cada).
+// Usam o mesmo material das estrelas do HYG; não viram "corpos" visitáveis.
+export async function carregarGaia(material) {
+  const buf = await fetch('dados/gaia.bin').then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(r.status))));
+  const b = new Uint8Array(buf), n = Math.floor(b.length / 10);
+  const pos = new Float32Array(n * 3), mag = new Float32Array(n), cor = new Float32Array(n * 3), temp = new Float32Array(n);
+  const ce = Math.cos(OBLIQUIDADE), se = Math.sin(OBLIQUIDADE), L = Math.log10(30000), G = Math.PI / 180;
+  const c = new THREE.Color();
+  for (let i = 0, k = 0; i < n; i++, k += 10) {
+    const ra = ((b[k] | (b[k + 1] << 8) | (b[k + 2] << 16)) / 16777215) * 360 * G;
+    const dec = (((b[k + 3] | (b[k + 4] << 8) | (b[k + 5] << 16)) / 16777215) * 180 - 90) * G;
+    const d = 10 ** (((b[k + 6] | (b[k + 7] << 8)) / 65535) * L);
+    const x = d * Math.cos(dec) * Math.cos(ra), y = d * Math.cos(dec) * Math.sin(ra), z = d * Math.sin(dec);
+    pos[i * 3] = x; pos[i * 3 + 1] = -y * se + z * ce; pos[i * 3 + 2] = -(y * ce + z * se); // equatorial → cena
+    mag[i] = (b[k + 8] / 255) * 25.5 - 10;
+    temp[i] = temperatura((b[k + 9] / 255) * 2.55 - 0.5);
+    corDeTemperatura(temp[i], c).toArray(cor, i * 3);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('absmag', new THREE.BufferAttribute(mag, 1));
+  geo.setAttribute('cor', new THREE.BufferAttribute(cor, 3));
+  geo.setAttribute('temp', new THREE.BufferAttribute(temp, 1));
+  const pts = new THREE.Points(geo, material);
+  pts.frustumCulled = false;
+  pts.renderOrder = 4;
+  pts.userData.n = n;
+  return pts;
 }
 
 // Nuvem de pontos com todas as estrelas; brilho e posição calculados na GPU

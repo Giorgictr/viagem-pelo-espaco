@@ -1,0 +1,4 @@
+dados/gaia.bin foi derivado do Gaia Data Release 3 (ESA/Gaia/DPAC), estrelas com G < 11, sem as já presentes no HYG.
+Este trabalho usou dados da missão Gaia da Agência Espacial Europeia (ESA) (https://www.cosmos.esa.int/gaia),
+processados pelo Gaia Data Processing and Analysis Consortium (DPAC, https://www.cosmos.esa.int/web/gaia/dpac/consortium).
+Licença: CC BY-SA 3.0 IGO. O arquivo derivado é distribuído sob a mesma licença.

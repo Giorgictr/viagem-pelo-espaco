@@ -14,7 +14,7 @@ import { criarPredios } from './predios.js';
 import { radecParaCena, carregarEfemeridesLuas, velocidadePlaneta, equatorialParaCena } from './corpos.js';
 import { estadoSom, ligarAudioNoPrimeiroGesto, atualizarSom, somDobra, mudarMusica, ajustarVolume, proximaFaixa, nomeFaixa } from './som.js';
 import { criarVR } from './vr.js';
-import { cat, carregarEstrelas, estrelaObj, maisProximas, criarCeu, DESTAQUES } from './estrelas.js';
+import { carregarGaia, cat, carregarEstrelas, estrelaObj, maisProximas, criarCeu, DESTAQUES } from './estrelas.js';
 
 // ---------------------------------------------------------------------------
 // Escala: tudo é guardado em km com precisão dupla (números do JavaScript).
@@ -95,7 +95,7 @@ const estado = {
   alvo: null,                 // destino escolhido
   pousado: null,              // corpo em que se está caminhando
   nomes: true, linhas: true, freio: true, cinturoes: true,
-  nivelar: true, giraJunto: true, exagero: 1, texturas: true, inventado: true, ceuRealcado: false, efeito: 'dobra', bolha: true, cidades: 'grandes', fronteiras: true, nomesTerra: true, picos: true, aviao: false, altAviao: 1, epocaMa: 0, nivelMar: 0, gelo: false, ceuModo: false, bortle: 0, messier: true, refracao: true, predios: true, telescopio: false, zoom: 10, rastrear: true, atmFisica: true, constelacoes: false, linhasConst: false, ilustrativas: true,
+  nivelar: true, giraJunto: true, exagero: 1, texturas: true, inventado: true, ceuRealcado: false, efeito: 'dobra', bolha: true, cidades: 'grandes', fronteiras: true, nomesTerra: true, picos: true, aviao: false, altAviao: 1, epocaMa: 0, nivelMar: 0, gelo: false, ceuModo: false, bortle: 0, messier: true, refracao: true, predios: true, telescopio: false, zoom: 10, rastrear: true, atmFisica: true, constelacoes: false, linhasConst: false, ilustrativas: true, viaReal: true,
 };
 
 // ------------------------------- texturas -------------------------------
@@ -801,6 +801,7 @@ aoTeclar('Tab', (e) => { e.preventDefault(); modoFoto(); });
 aoTeclar('Enter', () => document.body.classList.contains('foto') && salvarImagem());
 function clarao() { const el = $('clarao'); el.style.transition = 'none'; el.style.opacity = 0.8; requestAnimationFrame(() => { el.style.transition = 'opacity .9s ease-out'; el.style.opacity = 0; }); }
 
+chave('btViaReal', ['Via Láctea: mapa real (NASA)', 'Via Láctea: modelo'], () => estado.viaReal, () => (estado.viaReal = !estado.viaReal));
 chave('btIlustr', ['Galáxias distantes: ilustrativas', 'Só galáxias catalogadas'], () => estado.ilustrativas, () => (estado.ilustrativas = !estado.ilustrativas), 'KeyU');
 chave('btAviao', ['Modo avião ligado', 'Modo avião'], () => estado.aviao, alternarAviao, 'KeyY');
 
@@ -1595,7 +1596,15 @@ carregarEstrelas().then(() => {
   cena.add(ceu);
   preencherEstrelas();
   atualizarVagas();
+  if (!estado.leve) pedirGaia();
 });
+// mais 1,1 milhão de estrelas do Gaia (fora do modo leve: são ~11 MB)
+let gaia = null, gaiaPedido = false;
+function pedirGaia() {
+  if (gaiaPedido || !ceu) return;
+  gaiaPedido = true;
+  carregarGaia(ceu.material).then((p) => { gaia = p; gaia.visible = !estado.leve; cena.add(gaia); }).catch(() => { gaiaPedido = false; });
+}
 
 // Põe nas vagas as estrelas mais próximas (mantendo as que continuam próximas na mesma vaga)
 function atualizarVagas() {
@@ -2272,11 +2281,13 @@ function desenhar() {
   if (mrs) mrs.visible = true;
   // Perto do Sol, a Via Láctea vem do mapa do céu; longe, do modelo em partículas (transição entre 300 e 1.500 pc)
   const dSolPc = abs.distanceTo(sol.abs) / PC;
-  const fCeu = gal.ceuVia.material.uniforms.mapa.value ? 1 - Math.min(Math.max((dSolPc - 300) / 1200, 0), 1) : 0;
+  const fCeu = gal.ceuVia.material.uniforms.mapa.value || (estado.viaReal && gal.ceuVia.material.uniforms.mapaReal.value) ? 1 - Math.min(Math.max((dSolPc - 300) / 1200, 0), 1) : 0;
   gal.ceuVia.visible = fCeu > 0;
   gal.ceuVia.scale.setScalar(5e10);
   gal.ceuVia.material.uniforms.forca.value = 0.85 * fCeu * (1 - diaNoCeu) * (1 - 0.85 * luar) * (1 - Math.min(brilhoUrbano() * 2.2, 1)); // na cidade a Via Láctea some
   gal.ceuVia.material.uniforms.beta.value.copy(betaVec);
+  gal.ceuVia.material.uniforms.real.value = estado.viaReal && gal.ceuVia.material.uniforms.mapaReal.value ? 1 : 0;
+  if (estado.telescopio) gal.ceuVia.material.uniforms.forca.value *= Math.min(1, 3 / estado.zoom); // no telescópio, o mapa (~11 pixels por grau) daria só um borrão: vai sumindo e ficam as estrelas
   gal.brilho.material.uniforms.ganho.value = 3.2 * (1 - fCeu);
   gal.poeira.material.uniforms.ganho.value = 1 - fCeu;
   for (const nv of [gal.brilho, gal.poeira, gal.campo, mrs].filter(Boolean)) {
@@ -2588,6 +2599,7 @@ function aplicarLeve(ligar, motivo = '') {
   renderer.setPixelRatio(ligar ? 1 : Math.min(devicePixelRatio, 2));
   estado.atmFisica = !ligar;
   estado.predios = !ligar;
+  if (gaia) gaia.visible = !ligar; else if (!ligar) pedirGaia();
   if (ligar) { estado.cinturoes = false; $('ckCint').checked = false; }
   pintores.forEach((f) => f());
   $('bvLeve').checked = ligar;
@@ -2603,12 +2615,13 @@ $('bvLeve').onchange = (e) => { aplicarLeve(e.target.checked); guardar('viagemLe
 let vigia = { ini: 0, quadros: 0, feito: lerGuardado('viagemLeve') !== null };
 function vigiarDesempenho(agora) {
   if (vigia.feito || estado.leve || document.hidden || !$('boasVindas').hidden) { vigia.ini = 0; return; }
-  if (!vigia.ini) { vigia.ini = agora; vigia.quadros = 0; return; }
+  if (!vigia.ini) { vigia.ini = agora + 5000; vigia.quadros = 0; return; } // espera 5 s (texturas e dados chegando) antes de medir
+  if (agora < vigia.ini) return;
   vigia.quadros++;
   const t = (agora - vigia.ini) / 1000;
-  if (t > 6) {
+  if (t > 10) {
     vigia.feito = true;
-    if (vigia.quadros / t < 22) { aplicarLeve(true, 'a simulação estava lenta neste aparelho'); aviso('Liguei o modo leve porque estava lento. Dá para desligar em "Início".'); }
+    if (vigia.quadros / t < 18) { aplicarLeve(true, 'a simulação estava lenta neste aparelho'); aviso('Liguei o modo leve porque estava lento. Dá para desligar em "Início".'); }
   }
 }
 function abrirBoasVindas() { $('boasVindas').hidden = false; }
@@ -2641,5 +2654,131 @@ $('bvSaturno').onclick = () => {
   aviso('Rumo a Saturno: 1,3 bilhão de km em 12 segundos.');
 };
 $('bvPangeia').onclick = () => { fecharBoasVindas(); teleportar(PORID.terra); $('selEpoca').value = 'pangeia'; aplicarEpoca('pangeia'); };
+// ------------------------------- roteiros guiados -------------------------------
+// cada passo: título, texto (ou função que devolve o texto) e uma ação; quem avança é a pessoa ("Próximo")
+function viajarPara(c, seg = 10) {
+  if (!c) return;
+  if (estado.embarcado) desembarcar();
+  if (estado.ceuModo) sairDoCeu();
+  if (estado.epocaMa || estado.gelo) { $('selEpoca').value = 'hoje'; aplicarEpoca('hoje'); }
+  document.querySelector('input[name=modo][value=tempo]').checked = true;
+  $('segundos').value = seg;
+  escolherAlvo(c);
+  iniciarViagem(c);
+}
+const estrelaPorNome = (n) => (cat.porNome.has(n) ? estrelaObj(cat.porNome.get(n)) : null);
+function olharPara(c) { if (c) quatOlhando(c.abs.clone().sub(camAbs()), estado.q); }
+// o mais alto acima do horizonte, entre os candidatos (no modo céu)
+function maisAlto(lista, dirDe) {
+  const up = estado.local.clone().normalize();
+  let melhor = null, h = 0.12; // pelo menos ~7° acima do horizonte
+  for (const x of lista) { const d = dirDe(x); if (!d) continue; const v = d.dot(up); if (v > h) { h = v; melhor = x; } }
+  return melhor;
+}
+const dirCorpo = (c) => c && c.abs.clone().sub(camAbs()).normalize();
+function hoje21h() { const t = horaLocalAgora(); return { ano: t.getUTCFullYear(), mes: t.getUTCMonth() + 1, dia: t.getUTCDate(), hh: 21, mm: 0 }; }
+function precisaCeu() { if (!estado.ceuModo) { aviso('Espere o pouso terminar e o céu aparecer; depois clique em "Próximo".'); return false; } return true; }
+function telescopioEm(c, zoom) { if (!estado.telescopio) alternarTelescopio(); definirZoom(zoom); estado.alvo = c; apontar(c); }
+
+const ROTEIROS = {
+  grand: { titulo: 'Grand Tour do Sistema Solar', passos: [
+    { nome: 'A Terra', texto: 'O ponto de partida: 12.742 km de diâmetro, a 150 milhões de km do Sol. A luz do Sol leva 8 minutos e 20 segundos para chegar aqui.', acao: () => { if (estado.embarcado) desembarcar(); teleportar(PORID.terra); } },
+    { nome: 'A Lua', texto: 'A 384 mil km, a luz leva 1,3 segundo para ir da Terra à Lua. Ela mostra sempre a mesma face para nós. Doze pessoas caminharam aqui entre 1969 e 1972.', acao: () => viajarPara(PORID.lua, 6) },
+    { nome: 'Marte', texto: 'Metade do tamanho da Terra, com um dia de 24 h 37 min. O Olympus Mons, o maior vulcão do Sistema Solar, tem cerca de 22 km de altura. Chegue perto do chão para ver o céu cor de caramelo.', acao: () => viajarPara(PORID.marte, 10) },
+    { nome: 'Júpiter', texto: 'Caberiam 1.300 Terras dentro dele. A Grande Mancha Vermelha é uma tempestade maior que a Terra, observada há mais de 150 anos. Tem quase cem luas; as quatro maiores foram descobertas por Galileu em 1610.', acao: () => viajarPara(PORID.jupiter, 10) },
+    { nome: 'Saturno', texto: 'Os anéis têm 270 mil km de diâmetro, mas em geral menos de um quilômetro de espessura: são bilhões de pedaços de gelo. Titã, a maior lua, tem uma atmosfera mais densa que a da Terra.', acao: () => viajarPara(PORID.saturno, 10) },
+    { nome: 'Urano', texto: 'Urano gira deitado: o eixo é inclinado 98°. Cada polo passa 42 anos de dia e 42 anos de noite. Só uma sonda o visitou: a Voyager 2, em 1986.', acao: () => viajarPara(PORID.urano, 10) },
+    { nome: 'Netuno', texto: 'A 4,5 bilhões de km, a luz do Sol leva mais de 4 horas para chegar. Aqui sopram os ventos mais rápidos do Sistema Solar, de mais de 2.000 km/h.', acao: () => viajarPara(PORID.netuno, 10) },
+    { nome: 'Plutão', texto: 'Um planeta anão, menor que a nossa Lua. Em 2015, a New Horizons passou por aqui e encontrou um enorme coração de gelo de nitrogênio.', acao: () => viajarPara(PORID.plutao, 10) },
+    { nome: 'Olhando para trás', texto: 'Daqui, o Sol é só a estrela mais brilhante do céu, e a Terra nem aparece. Toda a história humana aconteceu perto daquele ponto de luz.', acao: () => { pararTudo(); olharPara(PORID.sol); } },
+  ] },
+  voyager: { titulo: 'Seguindo a Voyager 1', passos: () => {
+    const o = missoes.porId.voyager1;
+    if (!o) return [];
+    const p = o.momentos.map((m) => ({ nome: m.titulo, texto: m.texto, acao: () => { if (estado.embarcado !== o) embarcar(o); irMomento(o, m); } }));
+    p.push({ nome: 'Hoje', texto: () => {
+      const dSol = o.abs.distanceTo(PORID.sol.abs), dT = o.abs.distanceTo(PORID.terra.abs);
+      return `Lançada em 1977, a Voyager 1 é o objeto feito pelo ser humano mais distante: agora está a ${sig(dSol / UA)} UA do Sol, ou ${sig(dSol / 1e9)} bilhões de km. Um sinal de rádio leva ${duracao(dT / C)} para chegar até nós. Ela ainda manda dados.`;
+    }, acao: () => { if (estado.embarcado !== o) embarcar(o); estado.jd = jdAgora(); estado.ritmo = 1; $('selRitmo').value = '1'; } });
+    return p;
+  } },
+  escala: { titulo: 'Da Terra à borda do universo', passos: [
+    { nome: 'A Terra', texto: 'Uma viagem pelas escalas do universo, sempre em 12 segundos por etapa, não importa a distância.', acao: () => { if (estado.embarcado) desembarcar(); teleportar(PORID.terra); } },
+    { nome: 'O Sol', texto: 'O Sol tem 109 vezes o diâmetro da Terra e concentra 99,8% de toda a massa do Sistema Solar.', acao: () => viajarPara(PORID.sol, 8) },
+    { nome: 'Alfa Centauri', texto: 'O sistema estelar mais próximo, a 4,4 anos-luz: 41 trilhões de km. A Voyager 1 levaria uns 75 mil anos para chegar.', acao: () => viajarPara(estrelaPorNome('Alfa Centauri A'), 12) },
+    { nome: 'O centro da Via Láctea', texto: 'A 26 mil anos-luz, o centro da nossa galáxia esconde um buraco negro de 4 milhões de massas solares, Sagitário A*.', acao: () => viajarPara(PORID.centro, 12) },
+    { nome: 'A Via Láctea vista de fora', texto: 'Cerca de 100 mil anos-luz de diâmetro e algumas centenas de bilhões de estrelas. O Sol fica num braço menor, o de Órion, a meio caminho da borda.', acao: () => viajarPara(PORID.vialactea, 12) },
+    { nome: 'Andrômeda', texto: 'A 2,5 milhões de anos-luz: a luz que vemos dela saiu quando os primeiros humanos do gênero Homo andavam pela África. Daqui a uns 4,5 bilhões de anos, ela e a Via Láctea vão se fundir.', acao: () => viajarPara(PORID.andromeda, 12) },
+    { nome: 'O Aglomerado de Virgem', texto: 'A cerca de 54 milhões de anos-luz, mais de mil galáxias presas pela gravidade. A Via Láctea e Andrômeda estão na periferia desse grupo.', acao: () => viajarPara(PORID.virgem, 12) },
+    { nome: 'A borda do universo observável', texto: 'A 46 bilhões de anos-luz em qualquer direção. Além dela, a luz ainda não teve tempo de chegar até nós desde o Big Bang, há 13,8 bilhões de anos.', acao: () => viajarPara(PORID.borda, 12) },
+  ] },
+  noite: { titulo: 'Uma noite no céu', passos: () => {
+    const cidade = $('cidadePouso').value || $('bvCidade').value || $('bvCidade2').value || 'Rio de Janeiro';
+    return [
+      { nome: `O céu de ${acharCidade(cidade)?.nome ?? cidade}`, texto: 'Vamos pousar e olhar o céu desta noite, às 21 h, sem nuvens e sem as luzes da cidade, como num campo bem escuro.', acao: () => { if (estado.embarcado) desembarcar(); ceuPendente = hoje21h(); pousarNaCidade(cidade, true); } },
+      { nome: 'Uma constelação', texto: () => (estado.rotConst ? `Esta é ${estado.rotConst}. As linhas ligam as estrelas como os antigos imaginavam a figura; as estrelas de uma constelação em geral estão a distâncias muito diferentes de nós.` : 'Arraste para olhar em volta: os nomes e as linhas das constelações estão ligados.'), acao: () => {
+        if (!precisaCeu()) return;
+        estado.constelacoes = true; estado.linhasConst = true; pintarCeuBotoes();
+        const c = maisAlto(constelacoes.filter((k) => ['Órion', 'Escorpião', 'Cruzeiro do Sul', 'Sagitário', 'Leão', 'Cisne', 'Pégaso', 'Touro', 'Ursa Maior', 'Cassiopeia', 'Centauro', 'Gêmeos'].includes(k.nome)), (k) => k.dir);
+        estado.rotConst = c?.nome;
+        if (c) quatOlhando(c.dir.clone(), estado.q, estado.local.clone().normalize());
+      } },
+      { nome: 'A Lua e os planetas', texto: () => (estado.rotAstro ? `${estado.rotAstro.nome} está bem alto agora. Os planetas não piscam como as estrelas e mudam de lugar, devagar, de uma noite para outra.` : 'Nenhum planeta brilhante está alto agora; tente "+1 h" no painel do céu.'), acao: () => {
+        if (!precisaCeu()) return;
+        const a = maisAlto(['lua', 'venus', 'jupiter', 'saturno', 'marte'].map((id) => PORID[id]), dirCorpo);
+        estado.rotAstro = a;
+        if (a) { estado.alvo = a; apontar(a); }
+      } },
+      { nome: 'Pelo telescópio', texto: () => (estado.rotAstro ? `${estado.rotAstro.nome} com ${estado.rotAstro.id === 'lua' ? '40' : '150'} vezes de aumento. Use − e + nas bordas, ou a roda do mouse.` : 'Sem planeta alto agora: o telescópio fica para o próximo passo.'), acao: () => {
+        if (!precisaCeu() || !estado.rotAstro) return;
+        telescopioEm(estado.rotAstro, estado.rotAstro.id === 'lua' ? 40 : 150);
+      } },
+      { nome: 'O céu profundo', texto: () => (estado.rotProfundo ? `${estado.rotProfundo.nome}: ${estado.rotProfundo.tipo}. A olho nu seria uma mancha fraca ou nem apareceria; no telescópio, a forma surge.` : 'Nenhum dos objetos mais famosos está alto agora.'), acao: () => {
+        if (!precisaCeu()) return;
+        const famosos = [42, 31, 45, 13, 8, 7, 22, 44, 11, 20, 57, 27].map((n) => messier.find((m) => m.m === n)).filter(Boolean);
+        const o = maisAlto(famosos, (m) => m.dir);
+        estado.rotProfundo = o;
+        if (o) telescopioEm(o, Math.min(Math.max(1200 / Math.max(o.tam || 10, 1), 4), 250)); // o objeto ocupa ~1/3 do campo
+      } },
+      { nome: 'E na cidade?', texto: 'Este é o mesmo céu com a poluição luminosa de uma cidade grande: o céu fica pardo, a Via Láctea some e só as estrelas mais brilhantes resistem. Por isso os observatórios ficam longe das cidades.', acao: () => {
+        if (!precisaCeu()) return;
+        if (estado.telescopio) alternarTelescopio();
+        estado.bortle = 7; $('selPoluicao').value = '7';
+      } },
+      { nome: 'Fim', texto: 'De volta ao céu natural. Daqui você pode mudar a data e a hora no painel do céu, trocar de cidade ou usar o telescópio à vontade.', acao: () => { estado.bortle = 0; $('selPoluicao').value = '0'; } },
+    ];
+  } },
+};
+let roteiro = null;
+function iniciarRoteiro(id) {
+  const r = ROTEIROS[id];
+  const passos = typeof r.passos === 'function' ? r.passos() : r.passos;
+  if (!passos.length) return aviso('Este roteiro ainda está carregando; tente de novo em alguns segundos.');
+  fecharBoasVindas();
+  roteiro = { r, passos, i: -1 };
+  document.body.classList.add('emRoteiro');
+  $('roteiro').hidden = false;
+  irPasso(0);
+}
+function irPasso(i) {
+  if (!roteiro) return;
+  if (i >= roteiro.passos.length) return sairRoteiro();
+  roteiro.i = Math.max(0, i);
+  const p = roteiro.passos[roteiro.i];
+  try { p.acao(); } catch (e) { console.warn(e); }
+  $('rotTitulo').textContent = roteiro.r.titulo;
+  $('rotPasso').textContent = `${roteiro.i + 1} de ${roteiro.passos.length}`;
+  $('rotNome').textContent = p.nome;
+  const pintar = () => { if (roteiro && roteiro.passos[roteiro.i] === p) $('rotTexto').textContent = typeof p.texto === 'function' ? p.texto() : p.texto; };
+  pintar();
+  if (typeof p.texto === 'function') setTimeout(pintar, 600); // textos que dependem do lugar ou da data
+  $('rotAnterior').disabled = roteiro.i === 0;
+  $('rotProximo').textContent = roteiro.i === roteiro.passos.length - 1 ? 'Terminar' : 'Próximo ▶';
+}
+function sairRoteiro() { roteiro = null; $('roteiro').hidden = true; document.body.classList.remove('emRoteiro'); }
+$('rotProximo').onclick = () => irPasso(roteiro.i + 1);
+$('rotAnterior').onclick = () => irPasso(roteiro.i - 1);
+$('rotSair').onclick = sairRoteiro;
+for (const b of document.querySelectorAll('[data-roteiro]')) b.onclick = () => iniciarRoteiro(b.dataset.roteiro);
 if (lerGuardado('viagemVisitou') === null && !veioDeRecarga) abrirBoasVindas();
 window.__sim = { predios, vr, alvoNaDirecao, textoPainelVR, satelites, embarcar: (o) => embarcar(o), estado, PORID, camAbs, cat, estrelaObj, vagas, THREE, terra, buscar, indiceBusca, missoes, atualizarPosicoes };

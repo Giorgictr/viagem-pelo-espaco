@@ -18,7 +18,8 @@ async function baixar(s) {
   try { guardado = JSON.parse(localStorage.getItem(GUARDA) || 'null'); } catch { /* sem armazenamento */ }
   const g = guardado?.[s.catnr];
   if (g && Date.now() - g.t < VALE_MS) return g.txt;
-  const txt = await fetch(`https://celestrak.org/NORAD/elements/gp.php?CATNR=${s.catnr}&FORMAT=TLE`)
+  // até 6 s: se o CelesTrak não responder, segue com a cópia guardada (senão os satélites demorariam minutos a aparecer)
+  const txt = await fetch(`https://celestrak.org/NORAD/elements/gp.php?CATNR=${s.catnr}&FORMAT=TLE`, AbortSignal.timeout ? { signal: AbortSignal.timeout(6000) } : {})
     .then((r) => (r.ok ? r.text() : '')).catch(() => '');
   if (txt.includes('\n1 ')) {
     try { localStorage.setItem(GUARDA, JSON.stringify({ ...guardado, [s.catnr]: { t: Date.now(), txt } })); } catch { /* sem armazenamento */ }

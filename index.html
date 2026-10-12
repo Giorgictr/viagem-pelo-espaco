@@ -174,6 +174,15 @@
   .bvLeve { display: flex; gap: 8px; align-items: flex-start; margin: 16px 0 10px; font-size: 13px; color: #c6cfdc; line-height: 1.4; }
   .bvFim { margin-top: 4px; }
   .bvDica { font-size: 12px; color: #8a96a8; margin: 12px 0 0; line-height: 1.4; }
+  .bvTitRot { margin: 16px 0 8px; font-size: 15px; }
+  .bvRoteiros button { flex: 1 1 180px; }
+  #roteiro { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); width: min(560px, calc(100vw - 32px)); z-index: 8; background: var(--painel); border: 1px solid rgba(140,180,255,.35); border-radius: 12px; padding: 12px 14px; box-sizing: border-box; }
+  #roteiro[hidden] { display: none; }
+  #roteiro .rotCab { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #8a96a8; }
+  #roteiro h3 { margin: 4px 0 4px; font-size: 17px; color: #fff; }
+  #roteiro p { margin: 0 0 10px; font-size: 14px; line-height: 1.45; color: #cfd8e6; }
+  body.emRoteiro #pDest, body.emRoteiro #pPos { opacity: .35; }
+  @media (orientation: portrait) { body.telescopio #roteiro { bottom: 128px; } }
 </style>
 <script data-goatcounter="https://viagem-pelo-espaco.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -400,6 +409,7 @@
   </div>
   <div class="linha">
     <button id="btIlustr" title="U"></button>
+    <button id="btViaReal"></button>
     <button id="btAtm"></button>
   </div>
   <div class="linha">
@@ -485,10 +495,23 @@
       <button class="bvCartao bvAtalho" id="bvSaturno"><h3>Voar até Saturno</h3><p>Em 12 segundos, muito acima da velocidade da luz.</p></button>
       <button class="bvCartao bvAtalho" id="bvPangeia"><h3>A Terra da Pangeia</h3><p>Os continentes juntos, há 250 milhões de anos.</p></button>
     </div>
+    <h3 class="bvTitRot">Roteiros guiados</h3>
+    <div class="bvLinha bvRoteiros">
+      <button data-roteiro="grand">Grand Tour do Sistema Solar</button>
+      <button data-roteiro="voyager">Seguindo a Voyager 1</button>
+      <button data-roteiro="escala">Da Terra à borda do universo</button>
+      <button data-roteiro="noite">Uma noite no céu</button>
+    </div>
     <label class="bvLeve"><input type="checkbox" id="bvLeve"> <span><b>Modo leve</b>, para celular ou computador mais simples: sem prédios 3D, atmosfera simples e menos pixels. <span id="bvLeveMotivo"></span></span></label>
     <div class="bvLinha bvFim"><button id="bvExplorar">Explorar livremente</button><a class="botao" href="manual.html" target="_blank" rel="noopener">Manual</a></div>
     <p class="bvDica">Arraste para olhar em volta · a roda do mouse muda a velocidade · ☰ mostra os painéis · H lista os controles. Esta tela volta pelo botão "Início" no painel "Tempo e exibição".</p>
   </div>
+</section>
+<section id="roteiro" hidden>
+  <div class="rotCab"><span id="rotTitulo"></span><span id="rotPasso"></span></div>
+  <h3 id="rotNome"></h3>
+  <p id="rotTexto"></p>
+  <div class="bvLinha"><button id="rotAnterior">◀ Anterior</button><button id="rotProximo">Próximo ▶</button><button id="rotSair">Sair do roteiro</button></div>
 </section>
 <div id="ocular" hidden>
   <div class="hud" id="hudInfo">

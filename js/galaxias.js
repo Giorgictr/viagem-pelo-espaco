@@ -339,8 +339,17 @@ export function criarGalaxias(cena, S) {
   // Céu da Via Láctea visto daqui (calculado logo após a abertura, para não atrasar o primeiro quadro)
   const ceuMat = new THREE.ShaderMaterial({
     vertexShader: S.SIMPLES_V, fragmentShader: S.CEU_VIA_F,
-    uniforms: { mapa: { value: null }, forca: { value: 0 }, GX: { value: GX }, GY: { value: GY }, GZ: { value: GZ }, beta: { value: new THREE.Vector3() } },
+    uniforms: {
+      mapa: { value: null }, forca: { value: 0 }, GX: { value: GX }, GY: { value: GY }, GZ: { value: GZ }, beta: { value: new THREE.Vector3() },
+      mapaReal: { value: null }, real: { value: 0 }, ganhoReal: { value: 0.8 },
+      EX: { value: radecParaCena(0, 0, 1) }, EY: { value: radecParaCena(90, 0, 1) }, EZ: { value: radecParaCena(0, 90, 1) },
+    },
     blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, side: THREE.BackSide,
+  });
+  // a Via Láctea de verdade, vista da Terra (NASA/Goddard SVS, Deep Star Maps 2020, domínio público)
+  new THREE.TextureLoader().load('texturas/via_lactea_nasa.jpg', (t) => {
+    t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; t.wrapS = THREE.RepeatWrapping;
+    ceuMat.uniforms.mapaReal.value = t;
   });
   const ceuVia = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 32), ceuMat);
   ceuVia.renderOrder = 0;

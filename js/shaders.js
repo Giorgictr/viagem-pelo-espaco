@@ -482,7 +482,7 @@ export const LINHA_CEU_F = LOGF + /* glsl */ `
   }`;
 
 export const CEU_VIA_F = LOGF + REL + /* glsl */ `
-  uniform sampler2D mapa; uniform float forca; uniform vec3 GX, GY, GZ;
+  uniform sampler2D mapa, mapaReal; uniform float forca, real, ganhoReal; uniform vec3 GX, GY, GZ, EX, EY, EZ;
   varying vec3 vN, vMundo; varying vec2 vUv;
   void main() {
     #include <logdepthbuf_fragment>
@@ -498,9 +498,17 @@ export const CEU_VIA_F = LOGF + REL + /* glsl */ `
       if (pl > 1e-6) n = c * bh + sqrt(max(1.0 - c * c, 0.0)) * perp / pl;
       D = (1.0 + b * c) / sqrt(1.0 - b * b);
     }
-    float l = atan(dot(n, GY), dot(n, GX));
-    float lat = asin(clamp(dot(n, GZ), -1.0, 1.0));
-    vec3 c = texture2D(mapa, vec2(0.5 - l / 6.2831853, 0.5 + lat / 3.1415927)).rgb;
+    vec3 c;
+    if (real > 0.5) {
+      // mapa real (NASA, Deep Star Maps 2020): ascensão reta 0 no centro, crescendo para a esquerda; gravado com gama 2,2
+      float ra = atan(dot(n, EY), dot(n, EX));
+      float dec = asin(clamp(dot(n, EZ), -1.0, 1.0));
+      c = pow(texture2D(mapaReal, vec2(fract(0.5 - ra / 6.2831853), 0.5 + dec / 3.1415927)).rgb, vec3(2.2)) * ganhoReal;
+    } else {
+      float l = atan(dot(n, GY), dot(n, GX));
+      float lat = asin(clamp(dot(n, GZ), -1.0, 1.0));
+      c = texture2D(mapa, vec2(0.5 - l / 6.2831853, 0.5 + lat / 3.1415927)).rgb;
+    }
     gl_FragColor = vec4(tingir(c, D) * forca * min(D * D, 2.0), 1.0);
   }`;
 
