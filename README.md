@@ -14,4 +14,5 @@ Os créditos completos estão no manual (seção "Fontes dos dados"). Em resumo:
 - Estrelas: catálogo HYG (CC BY-SA 4.0) e Gaia DR3, ESA/Gaia/DPAC (CC BY-SA 3.0 IGO). Mapa da Via Láctea: NASA/Goddard SVS, Deep Star Maps 2020 (domínio público). Texturas dos planetas: Solar System Scope (CC BY 4.0). Linhas das constelações: d3-celestial (BSD). Terra antiga: PALEOMAP (CC BY 4.0). Lugares e fronteiras: Natural Earth (domínio público). Relevo: Terrain Tiles (Mapzen/AWS). Luzes noturnas: NASA Black Marble.
 - Construções em 3D: © colaboradores do OpenStreetMap (ODbL), via OpenFreeMap. Objetos de Messier: OpenNGC (CC BY-SA 4.0).
 - Trajetórias, luas e efemérides: JPL Horizons (NASA/JPL-Caltech). Satélites: CelesTrak + satellite.js (MIT). Three.js (MIT).
+- Eclipses: cânone de Espenak e Meeus (NASA/GSFC). Nuvens do dia: NASA GIBS (VIIRS/MODIS). Chuvas de meteoros: International Meteor Organization. Modelos 3D das sondas: NASA 3D Resources; decodificador Draco (Google, Apache 2.0).
 - Fotos das missões: NASA (uso livre); o 67P é da ESA/Rosetta/NAVCAM (CC BY-SA IGO 3.0).

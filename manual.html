@@ -62,6 +62,7 @@
   <a href="#som">Som e música</a>
   <a href="#foto">Modo foto</a>
   <a href="#vr">Óculos de realidade virtual</a>
+  <a href="#eclipses">Eclipses</a>
   <a href="#roteiros">Roteiros guiados</a>
   <a href="#sondas">Sondas, cometas e satélites</a>
   <a href="#terra">A Terra de perto</a>
@@ -232,6 +233,7 @@
   </li>
   <li><b>Momentos</b>: lista dos pontos altos de cada missão (por exemplo, o Pálido Ponto Azul, Netuno, Plutão, "o dia em que a Terra sorriu", a Grande Mancha Vermelha, o primeiro campo profundo do James Webb). Ao clicar, a data muda, a câmera vira para o alvo e, quando há, aparece a <b>foto real</b> ao lado da cena simulada. Os momentos com foto têm 📷.</li>
   <li><b>Cometas</b> têm núcleo, coma e duas caudas, que crescem perto do Sol: a de gás, azulada e reta, aponta para longe do Sol; a de poeira, amarelada, se curva para trás na órbita.</li>
+  <li><b>Vista: de dentro / de fora</b>: no painel "A bordo", mostra a sonda em 3D, no tamanho real, com a luz do Sol, e a câmera gira em volta dela ao arrastar. Há modelos da Voyager 1 e 2, Pioneer 10, Cassini, Juno, Parker, James Webb, Rosetta, Hubble e ISS (a New Horizons, os cometas e a Tiangong não têm modelo). A orientação da sonda é aproximada.</li>
   <li>Para sair, clique em <b>Desembarcar</b> ou escolha outro destino.</li>
 </ul>
 <h3>Satélites em tempo real: ISS, Hubble e Tiangong</h3>
@@ -263,6 +265,8 @@
   <li><b>Modo avião</b> (<kbd>Y</kbd>): voa seguindo o relevo numa altitude constante, a 900 km/h. <kbd>↑</kbd> <kbd>↓</kbd> sobem e descem, <kbd>←</kbd> <kbd>→</kbd> viram.</li>
   <li><b>Olhar para o céu daqui</b> (<kbd>Z</kbd>): veja abaixo.</li>
   <li><b>Construções em 3D</b> (chave, ligada por padrão): abaixo de ~6 km de altitude, os prédios do OpenStreetMap aparecem como blocos com a altura registrada no mapa, num raio de alguns quilômetros. De dia, as fachadas recebem sol e sombra; à noite, janelas acesas. Onde o mapa não tem a altura, o prédio ganha dois andares. São blocos de cor uniforme, não fotos.</li>
+  <li><b>Nuvens do dia</b> (chave, ligada por padrão): as nuvens reais de cada dia desde 2000, tiradas da foto diária do planeta inteiro feita pelos satélites da NASA (VIIRS desde 2015, MODIS antes). Entre um dia e o seguinte, as duas fotos se misturam aos poucos: com o tempo acelerado, dá para ver frentes e tempestades mudando. Antes de 2000 e na data de hoje (a foto sai com um dia de atraso), entram as nuvens genéricas ou as da véspera.</li>
+  <li><b>Nuvens em movimento (ilustrativo)</b> (chave): as nuvens do dia andam com ventos aproximados (para oeste nos trópicos, para leste nas latitudes médias). O movimento é inventado; a posição de partida é a real.</li>
   <li><b>Pousar numa cidade</b>: escreva o nome (a lista sugere entre 7 mil cidades, com estado e país) e clique em <b>Pousar lá</b>. A nave voa até a cidade e desce até o chão, bem no centro dela. <b>Ver o céu de lá</b> faz o mesmo e já entra no modo céu.</li>
 </ul>
 <p>À noite, as luzes das cidades vêm das imagens Black Marble da NASA. No mar aparece o reflexo do Sol.</p>
@@ -287,6 +291,7 @@
   <li><b>Objetos de Messier</b> (chave no painel do céu): os 110 objetos do catálogo de Messier (nebulosas, aglomerados e galáxias), com tamanho, forma e brilho reais. Aparecem conforme o que o olho ou o telescópio alcançaria. Busque por número ("m13") ou nome ("Plêiades", "Nebulosa de Órion"); clique no nome para escolher como alvo do telescópio.</li>
   <li><b>Poluição luminosa</b>: escolha entre céu natural (padrão), campo muito escuro, zona rural, subúrbio, cidade e centro de metrópole (escala de Bortle 1 a 9). Quanto mais luz, menos estrelas, menos objetos de Messier e um céu mais pardo-alaranjado perto do horizonte; a Via Láctea some a partir do subúrbio.</li>
   <li><b>Refração</b> (ligada por padrão): levanta os astros perto do horizonte, como o ar faz de verdade.</li>
+  <li><b>Chuvas de meteoros</b> (chave no painel do céu): as principais chuvas anuais (Quadrântidas, Líridas, Eta Aquáridas, Perseidas, Oriônidas, Leônidas, Geminídeas e outras), com radiante, pico, taxa e velocidade do calendário da Organização Internacional de Meteoros, mais os meteoros esporádicos (~5 por hora). O painel diz quais estão ativas e quantos meteoros por hora caberiam agora, conforme a altura do radiante, a Lua e a poluição luminosa. Como na vida real, é preciso paciência: 20 por hora é um a cada três minutos. A chave <b>10× mais</b> acelera só os meteoros. Os riscos são sorteados; não são registros de meteoros reais.</li>
 </ul>
 <h3>Telescópio</h3>
 <ul>
@@ -332,6 +337,15 @@
 </ul>
 <div class="nota">A Terra antiga tem resolução de 1° (cerca de 110 km) e cores ilustrativas, porque não se sabe a vegetação de cada lugar. Nas épocas passadas, cidades, fronteiras e nuvens de hoje ficam escondidas.</div>
 
+<h2 id="eclipses">Eclipses</h2>
+<p>O botão <b>Eclipses</b> (no painel do céu e em "Tempo e exibição") abre o calendário oficial da NASA (Espenak e Meeus) de 1900 a 2100, a partir da data da simulação.</p>
+<ul>
+  <li><b>Ver do chão</b>: leva ao ponto do eclipse máximo, na data e hora certas, no modo céu, olhando para o Sol (ou a Lua). Num eclipse total, começa 1,5 minuto antes da totalidade, em tempo real: o céu escurece, aparecem as estrelas e planetas mais brilhantes e a coroa surge em volta da Lua. Use o telescópio para ver a coroa de perto.</li>
+  <li><b>Ver do espaço</b>: num eclipse solar, mostra a Terra com a sombra da Lua passando (1 minuto por segundo); num lunar, a Lua entrando na sombra da Terra e ficando acobreada (5 minutos por segundo).</li>
+  <li>A sombra é calculada pela geometria real do Sol, da Lua e da Terra, então qualquer data mostra o que aconteceria. A cor de cobre da Lua vem da luz que atravessa a nossa atmosfera, como todos os pores do sol da Terra ao mesmo tempo.</li>
+  <li>Limite: a posição da Lua tem erro de poucos quilômetros a dezenas de quilômetros, então a faixa de totalidade pode ficar um pouco deslocada e a duração num ponto pode diferir de alguns segundos a um ou dois minutos da tabela.</li>
+</ul>
+
 <h2 id="roteiros">Roteiros guiados</h2>
 <p>Na tela <b>Início</b>, quatro passeios prontos, avançados no seu ritmo com <b>Próximo</b> e <b>Anterior</b>; dá para sair a qualquer momento.</p>
 <ul>
@@ -361,6 +375,9 @@
   <tr><td>Atmosfera</td><td>botão em "Tempo e exibição"</td><td>física · simples</td></tr>
   <tr><td>Construções em 3D</td><td>painel "Terra"</td><td>ligadas · desligadas</td></tr>
   <tr><td>Via Láctea</td><td>"Tempo e exibição"</td><td>mapa real (NASA) · modelo</td></tr>
+  <tr><td>Nuvens · movimento das nuvens</td><td>painel "Terra"</td><td>do dia · genéricas · em movimento (ilustrativo) · paradas</td></tr>
+  <tr><td>Meteoros · 10× mais</td><td>painel do céu</td><td>ligados · desligados · 10× · taxa real</td></tr>
+  <tr><td>Vista da sonda</td><td>painel "A bordo"</td><td>de dentro · de fora (3D)</td></tr>
   <tr><td>Objetos de Messier · refração · poluição luminosa</td><td>painel do céu</td><td>ligados · desligados · ligada · desligada · natural a Bortle 9</td></tr>
   <tr><td>Telescópio · acompanhar as estrelas</td><td>painel do céu (roda do mouse = aumento)</td><td>ligado · desligado · acompanhar · parado</td></tr>
   <tr><td>Modo foto</td><td><kbd>Tab</kbd></td><td>painéis visíveis · escondidos</td></tr>
@@ -386,6 +403,9 @@
   <tr><td>Borda do universo observável</td><td>Distância <span class="real">real</span>, aparência <span class="ilus">ilustrativa</span></td></tr>
   <tr><td>Era glacial: nível do mar · gelo</td><td><span class="real">Real</span> · <span class="ilus">contornos aproximados</span></td></tr>
   <tr><td>Terra antiga</td><td>Relevo <span class="real">científico</span> (PALEOMAP), cores <span class="ilus">ilustrativas</span></td></tr>
+  <tr><td>Eclipses (sombra, coroa, Lua acobreada)</td><td>Geometria <span class="real">real</span>; aparência da coroa <span class="ilus">desenhada</span></td></tr>
+  <tr><td>Nuvens</td><td><span class="real">Reais</span> do dia (desde 2000); movimento <span class="ilus">ilustrativo</span> (chave)</td></tr>
+  <tr><td>Meteoros</td><td>Taxas e radiantes <span class="real">reais</span>; cada risco <span class="ilus">sorteado</span></td></tr>
   <tr><td>Viagem acima da luz</td><td><span class="ilus">Ficção</span></td></tr>
 </table>
 
@@ -533,7 +553,7 @@
   <li><b>O que não existe (ainda):</b>
     <ul>
       <li>prédios em 3D;</li>
-      <li>nuvens reais do dia;</li>
+      <li>o movimento real das nuvens hora a hora (só a foto de cada dia);</li>
       <li>sombras de eclipses (a sombra da Lua na Terra, a de Júpiter nas luas);</li>
       <li>sombra dos anéis sobre Saturno;</li>
       <li>exoplanetas;</li>
@@ -574,6 +594,10 @@
   <li><b>Sondas e cometas</b>: trajetórias do sistema JPL Horizons (NASA/JPL-Caltech).</li>
   <li><b>Luas dos outros planetas</b>: posições e velocidades do JPL Horizons (1970–2040), propagadas com o achatamento de cada planeta.</li>
   <li><b>Satélites</b>: elementos orbitais do CelesTrak (T. S. Kelso), calculados com a biblioteca satellite.js (licença MIT).</li>
+  <li><b>Eclipses</b>: Five Millennium Canon of Solar/Lunar Eclipses, F. Espenak e J. Meeus (NASA/GSFC, domínio público).</li>
+  <li><b>Nuvens do dia</b>: NASA GIBS/Worldview, imagens VIIRS (Suomi NPP) e MODIS (Terra), corrected reflectance.</li>
+  <li><b>Chuvas de meteoros</b>: calendário da International Meteor Organization (valores médios).</li>
+  <li><b>Modelos 3D das sondas</b>: NASA 3D Resources (livres de direitos); descompressão Draco (Google, Apache 2.0).</li>
   <li><b>Estrelas do Gaia</b>: ESA/Gaia/DPAC, Gaia Data Release 3 (CC BY-SA 3.0 IGO).</li>
   <li><b>Mapa da Via Láctea</b>: NASA/Goddard Space Flight Center Scientific Visualization Studio, Deep Star Maps 2020 (domínio público), com dados de Gaia DR2, Hipparcos-2 e Tycho-2.</li>
   <li><b>Construções</b>: © colaboradores do OpenStreetMap (licença ODbL), em ladrilhos do OpenFreeMap.</li>

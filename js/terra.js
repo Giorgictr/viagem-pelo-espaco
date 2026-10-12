@@ -30,6 +30,7 @@ export function criarTerra(cena, S, raio) {
     luz: { value: new THREE.Vector3(1, 0, 0) }, noite: { value: noite }, exagero: { value: 1 },
     kmPorUnidade: { value: 1 }, corCeu: { value: new THREE.Color(0.32, 0.58, 1.0) }, nevoa: { value: 1 },
     nivelMar: { value: 0 }, gelo: { value: 0 }, semLuzes: { value: 0 },
+    eclOcl: { value: new THREE.Vector3() }, eclRaio: { value: 1737.4 }, eclSolAng: { value: 0.00465 }, eclAtivo: { value: 0 }, eclVermelho: { value: 0 },
   };
   const _v = new THREE.Vector3();
 
@@ -243,6 +244,7 @@ export function criarTerra(cena, S, raio) {
 
   return {
     ativo: false,
+    eclipse: comum, // uniforms da sombra da Lua (eclipse solar)
     prontaRaiz: () => raizes.every((r) => r.estado === 'pronto'),
     // camLocal: câmera no referencial da Terra (km); posTerra: centro da Terra relativo à câmera (km, na cena)
     atualizar(camLocal, posTerra, qOri, luzMundo, exagero, nevoa, nivelMar = 0, gelo = 0, camera = null, curto = false, semLuzes = false) {

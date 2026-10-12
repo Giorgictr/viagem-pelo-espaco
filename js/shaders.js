@@ -89,7 +89,29 @@ export const PLANETA_V = LOGV + /* glsl */ `
     #include <logdepthbuf_vertex>
   }`;
 
-export const PLANETA_F = LOGF + RUIDO + /* glsl */ `
+// Eclipses: quanto do disco do Sol um corpo esférico (a Lua para a Terra, a Terra para a Lua) tapa, visto do ponto P.
+// P e eclOcl em km, no referencial do corpo iluminado (centro = 0), com os eixos da cena; L = direção do Sol.
+const ECLIPSE = /* glsl */ `
+  uniform vec3 eclOcl; uniform float eclRaio, eclSolAng, eclAtivo, eclVermelho;
+  float luzEclipse(vec3 P, vec3 L, out float umbra) {
+    umbra = 0.0;
+    if (eclAtivo < 0.5) return 1.0;
+    vec3 v = eclOcl - P;
+    float d = length(v);
+    if (dot(v, L) <= 0.0) return 1.0;
+    vec3 vn = v / d;
+    float a = eclSolAng, b = asin(clamp(eclRaio / d, 0.0, 1.0));
+    float c = atan(length(cross(vn, L)), dot(vn, L)); // separação (preciso mesmo em ângulos pequenos)
+    if (c >= a + b) return 1.0;
+    if (c <= b - a) { umbra = clamp((b - a - c) / max(b - a, 1e-6) * 3.0 + 0.4, 0.0, 1.0); return 0.0; }
+    if (c <= a - b) return 1.0 - (b * b) / (a * a); // anular
+    float a2 = a * a, b2 = b * b, c2 = c * c;
+    float A = a2 * acos(clamp((c2 + a2 - b2) / (2.0 * c * a), -1.0, 1.0)) + b2 * acos(clamp((c2 + b2 - a2) / (2.0 * c * b), -1.0, 1.0))
+      - 0.5 * sqrt(max((-c + a + b) * (c + a - b) * (c - a + b) * (c + a + b), 0.0));
+    return clamp(1.0 - A / (3.14159265 * a2), 0.0, 1.0);
+  }`;
+
+export const PLANETA_F = LOGF + RUIDO + ECLIPSE + /* glsl */ `
   uniform sampler2D mapa, noite, relevo;
   uniform float temMapa, temNoite, emissivo, temRelevo, hMin, hMax, exagero, raio, detalhe, kmPorUnidade, usarTextura, usarPiso, pisoMar, exposicao;
   uniform vec3 corBase, luz, polo;
@@ -157,7 +179,11 @@ export const PLANETA_F = LOGF + RUIDO + /* glsl */ `
     }
     float l = dot(n, luz);
     float lg = dot(n0, luz);
-    vec3 c = base * (max(l, 0.0) * smoothstep(-0.05, 0.05, lg) + 0.012);
+    float umbra;
+    float ecl = luzEclipse(n0 * raio, luz, umbra);
+    vec3 c = base * (max(l, 0.0) * smoothstep(-0.05, 0.05, lg) * ecl + 0.012);
+    // na umbra da Terra, a Lua recebe só a luz avermelhada que atravessa a nossa atmosfera (todos os pores do sol ao mesmo tempo)
+    c += base * vec3(0.55, 0.2, 0.07) * 0.22 * umbra * eclVermelho * smoothstep(-0.05, 0.05, lg);
     if (temNoite > 0.5) c += texture2D(noite, vUv).rgb * (1.0 - smoothstep(-0.12, 0.08, lg)) * 0.8;
     gl_FragColor = vec4(c * exposicao, 1.0);
     #include <colorspace_fragment>
@@ -175,11 +201,29 @@ export const SIMPLES_V = LOGV + /* glsl */ `
   }`;
 
 export const NUVENS_F = LOGF + /* glsl */ `
-  uniform sampler2D mapa; uniform vec3 luz; uniform float opac;
+  uniform sampler2D mapa, mapaA, mapaB; uniform vec3 luz; uniform float opac, real, mistura, horas, deriva;
   varying vec3 vN, vMundo; varying vec2 vUv;
+  // nuvens na foto do dia: claras e sem cor (o mar, a terra e o brilho do Sol no mar ficam de fora)
+  float nuvem(vec3 c) {
+    float mn = min(min(c.r, c.g), c.b), mx = max(max(c.r, c.g), c.b);
+    float sat = (mx - mn) / max(mx, 1e-3);
+    return smoothstep(0.4, 0.75, mn) * (1.0 - smoothstep(0.07, 0.2, sat)); // areia clara tem um pouco de cor; nuvem é cinza ou branca
+  }
+  // deriva ilustrativa: ventos alísios para oeste nos trópicos, ventos de oeste nas latitudes médias (graus de longitude por hora)
+  float vento(float lat) {
+    float a = abs(lat);
+    return -0.5 * (1.0 - smoothstep(20.0, 32.0, a)) + 0.55 * smoothstep(30.0, 42.0, a) * (1.0 - smoothstep(58.0, 72.0, a));
+  }
   void main() {
     #include <logdepthbuf_fragment>
-    float a = texture2D(mapa, vUv).r * opac;
+    float a;
+    if (real > 0.5) {
+      float lat = (vUv.y - 0.5) * 180.0;
+      vec2 uA = vUv, uB = vUv;
+      uA.x -= deriva * vento(lat) * horas / 360.0;          // a foto do dia, levada pelo vento desde a hora dela
+      uB.x -= deriva * vento(lat) * (horas - 24.0) / 360.0;  // a do dia seguinte, vinda de trás
+      a = mix(nuvem(texture2D(mapaA, uA).rgb), nuvem(texture2D(mapaB, uB).rgb), mistura) * opac;
+    } else a = texture2D(mapa, vUv).r * opac;
     float l = dot(normalize(vN), luz);
     gl_FragColor = vec4(vec3(max(l, 0.0) + 0.01), a * 0.92);
     #include <colorspace_fragment>
@@ -220,9 +264,9 @@ export const ATM_F = LOGF + /* glsl */ `
 // névoa branca e halo em volta do Sol), integrado ao longo de cada raio de visão, com a luz do Sol atenuada até cada ponto
 // e a sombra do planeta. Unidades: raio do planeta = 1. Mistura pré-multiplicada (soma a luz espalhada e atenua o que
 // está atrás: chão, estrelas).
-export const ATM_FIS_F = LOGF + /* glsl */ `
+export const ATM_FIS_F = LOGF + ECLIPSE + /* glsl */ `
   uniform vec3 luz, centro, betaR, betaMs, betaMe, betaO, gM;
-  uniform float raioR, topo, HR, HM, intensidade, exposicao, luar, multiplo, urbano;
+  uniform float raioR, topo, HR, HM, intensidade, exposicao, luar, multiplo, urbano, raioCorpo;
   varying vec3 vN, vMundo; varying vec2 vUv;
   vec2 esfera(vec3 o, vec3 d, float r) {
     float b = dot(o, d), c = dot(o, o) - r * r, h = b * b - c;
@@ -275,6 +319,8 @@ export const ATM_FIS_F = LOGF + /* glsl */ `
     vec3 g2 = gM * gM;
     vec3 fM = 3.0 / (8.0 * PI) * ((1.0 - g2) * (1.0 + mu * mu)) / ((2.0 + g2) * pow(1.0 + g2 - 2.0 * gM * mu, vec3(1.5)));
     vec3 L = intensidade * (somaR * betaR * fR + somaM * betaMs * fM + multiplo * somaA * betaR / (4.0 * PI));
+    float um; // na sombra da Lua, o ar também fica sem sol (avaliado onde o raio toca o chão ou mais se aproxima dele)
+    L *= mix(0.025, 1.0, luzEclipse(normalize(o + d * t1) * raioCorpo, luz, um)); // na totalidade, sobra a luz que vem do céu fora da sombra
     vec3 T = exp(-((betaR + betaO) * odR + betaMe * odM));
     // compressão que preserva o tom (sem ela, perto do Sol o vermelho e o verde saturam juntos e o poente fica amarelo)
     float mx = max(max(L.r, L.g), max(L.b, 1e-6));
@@ -532,7 +578,7 @@ export const TERRA_V = LOGV + /* glsl */ `
     gl_Position = projectionMatrix * viewMatrix * m;
     #include <logdepthbuf_vertex>
   }`;
-export const TERRA_F = LOGF + /* glsl */ `
+export const TERRA_F = LOGF + ECLIPSE + /* glsl */ `
   uniform sampler2D imagem, noite, noiteTile;
   uniform vec3 luz, corCeu;
   uniform float nevoa, kmPorUnidade, temNoiteTile, nivelMar, gelo, semLuzes;
@@ -572,7 +618,9 @@ export const TERRA_F = LOGF + /* glsl */ `
     float diaAqui = smoothstep(-0.15, 0.2, dot(rad, luz));
     float lSol = max(mix(dot(rad, luz), l, 0.6), 0.0);
     vec3 ceuDifuso = vec3(0.55, 0.68, 1.0) * (0.07 + 0.09 * max(dot(n, rad), 0.0)) * diaAqui;
-    vec3 c = base * (lSol * 1.05 + ceuDifuso + 0.015);
+    float umbraT;
+    float ecl = luzEclipse(rad * 6371.0, luz, umbraT); // sombra da Lua num eclipse solar
+    vec3 c = base * ((lSol * 1.05 + ceuDifuso) * ecl + 0.015);
     c -= max(c - 0.72, 0.0) * 0.6; // paredões de pedra virados para o Sol (foto esticada na encosta) não estouram em branco
     if (vAgua > 0.5 && l > 0.0) {
       vec3 h = normalize(luz + normalize(-vMundo));

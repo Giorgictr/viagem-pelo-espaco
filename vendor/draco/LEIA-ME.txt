@@ -1,0 +1,2 @@
+Decodificador Draco (Google), distribuído com o three.js 0.186 (examples/jsm/libs/draco/gltf). Licença Apache 2.0.
+https://github.com/google/draco

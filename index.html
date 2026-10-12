@@ -183,6 +183,12 @@
   #roteiro p { margin: 0 0 10px; font-size: 14px; line-height: 1.45; color: #cfd8e6; }
   body.emRoteiro #pDest, body.emRoteiro #pPos { opacity: .35; }
   @media (orientation: portrait) { body.telescopio #roteiro { bottom: 128px; } }
+  #eclipses { position: fixed; inset: 0; z-index: 9; background: rgba(2, 4, 10, .72); overflow-y: auto; display: flex; align-items: flex-start; justify-content: center; padding: 4vh 16px; }
+  #eclipses[hidden] { display: none; }
+  #eclLista { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+  .eclItem { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); }
+  .eclItem .eclTxt { flex: 1 1 260px; font-size: 13px; color: #cfd8e6; line-height: 1.35; }
+  .eclItem .eclTxt b { color: #fff; }
 </style>
 <script data-goatcounter="https://viagem-pelo-espaco.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -246,6 +252,7 @@
     <label><input type="checkbox" id="ckPicos" checked> Picos e regiões</label>
   </div>
   <div class="linha"><button id="btPredios" title="Prédios do OpenStreetMap, abaixo de 6 km de altitude"></button></div>
+  <div class="linha"><button id="btNuvens"></button><button id="btNuvensDeriva"></button></div>
   <div class="linha">
     <button id="btCeu2" title="Z">Olhar para o céu daqui</button>
   </div>
@@ -291,7 +298,7 @@
   <h2 style="margin-top:10px" id="mMomentosTit">Momentos</h2>
   <div id="mMomentos"></div>
   <div class="sub" id="mTexto" style="white-space:normal;margin-top:6px"></div>
-  <div class="linha"><button id="mSair">Desembarcar</button></div>
+  <div class="linha"><button id="mVista" title="Ver a sonda em 3D, de fora"></button><button id="mSair">Desembarcar</button></div>
 </section>
 
 <section class="painel" id="foto" hidden>
@@ -325,6 +332,7 @@
   <div class="kv" style="margin-top:8px">
     <span>Olhando para</span><span id="ceuOlhando">—</span>
     <span>No céu agora</span><span id="ceuVisiveis" style="white-space:normal">—</span>
+    <span>Meteoros</span><span id="ceuMeteoros" style="white-space:normal">—</span>
   </div>
   <p class="sub" style="margin:8px 0 0;white-space:normal">Arraste o mouse para olhar em volta. Sem nuvens e sem luzes de cidade. Ligue o desenho e os nomes das constelações para se orientar, ou desligue para só apreciar e procurar sozinho.</p>
   <div class="linha">
@@ -338,6 +346,7 @@
     </select>
   </div>
   <div class="linha"><button id="btMessier"></button><button id="btRefracao"></button></div>
+  <div class="linha"><button id="btMeteoros"></button><button id="btMeteoros10" title="Para ver mais meteoros sem esperar"></button></div>
   <h2 style="margin-top:10px">Telescópio</h2>
   <div class="linha" style="margin-top:0">
     <button id="btTelescopio" title="Roda do mouse muda o aumento"></button><span class="sub" id="zoomTxt"></span>
@@ -346,7 +355,7 @@
   <div class="linha" id="linhaTel">
     <button id="btRastrear"></button><button id="btApontar">Apontar para o alvo</button>
   </div>
-  <div class="linha"><button id="btSairCeu">Sair do modo céu (Z)</button></div>
+  <div class="linha"><button id="btEclipses2">Eclipses</button><button id="btSairCeu">Sair do modo céu (Z)</button></div>
 </section>
 
 <section class="painel" id="pPos">
@@ -436,7 +445,7 @@
     <label title="Até onde chegaram as transmissões de rádio humanas"><input type="checkbox" id="ckBolha" checked> Bolha do rádio</label>
     <label title="Reduz a velocidade perto de planetas e estrelas, para não atravessá-los"><input type="checkbox" id="ckFreio" checked> Freio de proximidade</label>
   </div>
-  <div class="linha"><button id="btInicio">Início</button><button id="btAjuda" title="H">Controles (H)</button><a class="botao" href="manual.html" target="_blank" rel="noopener">Manual completo</a></div>
+  <div class="linha"><button id="btInicio">Início</button><button id="btEclipses">Eclipses</button><button id="btAjuda" title="H">Controles (H)</button><a class="botao" href="manual.html" target="_blank" rel="noopener">Manual completo</a></div>
   <div class="sub" id="visitas" hidden></div>
 </section>
 
@@ -505,6 +514,14 @@
     <label class="bvLeve"><input type="checkbox" id="bvLeve"> <span><b>Modo leve</b>, para celular ou computador mais simples: sem prédios 3D, atmosfera simples e menos pixels. <span id="bvLeveMotivo"></span></span></label>
     <div class="bvLinha bvFim"><button id="bvExplorar">Explorar livremente</button><a class="botao" href="manual.html" target="_blank" rel="noopener">Manual</a></div>
     <p class="bvDica">Arraste para olhar em volta · a roda do mouse muda a velocidade · ☰ mostra os painéis · H lista os controles. Esta tela volta pelo botão "Início" no painel "Tempo e exibição".</p>
+  </div>
+</section>
+<section id="eclipses" hidden>
+  <div class="bvCaixa">
+    <h1>Eclipses</h1>
+    <p class="bvSub">Do catálogo da NASA (Espenak e Meeus), de 1900 a 2100. "Ver do chão" leva ao ponto do eclipse máximo, na hora certa, no modo céu; "Ver do espaço" mostra a sombra de longe.</p>
+    <div class="bvLinha"><button id="eclAntes">◀ Anteriores</button><button id="eclHoje">A partir de hoje</button><button id="eclDepois">Próximos ▶</button><button id="eclFechar">Fechar</button></div>
+    <div id="eclLista"></div>
   </div>
 </section>
 <section id="roteiro" hidden>

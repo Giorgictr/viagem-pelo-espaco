@@ -11,6 +11,8 @@ import { zonaDoLugar, deslocamento, rotuloUTC, utcDeHoraLocal } from './fuso.js'
 import { criarMissoes, raioComa } from './missoes.js';
 import { criarSatelites } from './satelites.js';
 import { criarPredios } from './predios.js';
+import { GLTFLoader } from '../vendor/GLTFLoader.js';
+import { DRACOLoader } from '../vendor/DRACOLoader.js';
 import { radecParaCena, carregarEfemeridesLuas, velocidadePlaneta, equatorialParaCena } from './corpos.js';
 import { estadoSom, ligarAudioNoPrimeiroGesto, atualizarSom, somDobra, mudarMusica, ajustarVolume, proximaFaixa, nomeFaixa } from './som.js';
 import { criarVR } from './vr.js';
@@ -95,7 +97,7 @@ const estado = {
   alvo: null,                 // destino escolhido
   pousado: null,              // corpo em que se está caminhando
   nomes: true, linhas: true, freio: true, cinturoes: true,
-  nivelar: true, giraJunto: true, exagero: 1, texturas: true, inventado: true, ceuRealcado: false, efeito: 'dobra', bolha: true, cidades: 'grandes', fronteiras: true, nomesTerra: true, picos: true, aviao: false, altAviao: 1, epocaMa: 0, nivelMar: 0, gelo: false, ceuModo: false, bortle: 0, messier: true, refracao: true, predios: true, telescopio: false, zoom: 10, rastrear: true, atmFisica: true, constelacoes: false, linhasConst: false, ilustrativas: true, viaReal: true,
+  nivelar: true, giraJunto: true, exagero: 1, texturas: true, inventado: true, ceuRealcado: false, efeito: 'dobra', bolha: true, cidades: 'grandes', fronteiras: true, nomesTerra: true, picos: true, aviao: false, altAviao: 1, epocaMa: 0, nivelMar: 0, gelo: false, ceuModo: false, vistaFora: false, nuvensReais: true, nuvensDeriva: true, meteoros: true, meteoros10: false, bortle: 0, messier: true, refracao: true, predios: true, telescopio: false, zoom: 10, rastrear: true, atmFisica: true, constelacoes: false, linhasConst: false, ilustrativas: true, viaReal: true,
 };
 
 // ------------------------------- texturas -------------------------------
@@ -227,6 +229,7 @@ for (const c of CORPOS) {
       luz: { value: new THREE.Vector3(1, 0, 0) },
       polo: { value: new THREE.Vector3(0, 1, 0) },
       usarPiso: { value: 0 }, pisoMar: { value: 0 }, exposicao: { value: 1 },
+      eclOcl: { value: new THREE.Vector3() }, eclRaio: { value: 1 }, eclSolAng: { value: 0.00465 }, eclAtivo: { value: 0 }, eclVermelho: { value: 0 },
       camOct: { value: Array.from({ length: 16 }, () => new THREE.Vector3()) },
       paraCorpo: { value: new THREE.Matrix3() },
     },
@@ -261,7 +264,8 @@ for (const c of CORPOS) {
           betaMs: { value: new THREE.Vector3(...fis.betaMs).multiplyScalar(R) },
           betaMe: { value: new THREE.Vector3(...fis.betaMe).multiplyScalar(R) },
           betaO: { value: new THREE.Vector3(...(fis.betaO || [0, 0, 0])).multiplyScalar(R) },
-          gM: { value: new THREE.Vector3(...fis.g) }, intensidade: { value: fis.intensidade }, exposicao: { value: 1 }, luar: { value: 0 }, multiplo: { value: fis.multiplo }, urbano: { value: 0 },
+          gM: { value: new THREE.Vector3(...fis.g) }, intensidade: { value: fis.intensidade }, exposicao: { value: 1 }, luar: { value: 0 }, multiplo: { value: fis.multiplo }, urbano: { value: 0 }, raioCorpo: { value: R },
+          eclOcl: { value: new THREE.Vector3() }, eclRaio: { value: 1 }, eclSolAng: { value: 0.00465 }, eclAtivo: { value: 0 }, eclVermelho: { value: 0 },
         },
         transparent: true, depthWrite: false, premultipliedAlpha: true,
         blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
@@ -272,7 +276,8 @@ for (const c of CORPOS) {
   if (c.nuvens) {
     c.nuvMalha = new THREE.Mesh(esfera, new THREE.ShaderMaterial({
       vertexShader: S.SIMPLES_V, fragmentShader: S.NUVENS_F,
-      uniforms: { mapa: { value: textura(c.nuvens, false) }, luz: { value: new THREE.Vector3() }, opac: { value: 1 } },
+      uniforms: { mapa: { value: textura(c.nuvens, false) }, luz: { value: new THREE.Vector3() }, opac: { value: 1 },
+        mapaA: { value: null }, mapaB: { value: null }, real: { value: 0 }, mistura: { value: 0 }, horas: { value: 0 }, deriva: { value: 1 } },
       transparent: true, depthWrite: false, side: THREE.DoubleSide,
     }));
     c.nuvMalha.renderOrder = 2;
@@ -1228,6 +1233,217 @@ function desenharMessier(postos, pxPorRad) {
 chave('btMessier', ['Objetos de Messier: ligados', 'Objetos de Messier: desligados'], () => estado.messier, () => (estado.messier = !estado.messier));
 chave('btRefracao', ['Refração: ligada', 'Refração: desligada'], () => estado.refracao, () => (estado.refracao = !estado.refracao));
 $('selPoluicao').onchange = (e) => { estado.bortle = +e.target.value; e.target.blur(); };
+// ------------------------------- chuvas de meteoros (calendário da Organização Internacional de Meteoros) -------------------------------
+// [início], [fim], [pico] = [mês, dia]; zhr = taxa por hora com o radiante no zênite num céu perfeito; v = km/s; larg = dias (queda da atividade)
+const CHUVAS = [
+  { nome: 'Quadrântidas', ini: [12, 28], fim: [1, 12], pico: [1, 3], zhr: 80, ra: 230, dec: 49, v: 41, larg: 0.6 },
+  { nome: 'Líridas', ini: [4, 14], fim: [4, 30], pico: [4, 22], zhr: 18, ra: 271, dec: 34, v: 49, larg: 1.5 },
+  { nome: 'Eta Aquáridas', ini: [4, 19], fim: [5, 28], pico: [5, 6], zhr: 50, ra: 338, dec: -1, v: 66, larg: 5 },
+  { nome: 'Delta Aquáridas do Sul', ini: [7, 12], fim: [8, 23], pico: [7, 30], zhr: 25, ra: 340, dec: -16, v: 41, larg: 5 },
+  { nome: 'Alfa Capricornídeas', ini: [7, 3], fim: [8, 15], pico: [7, 30], zhr: 5, ra: 307, dec: -10, v: 23, larg: 6 },
+  { nome: 'Perseidas', ini: [7, 17], fim: [8, 24], pico: [8, 12], zhr: 100, ra: 48, dec: 58, v: 59, larg: 2.5 },
+  { nome: 'Draconídeas', ini: [10, 6], fim: [10, 10], pico: [10, 8], zhr: 10, ra: 262, dec: 54, v: 20, larg: 0.5 },
+  { nome: 'Táuridas do Sul', ini: [9, 10], fim: [11, 20], pico: [10, 10], zhr: 5, ra: 32, dec: 9, v: 27, larg: 15 },
+  { nome: 'Oriônidas', ini: [10, 2], fim: [11, 7], pico: [10, 21], zhr: 20, ra: 95, dec: 16, v: 66, larg: 4 },
+  { nome: 'Táuridas do Norte', ini: [10, 20], fim: [12, 10], pico: [11, 12], zhr: 5, ra: 58, dec: 22, v: 29, larg: 12 },
+  { nome: 'Leônidas', ini: [11, 6], fim: [11, 30], pico: [11, 17], zhr: 15, ra: 152, dec: 22, v: 71, larg: 1.5 },
+  { nome: 'Geminídeas', ini: [12, 4], fim: [12, 20], pico: [12, 14], zhr: 150, ra: 112, dec: 33, v: 35, larg: 1.2 },
+  { nome: 'Úrsidas', ini: [12, 17], fim: [12, 26], pico: [12, 22], zhr: 10, ra: 217, dec: 76, v: 33, larg: 1 },
+].map((c) => ({ ...c, dir: radecParaCena(c.ra, c.dec, 1).normalize() }));
+const diaDoAno = (m, d) => Date.UTC(2001, m - 1, d) / 86400000 - Date.UTC(2001, 0, 1) / 86400000;
+// dias até o pico (com sinal), se a chuva estiver ativa nesta data; senão null
+function diasDoPico(c) {
+  const t = new Date((estado.jd - 2440587.5) * 86400000);
+  const hoje = diaDoAno(t.getUTCMonth() + 1, t.getUTCDate()) + t.getUTCHours() / 24;
+  const dentro = (x, a, b) => (a <= b ? x >= a && x <= b + 1 : x >= a || x <= b + 1);
+  if (!dentro(hoje, diaDoAno(...c.ini), diaDoAno(...c.fim))) return null;
+  let d = hoje - diaDoAno(...c.pico);
+  if (d > 182) d -= 365; else if (d < -182) d += 365;
+  return d;
+}
+const limOlho = () => (estado.bortle ? 7.8 - 0.5 * (estado.bortle - 1) : 6.5) - luar * 2;
+// taxa visível por hora de cada chuva ativa agora (radiante acima do horizonte, céu escuro)
+function taxasMeteoros() {
+  const up = estado.local.clone().normalize(), lim = limOlho(), r = 2.5;
+  return CHUVAS.map((c) => {
+    const d = diasDoPico(c);
+    if (d === null) return null;
+    const zhr = c.zhr * Math.exp(-Math.abs(d) / c.larg);
+    const h = c.dir.dot(up);
+    return { c, d, zhr, hr: Math.max(h, 0) * zhr * r ** (lim - 6.5) };
+  }).filter(Boolean);
+}
+function textoMeteoros() {
+  const t = taxasMeteoros().sort((a, b) => b.zhr - a.zhr);
+  if (!t.length) return 'nenhuma chuva ativa; só os esporádicos (~5 por hora num céu escuro)';
+  return t.slice(0, 3).map(({ c, d, hr }) => {
+    const pico = Math.abs(d) < 0.6 ? 'no pico' : d < 0 ? `pico em ${Math.round(-d)} dia${Math.round(-d) > 1 ? 's' : ''}` : `pico há ${Math.round(d)} dia${Math.round(d) > 1 ? 's' : ''}`;
+    return `${c.nome} (${pico}; ${hr < 0.5 ? 'radiante baixo ou abaixo do horizonte agora' : `~${Math.round(hr)} por hora agora`})`;
+  }).join(' · ');
+}
+// desenho: riscos que saem do radiante (linhas) com a cabeça brilhante (ponto)
+const N_MET = 48;
+const geoMet = new THREE.BufferGeometry(), geoCab = new THREE.BufferGeometry();
+const posMet = new Float32Array(N_MET * 6), alfaMet = new Float32Array(N_MET * 2), posCab = new Float32Array(N_MET * 3), tamCab = new Float32Array(N_MET);
+geoMet.setAttribute('position', new THREE.BufferAttribute(posMet, 3));
+geoMet.setAttribute('alfa', new THREE.BufferAttribute(alfaMet, 1));
+geoCab.setAttribute('position', new THREE.BufferAttribute(posCab, 3));
+geoCab.setAttribute('tamanho', new THREE.BufferAttribute(tamCab, 1));
+const vMet = '#include <common>\n#include <logdepthbuf_pars_vertex>\nattribute float alfa; attribute float tamanho; varying float vA;\nvoid main() { vA = alfa; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); gl_PointSize = tamanho;\n#include <logdepthbuf_vertex>\n}';
+const fMet = '#include <common>\n#include <logdepthbuf_pars_fragment>\nvarying float vA; uniform float ponto;\nvoid main() {\n#include <logdepthbuf_fragment>\n float a = vA; if (ponto > 0.5) { vec2 p = gl_PointCoord * 2.0 - 1.0; a = exp(-dot(p, p) * 3.0); }\n gl_FragColor = vec4(vec3(1.0, 0.97, 0.9) * a, 1.0);\n}';
+const linhasMet = new THREE.LineSegments(geoMet, new THREE.ShaderMaterial({ vertexShader: vMet, fragmentShader: fMet, uniforms: { ponto: { value: 0 } }, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false }));
+geoCab.setAttribute('alfa', new THREE.BufferAttribute(new Float32Array(N_MET).fill(1), 1));
+const cabecasMet = new THREE.Points(geoCab, new THREE.ShaderMaterial({ vertexShader: vMet, fragmentShader: fMet, uniforms: { ponto: { value: 1 } }, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false }));
+for (const o of [linhasMet, cabecasMet]) { o.frustumCulled = false; o.renderOrder = 5; o.visible = false; cena.add(o); }
+const meteoros = [];
+let tMet = performance.now();
+function rodar(v, eixo, ang) { return v.clone().applyAxisAngle(eixo, ang); }
+function novoMeteoro(radiante, vel, up) {
+  // ponto do céu acima de 15°, afastado do radiante; o risco anda para longe dele, ao longo de um grande círculo
+  for (let k = 0; k < 20; k++) {
+    const p = new THREE.Vector3().randomDirection();
+    if (p.dot(up) < 0.26) continue;
+    const dr = radiante ? Math.acos(Math.min(1, p.dot(radiante))) : 1;
+    if (radiante && (dr < 0.08 || dr > 1.9)) continue;
+    const eixo = radiante ? new THREE.Vector3().crossVectors(radiante, p).normalize() : new THREE.Vector3().randomDirection().cross(p).normalize();
+    const comp = (0.1 + 0.35 * Math.sin(Math.min(dr, Math.PI / 2))) * (0.5 + Math.random() * 0.7); // radianos
+    const lim = limOlho(), mag = lim - Math.log(Math.random()) / Math.log(2.5) * -1;
+    const brilho = Math.min(1, 10 ** (-0.4 * (Math.min(mag, lim) - lim + 1.2)));
+    meteoros.push({ p, eixo, comp, t: 0, dur: 0.25 + 1.1 * (1 - (vel - 11) / 61) * (0.6 + Math.random() * 0.6), brilho, mag });
+    return;
+  }
+}
+function desenharMeteoros() {
+  const agora = performance.now(), dt = window.__congelarMeteoros ? 0 : Math.min((agora - tMet) / 1000, 0.1); // (congelar: só para testes)
+  tMet = agora;
+  const ligado = estado.ceuModo && estado.meteoros && diaNoCeu < 0.5 && !estado.telescopio;
+  linhasMet.visible = cabecasMet.visible = ligado && meteoros.length > 0;
+  if (!ligado) { meteoros.length = 0; return; }
+  const up = estado.local.clone().normalize(), fator = estado.meteoros10 ? 10 : 1;
+  // novos meteoros (processo de Poisson): chuvas ativas + esporádicos (~5 por hora)
+  if (meteoros.length < N_MET) {
+    for (const { c, hr } of taxasMeteoros()) if (Math.random() < (hr * fator / 3600) * dt) novoMeteoro(c.dir, c.v, up);
+    if (Math.random() < (5 * fator * 2.5 ** (limOlho() - 6.5) / 3600) * dt) novoMeteoro(null, 30 + Math.random() * 40, up);
+  }
+  let k = 0;
+  for (let i = meteoros.length - 1; i >= 0; i--) {
+    const m = meteoros[i];
+    m.t += dt / m.dur;
+    if (m.t >= 1 || k >= N_MET) { meteoros.splice(i, 1); continue; }
+    const fade = Math.sin(Math.PI * Math.min(m.t, 1)) ** 0.7;
+    const cabeca = rodar(m.p, m.eixo, m.comp * m.t), cauda = rodar(m.p, m.eixo, m.comp * Math.max(m.t - 0.35, 0));
+    aberrarJS(cabeca.multiplyScalar(1e9)).toArray(posMet, k * 6);
+    aberrarJS(cauda.multiplyScalar(1e9)).toArray(posMet, k * 6 + 3);
+    alfaMet[k * 2] = m.brilho * fade; alfaMet[k * 2 + 1] = 0;
+    posCab.set(posMet.subarray(k * 6, k * 6 + 3), k * 3);
+    tamCab[k] = (2 + 6 * m.brilho * (m.mag < 0 ? 2 : 1)) * fade * renderer.getPixelRatio();
+    k++;
+  }
+  for (let j = k; j < N_MET; j++) { alfaMet[j * 2] = alfaMet[j * 2 + 1] = 0; tamCab[j] = 0; }
+  geoMet.setDrawRange(0, k * 2); geoCab.setDrawRange(0, k);
+  geoMet.attributes.position.needsUpdate = true; geoMet.attributes.alfa.needsUpdate = true;
+  geoCab.attributes.position.needsUpdate = true; geoCab.attributes.tamanho.needsUpdate = true;
+}
+chave('btMeteoros', ['Meteoros: ligados', 'Meteoros: desligados'], () => estado.meteoros, () => (estado.meteoros = !estado.meteoros));
+chave('btMeteoros10', ['Meteoros: 10× mais', 'Meteoros: taxa real'], () => estado.meteoros10, () => (estado.meteoros10 = !estado.meteoros10));
+// ------------------------------- nuvens do dia (NASA GIBS: VIIRS desde 2015, MODIS desde 2000) -------------------------------
+// uma foto do planeta inteiro por dia; entre um dia e o seguinte, as duas se misturam (e, com a chave, derivam com ventos ilustrativos)
+const nuvensCache = new Map(); // 'AAAA-MM-DD' → { tex, estado }
+let nuvemPedidaEm = 0;
+const diaTexto = (ms) => new Date(ms).toISOString().slice(0, 10);
+function pedirNuvens(dia) {
+  let e = nuvensCache.get(dia);
+  if (e) return e;
+  if (performance.now() - nuvemPedidaEm < 400) return null; // não inunda o servidor quando o tempo corre rápido
+  nuvemPedidaEm = performance.now();
+  const camada = dia >= '2015-11-24' ? 'VIIRS_SNPP_CorrectedReflectance_TrueColor' : 'MODIS_Terra_CorrectedReflectance_TrueColor';
+  const url = `https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=${camada}&CRS=EPSG:4326&BBOX=-90,-180,90,180&WIDTH=2048&HEIGHT=1024&FORMAT=image/jpeg&TIME=${dia}`;
+  e = { estado: 'baixando', tex: null };
+  nuvensCache.set(dia, e);
+  new THREE.TextureLoader().load(url, (t) => { t.colorSpace = THREE.NoColorSpace; t.anisotropy = 4; e.tex = t; e.estado = 'pronto'; }, undefined, () => { e.estado = 'erro'; });
+  if (nuvensCache.size > 6) { const [k, v] = nuvensCache.entries().next().value; v.tex?.dispose(); nuvensCache.delete(k); }
+  return e;
+}
+// devolve true se as nuvens reais estão prontas e preenche os uniforms
+function nuvensDoDia(u) {
+  u.real.value = 0;
+  if (!estado.nuvensReais) return false;
+  const ms = (estado.jd - 2440587.5) * 86400000;
+  if (ms < Date.UTC(2000, 1, 24)) return false; // antes das fotos diárias: nuvens genéricas
+  const ontem = Date.now() - 86400000 * 1.2; // a foto de hoje ainda pode não estar pronta
+  const msUsado = Math.min(ms, ontem);
+  // cada foto vale para o meio-dia (UTC) do dia dela
+  const meio = Math.floor((msUsado - 43200000) / 86400000) * 86400000 + 43200000;
+  const diaA = diaTexto(meio), diaB = diaTexto(meio + 86400000);
+  const A = pedirNuvens(diaA), B = ms < ontem ? pedirNuvens(diaB) : A;
+  if (!A || A.estado !== 'pronto') return false;
+  u.mapaA.value = A.tex;
+  u.mapaB.value = B && B.estado === 'pronto' ? B.tex : A.tex;
+  const horas = (msUsado - meio) / 3600000;
+  u.mistura.value = B && B.estado === 'pronto' ? horas / 24 : 0;
+  u.horas.value = horas;
+  u.deriva.value = estado.nuvensDeriva ? 1 : 0;
+  u.real.value = 1;
+  return true;
+}
+chave('btNuvens', ['Nuvens: do dia (NASA)', 'Nuvens: genéricas'], () => estado.nuvensReais, () => (estado.nuvensReais = !estado.nuvensReais));
+chave('btNuvensDeriva', ['Nuvens em movimento (ilustrativo)', 'Nuvens paradas'], () => estado.nuvensDeriva, () => (estado.nuvensDeriva = !estado.nuvensDeriva));
+// ------------------------------- sondas em 3D (NASA 3D Resources, livres de direitos) -------------------------------
+const MODELOS = { voyager1: 'voyager', voyager2: 'voyager', cassini: 'cassini', juno: 'juno', jwst: 'jwst', parker: 'parker', hubble: 'hubble', iss: 'iss', pioneer10: 'pioneer10', rosetta: 'rosetta' };
+const TAMANHO_M = { voyager: 13, cassini: 6.8, juno: 20, jwst: 21, parker: 3, hubble: 13.2, iss: 109, pioneer10: 5, rosetta: 32 }; // maior dimensão real, em metros
+const luzModelo = new THREE.DirectionalLight(0xffffff, 3.2);
+const luzAmbModelo = new THREE.AmbientLight(0x8090a0, 0.25);
+cena.add(luzModelo, luzModelo.target, luzAmbModelo);
+const modelos = new Map();
+const carregadorGLTF = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath('vendor/draco/')); // modelos da NASA vêm comprimidos (Draco)
+function modeloDe(nome) {
+  let m = modelos.get(nome);
+  if (m) return m;
+  m = { grupo: new THREE.Group(), pronto: false };
+  modelos.set(nome, m);
+  m.grupo.visible = false;
+  cena.add(m.grupo);
+  carregadorGLTF.load(`modelos/${nome}.glb`, (g) => {
+    const caixa = new THREE.Box3().setFromObject(g.scene), tam = caixa.getSize(new THREE.Vector3()), centro = caixa.getCenter(new THREE.Vector3());
+    g.scene.position.sub(centro); // centraliza
+    const esc = (TAMANHO_M[nome] / 1000) / Math.max(tam.x, tam.y, tam.z); // em km, no tamanho real
+    m.grupo.scale.setScalar(esc);
+    m.grupo.add(g.scene);
+    m.pronto = true;
+  }, undefined, () => { m.erro = true; });
+  return m;
+}
+const _fr = new THREE.Vector3();
+function desenharModelo(abs) {
+  for (const m of modelos.values()) m.grupo.visible = false;
+  const o = estado.embarcado, nome = o && MODELOS[o.id];
+  $('mVista').hidden = !nome;
+  if (!nome) return;
+  const m = modeloDe(nome);
+  if (!m.pronto || !estado.vistaFora) return;
+  const rel = o.abs.clone().sub(abs);
+  m.grupo.position.copy(rel);
+  // a antena (ou o lado de cima do modelo) aproximadamente voltada para a Terra
+  m.grupo.lookAt(_fr.copy(rel).add(PORID.terra.abs).sub(o.abs));
+  m.grupo.visible = true;
+  luzModelo.position.copy(rel).add(_fr.copy(PORID.sol.abs).sub(o.abs).normalize());
+  luzModelo.target.position.copy(rel);
+}
+// de fora: a câmera fica atrás do olhar, a ~2,5 vezes o tamanho da sonda; arrastar gira em volta dela
+function posicionarVistaFora() {
+  const o = estado.embarcado, nome = o && MODELOS[o.id];
+  if (!nome || !estado.vistaFora) return;
+  const dist = (TAMANHO_M[nome] / 1000) * 2.5;
+  estado.local.copy(new THREE.Vector3(0, 0, -1).applyQuaternion(estado.q)).multiplyScalar(-dist);
+}
+function pintarVista() { $('mVista').textContent = estado.vistaFora ? 'Vista: de fora (sonda em 3D)' : 'Vista: de dentro'; $('mVista').classList.toggle('ativo', estado.vistaFora); }
+$('mVista').onclick = () => {
+  estado.vistaFora = !estado.vistaFora;
+  if (!estado.vistaFora) estado.local.set(0.001, 0, 0);
+  else if (estado.embarcado) modeloDe(MODELOS[estado.embarcado.id]);
+  pintarVista();
+};
+pintarVista();
 function pintarCeuBotoes() {
   $('btLinhasConst').textContent = estado.linhasConst ? 'Desenho das constelações: ligado' : 'Desenho das constelações: desligado';
   $('btLinhasConst').classList.toggle('ativo', estado.linhasConst);
@@ -1754,6 +1970,72 @@ let luar = 0, velMedida = 0, freando = false, proximo = null, altProx = Infinity
 const tmpV = new THREE.Vector3(), tmpQ = new THREE.Quaternion(), eixoX = new THREE.Vector3(1, 0, 0), eixoY = new THREE.Vector3(0, 1, 0), eixoZ = new THREE.Vector3(0, 0, 1);
 const _delta = new THREE.Quaternion(), velVetor = new THREE.Vector3(), betaVec = new THREE.Vector3();
 // Mesma aberração dos shaders, para os rótulos acompanharem as estrelas
+// ------------------------------- eclipses -------------------------------
+// fração do disco do Sol visível do ponto P (km, cena), com um corpo esférico na frente (mesma conta do shader)
+const _e1 = new THREE.Vector3(), _e2 = new THREE.Vector3(), _e3 = new THREE.Vector3();
+let luzSolAqui = 1, luzSolLua = 1;
+function luzEclipseJS(P, oc, raioOc) {
+  const sol = PORID.sol;
+  const L = _e1.copy(sol.abs).sub(P), dS = L.length();
+  L.divideScalar(dS);
+  const v = _e2.copy(oc.abs).sub(P), d = v.length();
+  if (d < raioOc || v.dot(L) <= 0) return 1;
+  v.divideScalar(d);
+  const a = Math.asin(sol.raio / dS), b = Math.asin(raioOc / d), c = Math.atan2(_e3.crossVectors(v, L).length(), v.dot(L));
+  if (c >= a + b) return 1;
+  if (c <= b - a) return 0;
+  if (c <= a - b) return 1 - (b * b) / (a * a);
+  const a2 = a * a, b2 = b * b, c2 = c * c;
+  const A = a2 * Math.acos(Math.min(1, Math.max(-1, (c2 + a2 - b2) / (2 * c * a)))) + b2 * Math.acos(Math.min(1, Math.max(-1, (c2 + b2 - a2) / (2 * c * b))))
+    - 0.5 * Math.sqrt(Math.max((-c + a + b) * (c + a - b) * (c - a + b) * (c + a + b), 0));
+  return Math.min(1, Math.max(0, 1 - A / (Math.PI * a2)));
+}
+// uniforms da sombra: a Terra recebe a sombra da Lua; a Lua, a da Terra (alargada 2% pela atmosfera, e avermelhada)
+function uniformsEclipse(c, u, luz) {
+  if (!u.eclAtivo) return;
+  const oc = c.id === 'terra' ? PORID.lua : c.id === 'lua' ? PORID.terra : null;
+  if (!oc) { u.eclAtivo.value = 0; return; }
+  const v = u.eclOcl.value.copy(oc.abs).sub(c.abs);
+  u.eclAtivo.value = v.clone().normalize().dot(luz) > 0.995 ? 1 : 0; // só quando os três estão quase alinhados
+  u.eclRaio.value = c.id === 'terra' ? oc.raio : oc.raio * 1.02;
+  u.eclSolAng.value = Math.asin(PORID.sol.raio / PORID.sol.abs.distanceTo(c.abs));
+  u.eclVermelho.value = c.id === 'lua' ? 1 : 0;
+  if (c.id === 'terra') for (const k of ['eclOcl', 'eclRaio', 'eclSolAng', 'eclAtivo', 'eclVermelho']) {
+    if (k === 'eclOcl') terra.eclipse.eclOcl.value.copy(u.eclOcl.value); else terra.eclipse[k].value = u[k].value;
+  }
+}
+// coroa solar: só aparece com o Sol totalmente tapado pela Lua (a parte de dentro fica atrás da Lua)
+const coroa = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: (() => {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 256;
+    const g = cv.getContext('2d');
+    const gr = g.createRadialGradient(128, 128, 18, 128, 128, 128);
+    gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.12, 'rgba(235,240,255,.8)'); gr.addColorStop(0.3, 'rgba(200,215,255,.25)'); gr.addColorStop(1, 'rgba(180,200,255,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
+    g.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 26; i++) { // raios (serpentinas) da coroa
+      const ang = (i / 26) * Math.PI * 2 + Math.sin(i * 7.3) * 0.2, comp = 60 + 55 * Math.abs(Math.sin(i * 3.7));
+      const gg = g.createLinearGradient(128, 128, 128 + Math.cos(ang) * comp, 128 + Math.sin(ang) * comp);
+      gg.addColorStop(0, 'rgba(255,255,255,.35)'); gg.addColorStop(1, 'rgba(255,255,255,0)');
+      g.strokeStyle = gg; g.lineWidth = 3 + 3 * Math.abs(Math.cos(i)); g.beginPath(); g.moveTo(128, 128); g.lineTo(128 + Math.cos(ang) * comp, 128 + Math.sin(ang) * comp); g.stroke();
+    }
+    return new THREE.CanvasTexture(cv);
+  })(),
+  blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, opacity: 0,
+}));
+coroa.renderOrder = 6;
+coroa.visible = false;
+cena.add(coroa);
+function desenharCoroa() {
+  const sol = PORID.sol;
+  const op = sol.malha && sol.malha.visible ? THREE.MathUtils.smoothstep(0.02 - luzSolLua, 0, 0.02) : 0;
+  coroa.visible = op > 0.01;
+  if (!coroa.visible) return;
+  coroa.position.copy(sol.malha.position);
+  coroa.scale.setScalar(sol.malha.scale.x * 7);
+  coroa.material.opacity = op;
+}
+
 function aberrarJS(p) {
   refratar(p);
   const b = betaVec.length();
@@ -1821,6 +2103,7 @@ function passo() {
     (sb.qLv ??= new THREE.Quaternion()).copy(qAgora);
   }
 
+  posicionarVistaFora();
   if (mouse.roda) { if (estado.telescopio) definirZoom(estado.zoom * 1.18 ** -mouse.roda); else definirV(estado.v * 1.25 ** -mouse.roda); mouse.roda = 0; }
 
   // Rotação: mouse e teclas
@@ -2028,6 +2311,8 @@ function desenhar() {
   const pxPorRad = vr.ativo ? vr.pxPorRad() / renderer.getPixelRatio() : innerHeight / (camera.fov * GRAU);
   const sol = PORID.sol;
   const rotulosPostos = [];
+  luzSolLua = luzEclipseJS(abs, PORID.lua, PORID.lua.raio);
+  luzSolAqui = Math.min(luzSolLua, estado.ref?.id === 'lua' ? luzEclipseJS(abs, PORID.terra, PORID.terra.raio * 1.02) : 1);
   refrAtiva = estado.ceuModo && estado.refracao;
   if (refrAtiva) zenRefr.copy(estado.local).normalize();
   if (linhasConst) { linhasConst.material.uniforms.refr.value = refrAtiva ? 1 : 0; linhasConst.material.uniforms.zenite.value.copy(zenRefr); }
@@ -2060,6 +2345,9 @@ function desenhar() {
   const relT = _relT.copy(T.abs).sub(abs);
   const altT = relT.length() - T.raio;
   terra.ativo = estado.texturas && altT < T.raio * 3 && estado.epocaMa === 0 && !vr.ativo; // nos óculos, modo leve: sem ladrilhos
+  // eclipses: o céu escurece com o Sol tapado (só perto da totalidade fica noite); a Lua na umbra quase não ilumina
+  if (luzSolAqui < 1) diaNoCeu *= Math.min(1, 0.5 + 2.5 * luzSolAqui); // na totalidade, céu de crepúsculo: só as estrelas e planetas mais brilhantes
+  luar *= 0.03 + 0.97 * luzEclipseJS(PORID.lua.abs, PORID.terra, PORID.terra.raio * 1.02);
   const oclusor = estado.ref && estado.ref.malha ? estado.ref : estado.ref?.tipo === 'satelite' ? PORID.terra : null; // a bordo de satélite, a Terra esconde o que está atrás
   if (oclusor) _oc.copy(oclusor.abs).sub(abs);
   const corpoQuadro = (c, i) => {
@@ -2076,6 +2364,7 @@ function desenhar() {
       c.malha.quaternion.copy(c.qOri);
       c.malha.visible = diamPx > 0.5;
       const luz = u.luz.value.copy(sol.abs).sub(c.abs).normalize();
+      uniformsEclipse(c, u, luz);
       u.kmPorUnidade.value = 1 / s;
       u.exagero.value = estado.exagero;
       u.usarTextura.value = estado.texturas ? 1 : 0;
@@ -2116,6 +2405,7 @@ function desenhar() {
           // por dentro, a casca de trás fica atrás do chão: desliga o teste de profundidade e o shader para o raio no chão
           c.atmMalha.material.depthTest = !dentro;
           au.raioR.value = c.raio * s;
+          uniformsEclipse(c, au, luz);
           // olho adaptado: no chão, o céu é a cena toda (exposição maior); do espaço, o planeta iluminado domina
           const noChao = Math.min(Math.max(1 - (d - c.raio) / 60, 0), 1);
           const eSol = _lvZ.copy(c.malha.position).negate().normalize().dot(luz); // altura do Sol vista daqui (seno)
@@ -2128,7 +2418,9 @@ function desenhar() {
         c.nuvMalha.material.uniforms.opac.value = c.id === 'terra' ? Math.min(Math.max((d - c.raio - 15) / 60, 0), 1) : 1;
         c.nuvMalha.position.copy(c.malha.position);
         c.nuvMalha.scale.setScalar((c.raio + 8) * s);
-        c.nuvMalha.quaternion.copy(c.qOri).multiply(tmpQ.setFromAxisAngle(eixoY, ((estado.jd % 400) / 400) * 2 * Math.PI));
+        const real = c.id === 'terra' && nuvensDoDia(c.nuvMalha.material.uniforms);
+        if (real) c.nuvMalha.quaternion.copy(c.qOri); // a foto do dia fica presa ao mapa
+        else c.nuvMalha.quaternion.copy(c.qOri).multiply(tmpQ.setFromAxisAngle(eixoY, ((estado.jd % 400) / 400) * 2 * Math.PI));
         c.nuvMalha.visible = c.malha.visible && estado.texturas && estado.epocaMa === 0 && !estado.gelo && !estado.ceuModo;
         c.nuvMalha.material.uniforms.luz.value.copy(luz);
       }
@@ -2159,6 +2451,7 @@ function desenhar() {
       else if (c.tipo === 'marco') { tam = Math.min(Math.max(tam, 3), 10); alfa = Math.max(alfa, 0.6); }
       else tam = Math.max(tam, diamPx * 2.6);
       if (c !== sol && c.id !== 'lua') alfa *= (1 - diaNoCeu) * (1 - 0.5 * luar);
+      if (c === sol) { alfa *= luzSolAqui; tam *= 0.25 + 0.75 * luzSolAqui; } // eclipse: o brilho do Sol some com o disco tapado
     } else if (diamPx < 4 && visivel) {
       tam = 4; alfa = 0.9 * (1 - diaNoCeu);
     }
@@ -2202,6 +2495,7 @@ function desenhar() {
     el.classList.toggle('alvo', c === estado.alvo || (c.hyg !== undefined && c.hyg === estado.alvo?.hyg));
   };
   CORPOS.forEach(corpoQuadro);
+  desenharCoroa();
   vagas.forEach((v, j) => {
     if (v.obj) return corpoQuadro(v.obj, CORPOS.length + j);
     v.malha.visible = false;
@@ -2248,7 +2542,9 @@ function desenhar() {
   }
   desenharCeu(abs, rotulosPostos);
   desenharMessier(rotulosPostos, pxPorRad);
+  desenharMeteoros();
   desenharMissoes(abs, rotulosPostos, pxPorRad);
+  desenharModelo(abs);
   $('pTerra').style.display = altT < T.raio * 10 && !document.body.classList.contains('foto') ? '' : 'none';
   $('creditos').textContent = terra.ativo ? (estado.ceuModo ? 'Terreno: EOX/Sentinel-2 · NASA · Mapzen/AWS · Natural Earth (créditos completos no manual)' : CREDITOS + (predios.visiveis() ? ' · Construções: © colaboradores do OpenStreetMap (OpenFreeMap)' : '')) : '';
 
@@ -2497,6 +2793,7 @@ function painelCeu() {
     lista.push(`${c.nome}: ${pontoCardeal(z)}, ${Math.round(a)}°${c.id === 'urano' || c.id === 'netuno' ? ' (só com telescópio)' : ''}`);
   }
   $('ceuVisiveis').textContent = lista.length ? lista.join(' · ') : 'nenhum planeta acima do horizonte agora';
+  $('ceuMeteoros').textContent = textoMeteoros();
   const ano = 2000 + (estado.jd - 2451545) / 365.25;
   const sol = PORID.sol.abs.clone().sub(abs).normalize(), aSol = Math.asin(sol.dot(up)) / GRAU;
   $('ceuSituacao').textContent = (ano < 1800 || ano > 2050 ? 'Atenção: fora de 1800–2050 as posições ficam menos precisas. ' : '')
@@ -2780,5 +3077,95 @@ $('rotProximo').onclick = () => irPasso(roteiro.i + 1);
 $('rotAnterior').onclick = () => irPasso(roteiro.i - 1);
 $('rotSair').onclick = sairRoteiro;
 for (const b of document.querySelectorAll('[data-roteiro]')) b.onclick = () => iniciarRoteiro(b.dataset.roteiro);
+// ------------------------------- calendário de eclipses (NASA, 1900–2100) -------------------------------
+let eclipses = null, eclInicio = 0;
+const TIPO_SOL = { T: 'total', A: 'anular', H: 'híbrido', P: 'parcial' };
+const TIPO_LUA = { T: 'total', P: 'parcial', N: 'penumbral' };
+const jdEclipse = (e) => Date.UTC(e.a, e.m - 1, e.d, e.td[0], e.td[1], e.td[2] - e.dt) / 86400000 + 2440587.5; // TD − ΔT = UTC
+function perto(lat, lon) {
+  if (!cidadesLista.length) return '';
+  const d = new THREE.Vector3(Math.cos(lat * GRAU) * Math.cos(lon * GRAU), Math.sin(lat * GRAU), -Math.cos(lat * GRAU) * Math.sin(lon * GRAU));
+  let melhor = null, ang = 0.1; // até ~600 km
+  for (const c of cidadesLista) { const a = c.dir.angleTo(d); if (a < ang && (c.pop > 3e5 || a < 0.05)) { ang = a; melhor = c; } }
+  return melhor ? `perto de ${melhor.nome}${melhor.pais ? `, ${melhor.pais}` : ''}` : 'no mar ou longe de cidades';
+}
+async function abrirEclipses() {
+  if (!eclipses) {
+    const j = await fetch('dados/eclipses.json').then((r) => r.json());
+    eclipses = [...j.sol.map((e) => ({ ...e, solar: true })), ...j.lua.map((e) => ({ ...e, solar: false }))].map((e) => ({ ...e, jd: jdEclipse(e) })).sort((a, b) => a.jd - b.jd);
+  }
+  eclInicio = Math.max(0, eclipses.findIndex((e) => e.jd >= estado.jd - 1));
+  listarEclipses();
+  $('eclipses').hidden = false;
+}
+function listarEclipses() {
+  const lista = $('eclLista');
+  lista.textContent = '';
+  for (const e of eclipses.slice(eclInicio, eclInicio + 12)) {
+    const data = `${String(e.d).padStart(2, '0')}/${String(e.m).padStart(2, '0')}/${e.a}`;
+    const hora = new Date((e.jd - 2440587.5) * 86400000).toISOString().slice(11, 16);
+    let txt;
+    if (e.solar) {
+      const tipo = TIPO_SOL[e.tipo[0]] ?? 'parcial';
+      txt = `<b>${data}</b> · Eclipse solar ${tipo}${e.dur ? ` · ${Math.floor(e.dur / 60)} min ${e.dur % 60} s no máximo` : ''} · ${e.tipo[0] === 'P' ? 'visto melhor' : 'máximo'} ${perto(e.lat, e.lon)}, às ${hora} UTC`;
+    } else {
+      const tipo = TIPO_LUA[e.tipo[0]] ?? 'parcial';
+      txt = `<b>${data}</b> · Eclipse lunar ${tipo}${e.durTot ? ` · ${Math.round(e.durTot)} min de totalidade` : ''} · máximo às ${hora} UTC, com a Lua no alto ${perto(e.lat, e.lon)}`;
+    }
+    const div = document.createElement('div');
+    div.className = 'eclItem';
+    div.innerHTML = `<div class="eclTxt">${txt}</div>`;
+    const b1 = document.createElement('button'); b1.textContent = 'Ver do chão'; b1.onclick = () => verEclipse(e, 'chao');
+    const b2 = document.createElement('button'); b2.textContent = 'Ver do espaço'; b2.onclick = () => verEclipse(e, 'espaco');
+    div.append(b1, b2);
+    lista.append(div);
+  }
+}
+// põe o observador em pé num ponto qualquer da Terra (latitude e longitude em graus), já no modo céu
+function ficarEm(lat, lon) {
+  const E = PORID.terra;
+  if (estado.embarcado) desembarcar();
+  if (estado.ceuModo) sairDoCeu();
+  if (estado.ref !== E) teleportar(E);
+  estado.piloto = null;
+  const dl = new THREE.Vector3(Math.cos(lat * GRAU) * Math.cos(lon * GRAU), Math.sin(lat * GRAU), -Math.cos(lat * GRAU) * Math.sin(lon * GRAU));
+  estado.ultimoLugar = { dir: dl, nome: '' };
+  const d = dl.clone().applyQuaternion(E.qOri);
+  estado.local.copy(d).multiplyScalar(raioSuperficie(E, d) + ALTURA_OLHO);
+  medirProximo();
+  olharCeu();
+}
+function verEclipse(e, modo) {
+  $('eclipses').hidden = true;
+  sairRoteiro();
+  const inicio = e.solar && e.dur ? e.jd - (e.dur / 2 + 90) / 86400 : e.jd; // eclipse central: começa 1,5 min antes da totalidade
+  estado.jd = inicio;
+  atualizarPosicoes(estado.jd);
+  if (modo === 'chao') {
+    ficarEm(e.lat, e.lon);
+    estado.jd = inicio; estado.ritmo = 1; estado.orbitasMovem = true; $('selRitmo').value = '1';
+    estado.constelacoes = false; estado.linhasConst = false; pintarCeuBotoes();
+    setTimeout(() => apontar(e.solar ? PORID.sol : PORID.lua), 200);
+    aviso(e.solar ? (e.dur ? 'A totalidade começa em cerca de 1 minuto e meio. Em tempo real.' : 'Eclipse no máximo. Use "+1 h" ou acelere o tempo para ver o avanço.') : 'Eclipse lunar no máximo. Acelere o tempo para ver a sombra da Terra passar.');
+  } else {
+    // do espaço: a 40 mil km da Terra (solar, do lado do Sol) ou a 30 mil km da Lua (lunar)
+    const alvo = e.solar ? PORID.terra : PORID.lua;
+    teleportar(alvo);
+    estado.jd = inicio; estado.ritmo = e.solar ? 60 : 300; estado.orbitasMovem = true;
+    $('selRitmo').value = String(estado.ritmo);
+    const paraSol = PORID.sol.abs.clone().sub(alvo.abs).normalize();
+    const lado = new THREE.Vector3(0, 1, 0).cross(paraSol).normalize();
+    const dir = paraSol.addScaledVector(lado, 0.35).normalize(); // do lado do Sol (no lunar, é também o lado da Terra: a face que estaria cheia)
+    estado.local.copy(dir).multiplyScalar(e.solar ? 40000 : 30000);
+    quatOlhando(dir.clone().negate(), estado.q);
+    aviso(e.solar ? 'A sombra da Lua sobre a Terra, 1 minuto por segundo.' : 'A Lua entrando na sombra da Terra, 5 minutos por segundo.');
+  }
+}
+$('btEclipses').onclick = abrirEclipses;
+$('btEclipses2').onclick = abrirEclipses;
+$('eclFechar').onclick = () => ($('eclipses').hidden = true);
+$('eclAntes').onclick = () => { eclInicio = Math.max(0, eclInicio - 12); listarEclipses(); };
+$('eclDepois').onclick = () => { eclInicio = Math.min(eclipses.length - 12, eclInicio + 12); listarEclipses(); };
+$('eclHoje').onclick = () => { eclInicio = Math.max(0, eclipses.findIndex((e) => e.jd >= jdAgora() - 1)); listarEclipses(); };
 if (lerGuardado('viagemVisitou') === null && !veioDeRecarga) abrirBoasVindas();
-window.__sim = { predios, vr, alvoNaDirecao, textoPainelVR, satelites, embarcar: (o) => embarcar(o), estado, PORID, camAbs, cat, estrelaObj, vagas, THREE, terra, buscar, indiceBusca, missoes, atualizarPosicoes };
+window.__sim = { modelos, testeMeteoros: (n) => { const up = estado.local.clone().normalize(); const c = CHUVAS.find((x) => x.nome === "Oriônidas"); for (let i = 0; i < n; i++) { novoMeteoro(c.dir, c.v, up); if (meteoros.length) meteoros[meteoros.length - 1].t = 0.45; } }, quadros: (n = 1) => { for (let i = 0; i < n; i++) { tAnterior = performance.now() - 16; passo(); } }, luzEclipseJS, coroa, verEclipse, ficarEm, abrirEclipses, predios, vr, alvoNaDirecao, textoPainelVR, satelites, embarcar: (o) => embarcar(o), estado, PORID, camAbs, cat, estrelaObj, vagas, THREE, terra, buscar, indiceBusca, missoes, atualizarPosicoes };
