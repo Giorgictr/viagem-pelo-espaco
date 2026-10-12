@@ -1992,7 +1992,15 @@ carregarEstrelas().then(() => {
   atualizarVagas();
   if (!estado.leve) pedirGaia();
 });
-// mais 1,1 milhão de estrelas do Gaia (fora do modo leve: são ~11 MB)
+// mais 1,1 milhão de estrelas do Gaia (fora do modo leve: são ~11 MB); e as de magnitude 11 a 12 (~2 milhões, ~20 MB)
+// só quando o telescópio passa a alcançá-las
+let gaia12 = null, gaia12Pedido = false;
+function talvezGaia12() {
+  if (gaia12Pedido || !ceu || estado.leve || limiteMag() < 10) return;
+  gaia12Pedido = true;
+  aviso('Carregando mais 2 milhões de estrelas do Gaia para o telescópio…');
+  carregarGaia(ceu.material, 'dados/gaia12.bin').then((p) => { gaia12 = p; cena.add(gaia12); }).catch(() => { gaia12Pedido = false; });
+}
 let gaia = null, gaiaPedido = false;
 function pedirGaia() {
   if (gaiaPedido || !ceu) return;
@@ -2750,6 +2758,7 @@ function desenhar() {
   desenharCeu(abs, rotulosPostos);
   desenharMessier(rotulosPostos, pxPorRad);
   desenharPequenos(abs, rotulosPostos);
+  talvezGaia12();
   desenharMeteoros();
   desenharMissoes(abs, rotulosPostos, pxPorRad);
   desenharModelo(abs);
@@ -3106,6 +3115,7 @@ function aplicarLeve(ligar, motivo = '') {
   estado.atmFisica = !ligar;
   estado.predios = !ligar;
   if (gaia) gaia.visible = !ligar; else if (!ligar) pedirGaia();
+  if (gaia12) gaia12.visible = !ligar;
   if (ligar) { estado.cinturoes = false; $('ckCint').checked = false; }
   pintores.forEach((f) => f());
   $('bvLeve').checked = ligar;

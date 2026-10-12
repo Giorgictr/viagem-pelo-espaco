@@ -107,8 +107,8 @@ export function maisProximas(abs, k) {
 // Gaia DR3: ~1,1 milhão de estrelas a mais (até a magnitude 11, sem as que já estão no HYG), 10 bytes cada:
 // ascensão reta e declinação em 24 bits, distância em escala log (16 bits), magnitude absoluta V e B−V (8 bits cada).
 // Usam o mesmo material das estrelas do HYG; não viram "corpos" visitáveis.
-export async function carregarGaia(material) {
-  const buf = await fetch('dados/gaia.bin').then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(r.status))));
+export async function carregarGaia(material, arquivo = 'dados/gaia.bin') {
+  const buf = await fetch(arquivo).then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(r.status))));
   const b = new Uint8Array(buf), n = Math.floor(b.length / 10);
   const pos = new Float32Array(n * 3), mag = new Float32Array(n), cor = new Float32Array(n * 3), temp = new Float32Array(n);
   const ce = Math.cos(OBLIQUIDADE), se = Math.sin(OBLIQUIDADE), L = Math.log10(30000), G = Math.PI / 180;
