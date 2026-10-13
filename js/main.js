@@ -842,15 +842,64 @@ function modoFoco() {
   const foco = document.body.classList.toggle('semPaineis');
   try { localStorage.setItem('viagemFoco', foco ? '1' : '0'); } catch { /* sem armazenamento */ }
 }
-$('btPaineis').onclick = modoFoco;
-$('btFoco').onclick = modoFoco;
+$('btPaineis').onclick = () => (ehCelular() ? abrirMenuAbas() : modoFoco());
+$('btFoco').onclick = () => (ehCelular() ? abrirAba(null) : modoFoco());
 aoTeclar('Period', modoFoco);
 aoTeclar('NumpadDecimal', modoFoco);
 {
   let f = null;
   try { f = localStorage.getItem('viagemFoco'); } catch { /* sem armazenamento */ }
-  if (f === '1' || (f === null && innerWidth <= 760)) document.body.classList.add('semPaineis');
+  if (f === '1') document.body.classList.add('semPaineis');
 }
+
+// Celular (tela estreita): um painel de cada vez. O ☰ abre a lista dos painéis que fazem sentido agora;
+// quando aparece um painel novo (o céu, ao apertar Z; "A bordo", ao embarcar), ele já abre.
+const ABAS = ['pVel', 'pDest', 'pMissao', 'pCeu', 'pTerra', 'pPos', 'pTempo'];
+const ehCelular = () => innerWidth <= 760;
+function abaDisponivel(id) {
+  const b = document.body.classList, el = $(id);
+  if (id === 'pMissao') return b.contains('embarcado');
+  if (id === 'pDest') return !b.contains('embarcado');
+  if (id === 'pCeu') return b.contains('modoCeu');
+  if (id === 'pTerra') return el.style.display !== 'none';
+  return true;
+}
+const tituloAba = (id) => ($(id).querySelector(':scope > details > summary') ?? $(id).querySelector('h2'))?.textContent.trim() ?? id;
+let abaAtual = null, abasAntes = new Set();
+function abrirAba(id) {
+  for (const a of ABAS) $(a).classList.toggle('abaAtiva', a === id);
+  abaAtual = id;
+  $('menuAbas').hidden = true;
+  if (id === 'pTerra') $('detTerra').open = true;
+}
+function abrirMenuAbas() {
+  const m = $('menuAbas');
+  if (!m.hidden) { m.hidden = true; return; }
+  m.textContent = '';
+  for (const id of ABAS.filter(abaDisponivel)) {
+    const b = document.createElement('button');
+    b.textContent = tituloAba(id);
+    b.classList.toggle('ativo', id === abaAtual);
+    b.onclick = () => abrirAba(id === abaAtual ? null : id);
+    m.append(b);
+  }
+  const so = document.createElement('button');
+  so.textContent = tr('Só a vista');
+  so.onclick = () => abrirAba(null);
+  m.append(so);
+  m.hidden = false;
+}
+function vigiarAbas() {
+  const cel = ehCelular();
+  document.body.classList.toggle('celular', cel);
+  if (!cel) { $('menuAbas').hidden = true; return; }
+  const agora = new Set(ABAS.filter(abaDisponivel));
+  for (const id of agora) if (!abasAntes.has(id) && (id === 'pCeu' || id === 'pMissao')) abrirAba(id);
+  if (abaAtual && !agora.has(abaAtual)) abrirAba(null);
+  abasAntes = agora;
+}
+setInterval(vigiarAbas, 400);
+vigiarAbas();
 for (const b of document.querySelectorAll('#toque button')) {
   const tecla = b.dataset.tecla, acao = b.dataset.acao;
   b.addEventListener('pointerdown', (e) => {

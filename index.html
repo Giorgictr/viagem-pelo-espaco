@@ -126,6 +126,18 @@
   body.semPaineis #btPaineis { display: block; opacity: .55; }
   body.semPaineis #btPaineis:hover { opacity: 1; }
   @media (max-width: 760px) { #btPaineis { display: block; } }
+  /* celular: um painel de cada vez, escolhido pelo ☰, numa folha no alto da tela (o ☰ e os botões de voo ficam livres) */
+  body.celular .painel { display: none !important; }
+  body.celular .painel.abaAtiva, body.celular #ajuda.aberta {
+    display: block !important; position: fixed !important; top: 50px !important; left: 8px !important; right: 8px !important; bottom: auto !important;
+    width: auto !important; max-width: none !important; min-width: 0 !important; max-height: 55vh !important; overflow-y: auto; transform: none !important; z-index: 7;
+  }
+  body.celular #foto:not([hidden]) { display: block !important; }
+  body.celular #btPaineis { display: block !important; opacity: 1; z-index: 13; font-size: 20px; padding: 6px 12px; }
+  body.celular.telescopio #btPaineis { display: none !important; }
+  #menuAbas { position: fixed; top: 50px; right: 8px; z-index: 13; display: flex; flex-direction: column; gap: 6px; min-width: 200px; padding: 8px; background: var(--painel); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; }
+  #menuAbas button { text-align: left; padding: 10px 12px; font-size: 15px; }
+  #menuAbas button.ativo { border-color: var(--acento); }
   #mira { position: fixed; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; pointer-events: none; opacity: .35; }
   #mira::before, #mira::after { content: ""; position: absolute; background: #fff; }
   #mira::before { left: 6px; top: 0; width: 2px; height: 14px; }
@@ -202,6 +214,7 @@
 <div id="mira"></div>
 <div id="aviso"></div>
 <button id="btPaineis" aria-label="Mostrar ou esconder os painéis">☰</button>
+<div id="menuAbas" hidden></div>
 <div id="toque">
   <button data-tecla="KeyW" aria-label="Frente">▲</button>
   <button data-tecla="KeyS" aria-label="Ré">▼</button>
