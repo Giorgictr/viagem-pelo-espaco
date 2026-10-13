@@ -68,6 +68,12 @@ def dos_dados():
         a.add(c['nome'] if isinstance(c, dict) else c[0])
     for o in json.load(open(os.path.join(AQUI, 'missoes', 'indice.json'))):
         a.add(o['nome'])
+    fichas = json.load(open(os.path.join(AQUI, 'fichas.json')))
+    for c in fichas['corpos'].values():
+        a.update(v for k, v in c.items() if isinstance(v, str))
+    a.update(fichas['estrelas'].values())
+    for cor in ('vermelha', 'laranja', 'amarela', 'branca', 'azul'):
+        a |= {f'gigante {cor}', f'supergigante {cor}'}
     return a
 
 

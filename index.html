@@ -135,6 +135,19 @@
   body.celular #foto:not([hidden]) { display: block !important; }
   body.celular #btPaineis { display: block !important; opacity: 1; z-index: 13; font-size: 20px; padding: 6px 12px; }
   body.celular.telescopio #btPaineis { display: none !important; }
+  /* ficha de chegada */
+  #ficha { position: fixed; top: 64px; left: 50%; transform: translateX(-50%); width: min(430px, calc(100vw - 32px)); z-index: 6; max-height: calc(100vh - 140px); overflow-y: auto;
+    background: var(--painel); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; padding: 14px 16px 12px; box-shadow: 0 8px 30px rgba(0,0,0,.45); animation: fichaEntra .35s ease-out; }
+  @keyframes fichaEntra { from { opacity: 0; transform: translate(-50%, -8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+  #fichaFechar { position: absolute; top: 8px; right: 8px; padding: 2px 8px; }
+  #fichaTipo { text-transform: uppercase; letter-spacing: .1em; font-size: 11px; color: var(--acento); margin-right: 32px; }
+  #fichaNome { margin: 2px 0 10px; font-size: 22px; }
+  #fichaDados { font-size: 13px; }
+  #fichaCur { margin: 10px 0 0; font-size: 13px; line-height: 1.45; color: #d9e1ec; border-top: 1px solid rgba(255,255,255,.1); padding-top: 8px; }
+  #fichaCur:empty { display: none; }
+  body.foto #ficha, body.telescopio #ficha { display: none; }
+  body.celular #ficha { top: auto; bottom: 10px; left: 8px; right: 84px; width: auto; transform: none; max-height: 42vh; animation: none; }
+  #refFrame { cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
   #menuAbas { position: fixed; top: 50px; right: 8px; z-index: 13; display: flex; flex-direction: column; gap: 6px; min-width: 200px; padding: 8px; background: var(--painel); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; }
   #menuAbas button { text-align: left; padding: 10px 12px; font-size: 15px; }
   #menuAbas button.ativo { border-color: var(--acento); }
@@ -215,6 +228,7 @@
 <div id="aviso"></div>
 <button id="btPaineis" aria-label="Mostrar ou esconder os painéis">☰</button>
 <div id="menuAbas" hidden></div>
+<div id="ficha" hidden><button id="fichaFechar" aria-label="Fechar a ficha">✕</button><div id="fichaTipo"></div><h3 id="fichaNome"></h3><div class="kv" id="fichaDados"></div><p id="fichaCur"></p></div>
 <div id="toque">
   <button data-tecla="KeyW" aria-label="Frente">▲</button>
   <button data-tecla="KeyS" aria-label="Ré">▼</button>
@@ -445,6 +459,7 @@
       <option value="active">Satélites: todos os ativos (~11 mil)</option>
     </select>
     <button id="btAtm"></button>
+    <button id="btFichas"></button>
   </div>
   <div class="linha">
     <span class="sub">Ritmo</span>

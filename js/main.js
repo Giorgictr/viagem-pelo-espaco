@@ -14,6 +14,7 @@ import { criarSatelites, criarFrota } from './satelites.js';
 import { criarPredios } from './predios.js';
 import { criarDetalhe, CAMADAS } from './detalhe.js';
 import { criarSolo, lerManifesto } from './solo.js';
+import { carregarFichas, montarFicha } from './fichas.js';
 import { exo, carregarExoplanetas, corpoPlaneta, posicaoOrbita, pontoOrbita, resumoPlaneta } from './exoplanetas.js';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { DRACOLoader } from '../vendor/DRACOLoader.js';
@@ -101,6 +102,7 @@ const estado = {
   alvo: null,                 // destino escolhido
   pousado: null,              // corpo em que se está caminhando
   nomes: true, linhas: true, freio: true, cinturoes: true,
+  fichas: (() => { try { return localStorage.getItem('viagemFichas') !== '0'; } catch { return true; } })(), // fichas de chegada
   nivelar: true, giraJunto: true, exagero: 1, texturas: true, inventado: true, ceuRealcado: false, efeito: 'dobra', bolha: true, cidades: 'grandes', fronteiras: true, nomesTerra: true, picos: true, aviao: false, altAviao: 1, epocaMa: 0, nivelMar: 0, gelo: false, ceuModo: false, vistaFora: false, nuvensReais: true, nuvensDeriva: true, meteoros: true, meteoros10: false, bortle: 0, messier: true, refracao: true, predios: true, telescopio: false, zoom: 10, rastrear: true, atmFisica: true, constelacoes: false, linhasConst: false, ilustrativas: true, viaReal: true,
 };
 
@@ -554,6 +556,7 @@ function teleportar(c) {
 
 function iniciarViagem(c) {
   if (!c) return;
+  fecharFicha();
   if (estado.ceuModo) sairDoCeu();
   restaurarV();
   estado.cruzeiro = false;
@@ -647,7 +650,7 @@ $('selDestino').onchange = () => (estado.alvo = obterCorpo($('selDestino').value
 $('btIr').onclick = () => iniciarViagem(obterCorpo($('selDestino').value));
 $('btParar').onclick = pararTudo;
 $('btPousar').onclick = pousar;
-$('btPartir').onclick = () => { const c = obterCorpo($('selPartida').value); if (c && (c.tipo === 'sonda' || c.tipo === 'cometa')) embarcar(c); else teleportar(c); };
+$('btPartir').onclick = () => { const c = obterCorpo($('selPartida').value); if (c && (c.tipo === 'sonda' || c.tipo === 'cometa')) embarcar(c); else { teleportar(c); chegou(c); } };
 
 // Escolhe um corpo como destino (garante que ele esteja na lista)
 function escolherAlvo(c) {
@@ -815,6 +818,7 @@ chave('btAparencia', ['Aparência: fotos', 'Aparência: procedural'], () => esta
 chave('btNivelar', ['Nivelar horizonte', 'Horizonte livre'], () => estado.nivelar, () => (estado.nivelar = !estado.nivelar), 'KeyN');
 chave('btPredios', ['Construções em 3D: ligadas', 'Construções em 3D: desligadas'], () => estado.predios, () => (estado.predios = !estado.predios));
 chave('btAtm', ['Atmosfera: física', 'Atmosfera: simples'], () => estado.atmFisica, () => (estado.atmFisica = !estado.atmFisica));
+chave('btFichas', ['Fichas de chegada: ligadas', 'Fichas de chegada: desligadas'], () => estado.fichas, () => { estado.fichas = !estado.fichas; guardar('viagemFichas', estado.fichas ? '1' : '0'); if (!estado.fichas) fecharFicha(); });
 chave('btInventado', ['Detalhe inventado', 'Só dado real'], () => estado.inventado, () => (estado.inventado = !estado.inventado), 'KeyI');
 chave('btCeu', ['Céu realçado', 'Céu a olho nu'], () => estado.ceuRealcado, () => (estado.ceuRealcado = !estado.ceuRealcado), 'KeyK');
 // Efeito visual da velocidade: dobra (cinema) → relatividade (física real) → nenhum
@@ -852,6 +856,34 @@ aoTeclar('NumpadDecimal', modoFoco);
   if (f === '1') document.body.classList.add('semPaineis');
 }
 
+// Fichas de chegada: o essencial de cada lugar, ao chegar (e ao tocar no nome em "Onde estou")
+carregarFichas();
+function mostrarFicha(c) {
+  if (!c || c.tipo === 'sonda' || c.tipo === 'cometa' || c.tipo === 'satelite' || c.soCeu) return;
+  const terraAbs = PORID.terra.abs;
+  const f = montarFicha(c, {
+    sig, distancia, duracao, cat, PORID,
+    dTerra: (o) => o.abs.distanceTo(terraAbs), dSol: (o) => o.abs.distanceTo(PORID.sol.abs),
+    anoLuzSaiu: (km) => { const [quando, epoca] = quandoSaiu(tempoLuzAnos(km / AL) * 365.25 * 86400); return epoca ? `${quando} (${epoca})` : quando; },
+  });
+  $('fichaTipo').textContent = f.tipo;
+  $('fichaNome').textContent = f.nome;
+  $('fichaDados').textContent = '';
+  for (const [k, v] of f.linhas) {
+    const a = document.createElement('span'), b = document.createElement('span');
+    a.textContent = k; b.textContent = v;
+    $('fichaDados').append(a, b);
+  }
+  $('fichaCur').textContent = f.curiosidade;
+  $('ficha').hidden = false;
+  if (ehCelular()) abrirAba(null); // no celular, uma coisa de cada vez
+}
+function fecharFicha() { $('ficha').hidden = true; }
+function chegou(c) { if (estado.fichas && !roteiro) mostrarFicha(c); }
+$('fichaFechar').onclick = fecharFicha;
+$('refFrame').onclick = () => estado.ref && mostrarFicha(estado.ref);
+$('refFrame').title = tr('Ver a ficha');
+
 // Celular (tela estreita): um painel de cada vez. O ☰ abre a lista dos painéis que fazem sentido agora;
 // quando aparece um painel novo (o céu, ao apertar Z; "A bordo", ao embarcar), ele já abre.
 const ABAS = ['pVel', 'pDest', 'pMissao', 'pCeu', 'pTerra', 'pPos', 'pTempo'];
@@ -867,6 +899,7 @@ function abaDisponivel(id) {
 const tituloAba = (id) => ($(id).querySelector(':scope > details > summary') ?? $(id).querySelector('h2'))?.textContent.trim() ?? id;
 let abaAtual = null, abasAntes = new Set();
 function abrirAba(id) {
+  if (id) fecharFicha();
   for (const a of ABAS) $(a).classList.toggle('abaAtiva', a === id);
   abaAtual = id;
   $('menuAbas').hidden = true;
@@ -2537,7 +2570,7 @@ function passo() {
     const dir = p.dir0.clone().lerp(p.dir1, virar * virar * (3 - 2 * virar)).normalize();
     estado.local.copy(dir).multiplyScalar(d);
     if (!p.olharLivre) estado.q.slerp(quatOlhando(dir.clone().negate(), tmpQ), 1 - Math.exp(-dt * 4));
-    if (u >= 1) estado.piloto = null;
+    if (u >= 1) { estado.piloto = null; chegou(p.alvo); }
   } else if (p && p.modo === 'vel') {
     const alvoAbs = p.alvo.abs;
     const deAlvo = abs.clone().sub(alvoAbs);
@@ -2550,7 +2583,7 @@ function passo() {
     estado.local.addScaledVector(rumo, passoKm / resta);
     if (!p.olharLivre) estado.q.slerp(quatOlhando(alvoAbs.clone().sub(abs), tmpQ), 1 - Math.exp(-dt * 3));
     p.resta = resta;
-    if (resta < Math.max(distChegada(p.alvo) * 0.01, 0.01)) { estado.piloto = null; mudarRef(p.alvo); }
+    if (resta < Math.max(distChegada(p.alvo) * 0.01, 0.01)) { estado.piloto = null; mudarRef(p.alvo); chegou(p.alvo); }
   } else if (p && p.modo === 'pouso') {
     p.t += dt;
     const u = Math.min(p.t / p.dur, 1);
@@ -3682,4 +3715,4 @@ function sobrevoar(id, lat, lon, alt, inclinacao = 20) {
   frente.multiplyScalar(Math.cos(inclinacao * GRAU)).addScaledVector(d, -Math.sin(inclinacao * GRAU));
   quatOlhando(frente, estado.q, d);
 }
-window.__sim = { teleportar, sobrevoar, subsolar, exo, vagasExo, zonaHab, planetaPorNome, pequenos, maximoDaqui, modelos, testeMeteoros: (n) => { const up = estado.local.clone().normalize(); const c = CHUVAS.find((x) => x.nome === "Oriônidas"); for (let i = 0; i < n; i++) { novoMeteoro(c.dir, c.v, up); if (meteoros.length) meteoros[meteoros.length - 1].t = 0.45; } }, quadros: (n = 1) => { for (let i = 0; i < n; i++) { tAnterior = performance.now() - 16; passo(); } }, luzEclipseJS, coroa, verEclipse, ficarEm, abrirEclipses, predios, vr, alvoNaDirecao, textoPainelVR, satelites, embarcar: (o) => embarcar(o), estado, PORID, camAbs, cat, estrelaObj, vagas, THREE, terra, buscar, indiceBusca, missoes, atualizarPosicoes };
+window.__sim = { mostrarFicha, teleportar, sobrevoar, subsolar, exo, vagasExo, zonaHab, planetaPorNome, pequenos, maximoDaqui, modelos, testeMeteoros: (n) => { const up = estado.local.clone().normalize(); const c = CHUVAS.find((x) => x.nome === "Oriônidas"); for (let i = 0; i < n; i++) { novoMeteoro(c.dir, c.v, up); if (meteoros.length) meteoros[meteoros.length - 1].t = 0.45; } }, quadros: (n = 1) => { for (let i = 0; i < n; i++) { tAnterior = performance.now() - 16; passo(); } }, luzEclipseJS, coroa, verEclipse, ficarEm, abrirEclipses, predios, vr, alvoNaDirecao, textoPainelVR, satelites, embarcar: (o) => embarcar(o), estado, PORID, camAbs, cat, estrelaObj, vagas, THREE, terra, buscar, indiceBusca, missoes, atualizarPosicoes };
