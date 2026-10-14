@@ -1543,9 +1543,33 @@ function pedirNuvens(dia) {
   const url = `https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=${camada}&CRS=EPSG:4326&BBOX=-90,-180,90,180&WIDTH=2048&HEIGHT=1024&FORMAT=image/jpeg&TIME=${dia}`;
   e = { estado: 'baixando', tex: null };
   nuvensCache.set(dia, e);
-  new THREE.TextureLoader().load(url, (t) => { t.colorSpace = THREE.NoColorSpace; t.anisotropy = 4; e.tex = t; e.estado = 'pronto'; }, undefined, () => { e.estado = 'erro'; });
+  new THREE.TextureLoader().load(url, (t) => {
+    t.colorSpace = THREE.NoColorSpace; t.anisotropy = 4; e.tex = t;
+    e.estado = fotoCompleta(t.image) ? 'pronto' : 'incompleta';
+  }, undefined, () => { e.estado = 'erro'; });
   if (nuvensCache.size > 6) { const [k, v] = nuvensCache.entries().next().value; v.tex?.dispose(); nuvensCache.delete(k); }
   return e;
+}
+// A foto de um dia recente pode vir com faixas sem dado (preto) enquanto a NASA ainda processa as órbitas:
+// conta os pixels pretos entre as latitudes ±60° (os polos ficam pretos de verdade na noite polar)
+function fotoCompleta(img) {
+  const cv = document.createElement('canvas');
+  cv.width = 256; cv.height = 128;
+  const g = cv.getContext('2d', { willReadFrequently: true });
+  g.drawImage(img, 0, 0, 256, 128);
+  const px = g.getImageData(0, 21, 256, 86).data;
+  let pretos = 0;
+  for (let i = 0; i < px.length; i += 4) if (px[i] + px[i + 1] + px[i + 2] < 24) pretos++;
+  return pretos / (px.length / 4) < 0.02;
+}
+// a foto mais recente que estiver completa, a partir do dia pedido e recuando até 4 dias
+function fotoUsavel(meio) {
+  for (let k = 0; k < 5; k++) {
+    const e = pedirNuvens(diaTexto(meio - k * 86400000));
+    if (!e || e.estado === 'baixando') return null;
+    if (e.estado === 'pronto') return { e, meio: meio - k * 86400000 };
+  }
+  return null;
 }
 // devolve true se as nuvens reais estão prontas e preenche os uniforms
 function nuvensDoDia(u) {
@@ -1557,9 +1581,10 @@ function nuvensDoDia(u) {
   const msUsado = Math.min(ms, ontem);
   // cada foto vale para o meio-dia (UTC) do dia dela
   const meio = Math.floor((msUsado - 43200000) / 86400000) * 86400000 + 43200000;
-  const diaA = diaTexto(meio), diaB = diaTexto(meio + 86400000);
-  const A = pedirNuvens(diaA), B = ms < ontem ? pedirNuvens(diaB) : A;
-  if (!A || A.estado !== 'pronto') return false;
+  const achado = fotoUsavel(meio);
+  if (!achado) return false;
+  const A = achado.e, recuou = achado.meio !== meio;
+  const B = ms < ontem && !recuou ? pedirNuvens(diaTexto(meio + 86400000)) : A;
   u.mapaA.value = A.tex;
   u.mapaB.value = B && B.estado === 'pronto' ? B.tex : A.tex;
   const horas = (msUsado - meio) / 3600000;
@@ -3344,6 +3369,16 @@ function painel() {
 }
 
 renderer.setAnimationLoop(passo); // (e não requestAnimationFrame: nos óculos quem dá o ritmo é a sessão WebXR)
+// Versão nova publicada: uma aba aberta há horas continuaria com o código antigo; a cada 10 minutos compara a
+// etiqueta (ETag) da página e do código no servidor com a do começo e, se mudou, oferece recarregar
+if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
+  const marca = () => Promise.all(['./', 'js/main.js'].map((u) => fetch(u, { method: 'HEAD', cache: 'no-store' }).then((r) => r.headers.get('etag') || r.headers.get('last-modified') || '')))
+    .then((l) => l.join('|'));
+  let inicial = null;
+  marca().then((m) => (inicial = m)).catch(() => {});
+  setInterval(() => marca().then((m) => { if (inicial && m && m !== inicial) $('novaVersao').hidden = false; }).catch(() => {}), 600000);
+  $('btAtualizar').onclick = () => location.reload();
+}
 // Contador de visitas (GoatCounter, sem cookies). Só aparece no site publicado e se o contador público estiver ligado lá.
 if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
   fetch('https://viagem-pelo-espaco.goatcounter.com/counter/TOTAL.json').then((r) => (r.ok ? r.json() : null)).then((j) => {
