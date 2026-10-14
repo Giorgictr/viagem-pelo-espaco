@@ -11,16 +11,16 @@ const jdDe = (iso) => Date.parse(iso) / 86400000 + 2440587.5;
 // Momentos: data (UTC), título, texto, para onde olhar (corpo ou direção RA/Dec) e foto (dados/fotos/<id>.jpg)
 export const MOMENTOS = {
   voyager1: [
-    { iso: '1977-09-10T00:00Z', titulo: 'Logo depois do lançamento', texto: 'Lançada em 5 de setembro de 1977, a Voyager 1 parte rumo a Júpiter e Saturno.', olhar: 'terra' },
+    { iso: '1977-09-10T00:00Z', titulo: 'Logo depois do lançamento', texto: 'Lançada em 5 de setembro de 1977, a Voyager 1 parte rumo a Júpiter e Saturno.', olhar: 'terra', foto: 'PIA21747', credito: 'NASA/JPL-Caltech/KSC' },
     { iso: '1979-03-05T12:05Z', titulo: 'Passagem por Júpiter', texto: 'Máxima aproximação de Júpiter, a 349 mil km do centro (cerca de 280 mil km das nuvens). A sonda descobre vulcões ativos em Io.', olhar: 'jupiter', foto: 'PIA00022', credito: 'NASA/JPL' },
     { iso: '1980-11-12T23:46Z', titulo: 'Passagem por Saturno', texto: 'Máxima aproximação de Saturno, depois de um sobrevoo próximo de Titã. A trajetória a lança para fora do plano dos planetas.', olhar: 'saturno', foto: 'PIA00024', credito: 'NASA/JPL' },
     { iso: '1990-02-14T04:48Z', titulo: 'O Pálido Ponto Azul', texto: 'A 6 bilhões de km, a Voyager 1 se vira e fotografa a Terra: um ponto de luz menor que um pixel, num raio de sol espalhado pela câmera.', olhar: 'terra', foto: 'PIA00452', credito: 'NASA/JPL-Caltech' },
     { iso: '2012-08-25T00:00Z', titulo: 'Saída da heliosfera', texto: 'Primeiro objeto humano a deixar a bolha do vento solar e entrar no espaço interestelar.', olhar: 'sol' },
   ],
   voyager2: [
-    { iso: '1977-08-23T00:00Z', titulo: 'Logo depois do lançamento', texto: 'Lançada em 20 de agosto de 1977, antes da gêmea Voyager 1, por um caminho mais longo que visitaria os quatro gigantes.', olhar: 'terra' },
-    { iso: '1979-07-09T22:29Z', titulo: 'Passagem por Júpiter', texto: 'Máxima aproximação de Júpiter, a 722 mil km do centro (cerca de 650 mil km das nuvens).', olhar: 'jupiter' },
-    { iso: '1981-08-26T03:24Z', titulo: 'Passagem por Saturno', texto: 'Máxima aproximação de Saturno, a 101 mil km das nuvens.', olhar: 'saturno' },
+    { iso: '1977-08-23T00:00Z', titulo: 'Logo depois do lançamento', texto: 'Lançada em 20 de agosto de 1977, antes da gêmea Voyager 1, por um caminho mais longo que visitaria os quatro gigantes.', olhar: 'terra', foto: 'PIA21744', credito: 'NASA/JPL-Caltech' },
+    { iso: '1979-07-09T22:29Z', titulo: 'Passagem por Júpiter', texto: 'Máxima aproximação de Júpiter, a 722 mil km do centro (cerca de 650 mil km das nuvens).', olhar: 'jupiter', foto: 'ARC-1979-A79-7087', credito: 'NASA/JPL' },
+    { iso: '1981-08-26T03:24Z', titulo: 'Passagem por Saturno', texto: 'Máxima aproximação de Saturno, a 101 mil km das nuvens.', olhar: 'saturno', foto: 'PIA00030', credito: 'NASA/JPL' },
     { iso: '1986-01-24T17:59Z', titulo: 'Urano, pela única vez', texto: 'A única sonda a visitar Urano passa a 81 mil km das nuvens e descobre 10 luas novas.', olhar: 'urano', foto: 'PIA18182', credito: 'NASA/JPL-Caltech' },
     { iso: '1989-08-25T03:56Z', titulo: 'Netuno e a Grande Mancha Escura', texto: 'A sonda passa a 4.950 km sobre o polo norte de Netuno, o ponto mais perto de qualquer planeta em toda a missão.', olhar: 'netuno', foto: 'PIA00049', credito: 'NASA/JPL' },
     { iso: '1989-08-25T09:10Z', titulo: 'Tritão', texto: 'Horas depois, a sonda fotografa Tritão, com gêiseres de nitrogênio.', olhar: 'tritao', foto: 'PIA01994', credito: 'NASA/JPL' },
@@ -31,28 +31,28 @@ export const MOMENTOS = {
     { iso: '1983-06-13T00:00Z', titulo: 'Além da órbita de Netuno', texto: 'Primeiro objeto humano a passar da distância dos planetas. O último sinal foi recebido em 2003; a trajetória daí em diante é calculada.', olhar: 'sol' },
   ],
   newhorizons: [
-    { iso: '2007-02-28T05:43Z', titulo: 'Atalho por Júpiter', texto: 'Júpiter acelera a sonda em 14 mil km/h e encurta a viagem até Plutão em três anos.', olhar: 'jupiter' },
+    { iso: '2007-02-28T05:43Z', titulo: 'Atalho por Júpiter', texto: 'Júpiter acelera a sonda em 14 mil km/h e encurta a viagem até Plutão em três anos.', olhar: 'jupiter', foto: 'PIA09665', credito: 'NASA/Johns Hopkins University Applied Physics Laboratory/Southwest Research Institute' },
     { iso: '2015-07-14T11:49Z', titulo: 'Plutão de perto', texto: 'A 12.500 km de Plutão, a sonda revela o "coração" de gelo de nitrogênio e montanhas de gelo de água.', olhar: 'plutao', foto: 'PIA19952', credito: 'NASA/JHUAPL/SwRI' },
     { iso: '2015-07-14T12:03Z', titulo: 'Caronte', texto: 'Logo depois, Caronte, a maior lua de Plutão, com uma região polar avermelhada.', olhar: 'caronte', foto: 'PIA19968', credito: 'NASA/JHUAPL/SwRI' },
   ],
   cassini: [
-    { iso: '1999-08-18T03:28Z', titulo: 'Impulso da Terra', texto: 'Para ganhar velocidade, a Cassini passa a 1.171 km da Terra.', olhar: 'terra' },
-    { iso: '2000-12-30T10:05Z', titulo: 'Passagem por Júpiter', texto: 'Mais um impulso, agora de Júpiter, a caminho de Saturno.', olhar: 'jupiter' },
+    { iso: '1999-08-18T03:28Z', titulo: 'Impulso da Terra', texto: 'Para ganhar velocidade, a Cassini passa a 1.171 km da Terra.', olhar: 'terra', foto: 'PIA02321', credito: 'NASA/JPL/Space Science Institute' },
+    { iso: '2000-12-30T10:05Z', titulo: 'Passagem por Júpiter', texto: 'Mais um impulso, agora de Júpiter, a caminho de Saturno.', olhar: 'jupiter', foto: 'PIA02873', credito: 'NASA/JPL/University of Arizona' },
     { iso: '2004-10-06T00:00Z', titulo: 'O retrato de Saturno', texto: 'Já em órbita, a Cassini compõe um dos maiores retratos de Saturno e seus anéis.', olhar: 'saturno', foto: 'PIA06193', credito: 'NASA/JPL/Space Science Institute' },
     { iso: '2012-03-01T00:00Z', titulo: 'Os jatos de Encélado', texto: 'Jatos de vapor e gelo saem do polo sul de Encélado, sinal de um oceano sob o gelo.', olhar: 'encelado', foto: 'PIA14599', credito: 'NASA/JPL-Caltech/Space Science Institute' },
     { iso: '2013-07-19T21:27Z', titulo: 'O dia em que a Terra sorriu', texto: 'Na sombra de Saturno, a Cassini fotografa o planeta contra o Sol, com a Terra como um ponto azul entre os anéis.', olhar: 'saturno', foto: 'PIA17172', credito: 'NASA/JPL-Caltech/Space Science Institute' },
-    { iso: '2017-09-15T10:31Z', titulo: 'Mergulho final', texto: 'A Cassini mergulha na atmosfera de Saturno, de propósito, para não contaminar luas que podem ter vida.', olhar: 'saturno' },
+    { iso: '2017-09-15T10:31Z', titulo: 'Mergulho final', texto: 'A Cassini mergulha na atmosfera de Saturno, de propósito, para não contaminar luas que podem ter vida.', olhar: 'saturno', foto: 'PIA21892', credito: 'NASA/JPL-Caltech/Space Science Institute' },
   ],
   juno: [
-    { iso: '2013-10-09T19:21Z', titulo: 'Impulso da Terra', texto: 'A Juno passa a 559 km da Terra para ganhar velocidade rumo a Júpiter.', olhar: 'terra' },
-    { iso: '2016-07-05T03:53Z', titulo: 'Chegada a Júpiter', texto: 'Entrada em órbita polar: a primeira sonda a ver os polos de Júpiter de perto.', olhar: 'jupiter' },
+    { iso: '2013-10-09T19:21Z', titulo: 'Impulso da Terra', texto: 'A Juno passa a 559 km da Terra para ganhar velocidade rumo a Júpiter.', olhar: 'terra', foto: 'PIA14447', credito: 'NASA/JPL-Caltech/MSSS' },
+    { iso: '2016-07-05T03:53Z', titulo: 'Chegada a Júpiter', texto: 'Entrada em órbita polar: a primeira sonda a ver os polos de Júpiter de perto.', olhar: 'jupiter', foto: 'PIA20707', credito: 'NASA/JPL-Caltech/SwRI/MSSS' },
     { iso: '2017-02-02T12:57Z', titulo: 'Júpiter visto de baixo', texto: 'O polo sul de Júpiter, com ciclones do tamanho da Terra.', olhar: 'jupiter', foto: 'PIA21381', credito: 'NASA/JPL-Caltech/SwRI/MSSS/Gabriel Fiset' },
     { iso: '2017-07-11T02:06Z', titulo: 'A Grande Mancha Vermelha', texto: 'Passagem direta sobre a Grande Mancha Vermelha, a cerca de 9 mil km das nuvens, minutos depois do ponto mais baixo da órbita. Na foto, a mesma tempestade vista pela Voyager 1 em 1979: ela já era observada havia mais de 150 anos.', olhar: 'jupiter', foto: 'PIA00014', credito: 'NASA/JPL (foto da Voyager 1, 1979)' },
     { iso: '2021-06-07T16:56Z', titulo: 'Ganimedes', texto: 'A maior lua do Sistema Solar, a 1.038 km.', olhar: 'ganimedes', foto: 'PIA24681', credito: 'NASA/JPL-Caltech/SwRI/MSSS' },
   ],
   parker: [
-    { iso: '2018-08-14T00:00Z', titulo: 'Logo depois do lançamento', texto: 'A sonda mais rápida já construída parte para "tocar" o Sol.', olhar: 'sol' },
-    { iso: '2024-12-24T11:53Z', titulo: 'Recorde de aproximação do Sol', texto: 'A 6,1 milhões de km da superfície do Sol, a cerca de 690 mil km/h: o objeto humano mais rápido da história.', olhar: 'sol' },
+    { iso: '2018-08-14T00:00Z', titulo: 'Logo depois do lançamento', texto: 'A sonda mais rápida já construída parte para "tocar" o Sol.', olhar: 'sol', foto: 'NHQ201808120013', credito: 'NASA/Bill Ingalls' },
+    { iso: '2024-12-24T11:53Z', titulo: 'Recorde de aproximação do Sol', texto: 'A 6,1 milhões de km da superfície do Sol, a cerca de 690 mil km/h: o objeto humano mais rápido da história.', olhar: 'sol', foto: 'Parker-2024-12-24', credito: 'NASA/Johns Hopkins APL/Naval Research Laboratory' },
   ],
   jwst: [
     { iso: '2022-01-24T19:00Z', titulo: 'Chegada ao ponto L2', texto: 'O telescópio chega à sua órbita, a 1,5 milhão de km da Terra, sempre de costas para o Sol.', olhar: 'terra' },
@@ -65,12 +65,12 @@ export const MOMENTOS = {
   ],
   pioneer11: [
     { iso: '1974-12-03T05:22Z', titulo: 'Passagem por Júpiter', texto: 'A 43 mil km das nuvens, três vezes mais perto que a Pioneer 10; a gravidade de Júpiter a lança rumo a Saturno.', olhar: 'jupiter' },
-    { iso: '1979-09-01T16:31Z', titulo: 'A primeira visita a Saturno', texto: 'Primeira sonda a passar por Saturno, a 21 mil km das nuvens. Descobre o anel F e abre caminho para as Voyager.', olhar: 'saturno' },
+    { iso: '1979-09-01T16:31Z', titulo: 'A primeira visita a Saturno', texto: 'Primeira sonda a passar por Saturno, a 21 mil km das nuvens. Descobre o anel F e abre caminho para as Voyager.', olhar: 'saturno', foto: 'Pioneer11-Saturn-1979', credito: 'NASA Ames' },
   ],
   galileo: [
-    { iso: '1990-02-10T05:59Z', titulo: 'Passagem por Vênus', texto: 'A primeira das três manobras de gravidade (Vênus, Terra, Terra) que levaram a Galileo até Júpiter.', olhar: 'venus' },
-    { iso: '1990-12-08T20:34Z', titulo: 'De volta à Terra', texto: 'Passagem a 960 km da Terra. A sonda procura sinais de vida na Terra como se fosse um planeta desconhecido, e encontra.', olhar: 'terra' },
-    { iso: '1994-07-20T00:00Z', titulo: 'O cometa que caiu em Júpiter', texto: 'Ainda a caminho, a Galileo vê diretamente os fragmentos do cometa Shoemaker-Levy 9 caírem no lado noturno de Júpiter.', olhar: 'jupiter' },
+    { iso: '1990-02-10T05:59Z', titulo: 'Passagem por Vênus', texto: 'A primeira das três manobras de gravidade (Vênus, Terra, Terra) que levaram a Galileo até Júpiter.', olhar: 'venus', foto: 'PIA00111', credito: 'NASA/JPL' },
+    { iso: '1990-12-08T20:34Z', titulo: 'De volta à Terra', texto: 'Passagem a 960 km da Terra. A sonda procura sinais de vida na Terra como se fosse um planeta desconhecido, e encontra.', olhar: 'terra', foto: 'PIA00114', credito: 'NASA/JPL' },
+    { iso: '1994-07-20T00:00Z', titulo: 'O cometa que caiu em Júpiter', texto: 'Ainda a caminho, a Galileo vê diretamente os fragmentos do cometa Shoemaker-Levy 9 caírem no lado noturno de Júpiter.', olhar: 'jupiter', foto: 'PIA00139', credito: 'NASA/JPL' },
     { iso: '1995-12-07T22:04Z', titulo: 'Chegada a Júpiter', texto: 'Primeira sonda a orbitar Júpiter. No mesmo dia, uma cápsula mergulha na atmosfera do planeta.', olhar: 'jupiter' },
     { iso: '2003-09-21T18:57Z', titulo: 'Mergulho final', texto: 'Para não contaminar Europa, que pode ter um oceano com vida, a Galileo é lançada contra Júpiter.', olhar: 'jupiter' },
   ],
@@ -80,22 +80,22 @@ export const MOMENTOS = {
     { iso: '1995-07-31T00:00Z', titulo: 'Sobre o polo norte do Sol', texto: 'Menos de um ano depois, o outro polo.', olhar: 'sol' },
   ],
   messenger: [
-    { iso: '2008-01-14T19:04Z', titulo: 'Primeira passagem por Mercúrio', texto: 'A 200 km da superfície: a primeira visita a Mercúrio desde a Mariner 10, 33 anos antes.', olhar: 'mercurio' },
-    { iso: '2011-03-18T01:00Z', titulo: 'Em órbita de Mercúrio', texto: 'Primeira sonda a orbitar o planeta mais próximo do Sol. Encontra gelo de água no fundo das crateras dos polos.', olhar: 'mercurio' },
-    { iso: '2015-04-30T19:26Z', titulo: 'O fim', texto: 'Sem combustível, a MESSENGER cai em Mercúrio a 14 mil km/h, abrindo uma cratera de uns 16 metros.', olhar: 'mercurio' },
+    { iso: '2008-01-14T19:04Z', titulo: 'Primeira passagem por Mercúrio', texto: 'A 200 km da superfície: a primeira visita a Mercúrio desde a Mariner 10, 33 anos antes.', olhar: 'mercurio', foto: 'PIA10176', credito: 'NASA/Johns Hopkins University Applied Physics Laboratory/Carnegie Institution of Washington' },
+    { iso: '2011-03-18T01:00Z', titulo: 'Em órbita de Mercúrio', texto: 'Primeira sonda a orbitar o planeta mais próximo do Sol. Encontra gelo de água no fundo das crateras dos polos.', olhar: 'mercurio', foto: 'GSFC_20171208_Archive_e001920', credito: 'NASA/Johns Hopkins University Applied Physics Laboratory/Carnegie Institution of Washington' },
+    { iso: '2015-04-30T19:26Z', titulo: 'O fim', texto: 'Sem combustível, a MESSENGER cai em Mercúrio a 14 mil km/h, abrindo uma cratera de uns 16 metros.', olhar: 'mercurio', foto: 'PIA19448', credito: 'NASA/Johns Hopkins University Applied Physics Laboratory/Carnegie Institution of Washington' },
   ],
   dawn: [
     { iso: '2009-02-17T23:28Z', titulo: 'Passagem por Marte', texto: 'Uma manobra de gravidade a caminho do cinturão de asteroides.', olhar: 'marte' },
-    { iso: '2011-07-16T00:00Z', titulo: 'Chegada a Vesta', texto: 'A Dawn passa a orbitar Vesta, o segundo maior corpo do cinturão de asteroides, por mais de um ano.' },
-    { iso: '2015-03-06T12:00Z', titulo: 'Chegada a Ceres', texto: 'Primeira sonda a orbitar dois corpos diferentes, e a primeira a visitar um planeta anão. Ceres tem manchas brilhantes de sal.' },
+    { iso: '2011-07-16T00:00Z', titulo: 'Chegada a Vesta', texto: 'A Dawn passa a orbitar Vesta, o segundo maior corpo do cinturão de asteroides, por mais de um ano.', foto: 'PIA14313', credito: 'NASA/JPL-Caltech/UCLA/MPS/DLR/IDA' },
+    { iso: '2015-03-06T12:00Z', titulo: 'Chegada a Ceres', texto: 'Primeira sonda a orbitar dois corpos diferentes, e a primeira a visitar um planeta anão. Ceres tem manchas brilhantes de sal.', foto: 'PIA19312', credito: 'NASA/JPL-Caltech/UCLA/MPS/DLR/IDA' },
   ],
   stardust: [
-    { iso: '2004-01-02T19:22Z', titulo: 'Poeira do cometa Wild 2', texto: 'A 240 km do núcleo, a sonda recolhe poeira do cometa num bloco de aerogel.' },
-    { iso: '2006-01-15T10:12Z', titulo: 'A cápsula volta à Terra', texto: 'A cápsula com a poeira pousa em Utah: as primeiras amostras de um cometa trazidas à Terra.', olhar: 'terra' },
+    { iso: '2004-01-02T19:22Z', titulo: 'Poeira do cometa Wild 2', texto: 'A 240 km do núcleo, a sonda recolhe poeira do cometa num bloco de aerogel.', foto: 'PIA05571', credito: 'NASA/JPL-Caltech' },
+    { iso: '2006-01-15T10:12Z', titulo: 'A cápsula volta à Terra', texto: 'A cápsula com a poeira pousa em Utah: as primeiras amostras de um cometa trazidas à Terra.', olhar: 'terra', foto: 'PIA03671', credito: 'NASA' },
   ],
   deepimpact: [
-    { iso: '2005-07-04T05:52Z', titulo: 'Impacto no cometa Tempel 1', texto: 'Um projétil de 370 kg atinge o cometa a 37 mil km/h, e a sonda fotografa a nuvem de material lançada do interior.' },
-    { iso: '2010-11-04T13:50Z', titulo: 'Cometa Hartley 2', texto: 'Na missão estendida, a sonda passa pelo pequeno cometa Hartley 2, que solta jatos de gelo de dióxido de carbono.' },
+    { iso: '2005-07-04T05:52Z', titulo: 'Impacto no cometa Tempel 1', texto: 'Um projétil de 370 kg atinge o cometa a 37 mil km/h, e a sonda fotografa a nuvem de material lançada do interior.', foto: 'PIA02137', credito: 'NASA/JPL-Caltech/UMD' },
+    { iso: '2010-11-04T13:50Z', titulo: 'Cometa Hartley 2', texto: 'Na missão estendida, a sonda passa pelo pequeno cometa Hartley 2, que solta jatos de gelo de dióxido de carbono.', foto: 'PIA13602', credito: 'NASA/JPL-Caltech/UMD' },
   ],
   hayabusa2: [
     { iso: '2018-06-27T00:00Z', titulo: 'Chegada a Ryugu', texto: 'A sonda japonesa alcança o asteroide Ryugu, um "pião" escuro de menos de 1 km.' },
@@ -103,48 +103,48 @@ export const MOMENTOS = {
     { iso: '2020-12-05T17:30Z', titulo: 'Amostras de volta', texto: 'A cápsula pousa na Austrália com 5 gramas de Ryugu. A sonda segue viagem para outros asteroides.', olhar: 'terra' },
   ],
   osirisrex: [
-    { iso: '2018-12-03T00:00Z', titulo: 'Chegada a Bennu', texto: 'A sonda alcança o asteroide Bennu, que tem uma pequena chance de atingir a Terra no século 22.' },
-    { iso: '2020-10-20T22:08Z', titulo: 'O toque', texto: 'A sonda toca Bennu por alguns segundos. O solo, mais fofo que o esperado, quase a engole.' },
-    { iso: '2023-09-24T14:52Z', titulo: 'Amostras de volta', texto: 'A cápsula pousa em Utah com cerca de 120 gramas de Bennu. A sonda segue rumo ao asteroide Apophis, com o nome OSIRIS-APEX.', olhar: 'terra' },
+    { iso: '2018-12-03T00:00Z', titulo: 'Chegada a Bennu', texto: 'A sonda alcança o asteroide Bennu, que tem uma pequena chance de atingir a Terra no século 22.', foto: 'OSIRIS-REx-Bennu-arrival', credito: 'NASA/Goddard/University of Arizona' },
+    { iso: '2020-10-20T22:08Z', titulo: 'O toque', texto: 'A sonda toca Bennu por alguns segundos. O solo, mais fofo que o esperado, quase a engole.', foto: 'OSIRIS-REx-TAG-2020-10-20', credito: 'NASA/Goddard/University of Arizona' },
+    { iso: '2023-09-24T14:52Z', titulo: 'Amostras de volta', texto: 'A cápsula pousa em Utah com cerca de 120 gramas de Bennu. A sonda segue rumo ao asteroide Apophis, com o nome OSIRIS-APEX.', olhar: 'terra', foto: 'NHQ202309240002', credito: 'NASA/Keegan Barber' },
   ],
   dart: [
-    { iso: '2022-09-26T23:14Z', titulo: 'Impacto em Dimorphos', texto: 'O primeiro teste de defesa planetária: a DART colide com a pequena lua Dimorphos e encurta a órbita dela em 32 minutos.' },
+    { iso: '2022-09-26T23:14Z', titulo: 'Impacto em Dimorphos', texto: 'O primeiro teste de defesa planetária: a DART colide com a pequena lua Dimorphos e encurta a órbita dela em 32 minutos.', foto: 'DART-2022-09-26', credito: 'NASA/Johns Hopkins APL' },
   ],
   lucy: [
     { iso: '2022-10-16T11:04Z', titulo: 'Passagem pela Terra', texto: 'A 350 km de altitude, mais baixo que a ISS, ganhando impulso rumo ao cinturão de asteroides e aos troianos de Júpiter.', olhar: 'terra' },
-    { iso: '2023-11-01T16:54Z', titulo: 'Dinkinesh e uma surpresa', texto: 'No primeiro asteroide visitado, uma surpresa: uma lua formada por duas partes encostadas.' },
-    { iso: '2025-04-20T17:51Z', titulo: 'Donaldjohanson', texto: 'Asteroide batizado em homenagem ao descobridor do fóssil "Lucy", que dá nome à missão.' },
+    { iso: '2023-11-01T16:54Z', titulo: 'Dinkinesh e uma surpresa', texto: 'No primeiro asteroide visitado, uma surpresa: uma lua formada por duas partes encostadas.', foto: 'Lucy-Dinkinesh-2023-11-01', credito: 'NASA/Goddard/SwRI/Johns Hopkins APL/NOIRLab' },
+    { iso: '2025-04-20T17:51Z', titulo: 'Donaldjohanson', texto: 'Asteroide batizado em homenagem ao descobridor do fóssil "Lucy", que dá nome à missão.', foto: 'Lucy-Donaldjohanson-2025-04-20', credito: 'NASA/Goddard/SwRI/Johns Hopkins APL' },
   ],
   psyche: [
-    { iso: '2023-10-14T00:00Z', titulo: 'A caminho de um mundo de metal', texto: 'A sonda segue para o asteroide Psyche, que pode ser o núcleo de metal de um planeta que não chegou a se formar. Chegada prevista para 2029.' },
+    { iso: '2023-10-14T00:00Z', titulo: 'A caminho de um mundo de metal', texto: 'A sonda segue para o asteroide Psyche, que pode ser o núcleo de metal de um planeta que não chegou a se formar. Chegada prevista para 2029.', foto: 'NHQ202310130017', credito: 'NASA/Aubrey Gemignani' },
   ],
   juice: [
-    { iso: '2024-08-19T21:16Z', titulo: 'Lua e Terra em seguida', texto: 'A primeira dupla manobra de gravidade da história: a sonda passa pela Lua e, um dia depois, pela Terra.', olhar: 'terra' },
+    { iso: '2024-08-19T21:16Z', titulo: 'Lua e Terra em seguida', texto: 'A primeira dupla manobra de gravidade da história: a sonda passa pela Lua e, um dia depois, pela Terra.', olhar: 'terra', foto: 'ESA-Juice-2024-08-19', credito: 'ESA/Juice/JMC (CC BY-SA 3.0 IGO)' },
     { iso: '2025-08-31T05:28Z', titulo: 'Passagem por Vênus', texto: 'Mais impulso a caminho de Júpiter, onde chega em 2031 para estudar Ganimedes, Calisto e Europa.', olhar: 'venus' },
   ],
   europaclipper: [
-    { iso: '2025-03-01T17:57Z', titulo: 'Passagem por Marte', texto: 'A 884 km da superfície, a sonda ganha impulso e testa as câmeras. Chega a Júpiter em 2030.', olhar: 'marte' },
+    { iso: '2025-03-01T17:57Z', titulo: 'Passagem por Marte', texto: 'A 884 km da superfície, a sonda ganha impulso e testa as câmeras. Chega a Júpiter em 2030.', olhar: 'marte', foto: 'PIA26567', credito: 'NASA/JPL-Caltech/ASU/SwRI' },
     { iso: '2026-12-03T00:00Z', titulo: 'De volta à Terra', texto: 'A última manobra de gravidade antes de seguir para Júpiter e para Europa, a lua que pode esconder um oceano.', olhar: 'terra' },
   ],
   bepicolombo: [
-    { iso: '2021-10-01T23:34Z', titulo: 'Primeira passagem por Mercúrio', texto: 'A 199 km da superfície. A missão europeia e japonesa usa seis passagens por Mercúrio para conseguir entrar em órbita.', olhar: 'mercurio' },
-    { iso: '2025-01-08T05:59Z', titulo: 'Sexta e última passagem', texto: 'A sonda fotografa os polos de Mercúrio antes da chegada definitiva.', olhar: 'mercurio' },
+    { iso: '2021-10-01T23:34Z', titulo: 'Primeira passagem por Mercúrio', texto: 'A 199 km da superfície. A missão europeia e japonesa usa seis passagens por Mercúrio para conseguir entrar em órbita.', olhar: 'mercurio', foto: 'ESA-BepiColombo-2021-10-01', credito: 'ESA/BepiColombo/MTM (CC BY-SA 3.0 IGO)' },
+    { iso: '2025-01-08T05:59Z', titulo: 'Sexta e última passagem', texto: 'A sonda fotografa os polos de Mercúrio antes da chegada definitiva.', olhar: 'mercurio', foto: 'ESA-BepiColombo-2025-01-08', credito: 'ESA/BepiColombo/MTM (CC BY-SA 3.0 IGO)' },
   ],
   solarorbiter: [
-    { iso: '2022-03-26T00:00Z', titulo: 'Perto do Sol', texto: 'A 48 milhões de km do Sol, mais perto que Mercúrio, com um escudo térmico que aguenta 500 °C.', olhar: 'sol' },
-    { iso: '2025-03-20T00:00Z', titulo: 'Os polos do Sol', texto: 'Com a órbita inclinada, as primeiras imagens dos polos do Sol, onde nasce o ciclo das manchas solares.', olhar: 'sol' },
+    { iso: '2022-03-26T00:00Z', titulo: 'Perto do Sol', texto: 'A 48 milhões de km do Sol, mais perto que Mercúrio, com um escudo térmico que aguenta 500 °C.', olhar: 'sol', foto: 'ESA-SolarOrbiter-2022-03-26', credito: 'ESA & NASA/Solar Orbiter/EUI Team (CC BY-SA 3.0 IGO)' },
+    { iso: '2025-03-20T00:00Z', titulo: 'Os polos do Sol', texto: 'Com a órbita inclinada, as primeiras imagens dos polos do Sol, onde nasce o ciclo das manchas solares.', olhar: 'sol', foto: 'ESA-SolarOrbiter-2025-03-20', credito: 'ESA & NASA/Solar Orbiter/EUI Team, D. Berghmans (ROB) (CC BY-SA 3.0 IGO)' },
   ],
   artemis1: [
-    { iso: '2022-11-21T12:57Z', titulo: 'Rasante na Lua', texto: 'A cápsula Orion, sem tripulação, passa a 130 km da superfície da Lua.', olhar: 'lua' },
-    { iso: '2022-11-28T20:00Z', titulo: 'Mais longe que nunca', texto: 'A 432 mil km da Terra: a maior distância já alcançada por uma nave feita para levar pessoas.', olhar: 'terra' },
-    { iso: '2022-12-05T16:43Z', titulo: 'Segunda passagem pela Lua', texto: 'A manobra que põe a Orion no caminho de volta.', olhar: 'lua' },
-    { iso: '2022-12-11T17:00Z', titulo: 'De volta', texto: 'A cápsula entra na atmosfera a 40 mil km/h e pousa no Pacífico.', olhar: 'terra' },
+    { iso: '2022-11-21T12:57Z', titulo: 'Rasante na Lua', texto: 'A cápsula Orion, sem tripulação, passa a 130 km da superfície da Lua.', olhar: 'lua', foto: 'art001e000274', credito: 'NASA' },
+    { iso: '2022-11-28T20:00Z', titulo: 'Mais longe que nunca', texto: 'A 432 mil km da Terra: a maior distância já alcançada por uma nave feita para levar pessoas.', olhar: 'terra', foto: 'art001e000673', credito: 'NASA' },
+    { iso: '2022-12-05T16:43Z', titulo: 'Segunda passagem pela Lua', texto: 'A manobra que põe a Orion no caminho de volta.', olhar: 'lua', foto: 'art001e002164', credito: 'NASA' },
+    { iso: '2022-12-11T17:00Z', titulo: 'De volta', texto: 'A cápsula entra na atmosfera a 40 mil km/h e pousa no Pacífico.', olhar: 'terra', foto: 'KSC-20221211-PH-JMB01-0003', credito: 'NASA/James M. Blair' },
   ],
   gaia: [
-    { iso: '2016-09-14T00:00Z', titulo: 'O mapa da galáxia', texto: 'Do ponto L2, a 1,5 milhão de km da Terra, o Gaia mede a posição e a distância de quase 2 bilhões de estrelas. Parte das estrelas desta simulação vem dele.' },
+    { iso: '2016-09-14T00:00Z', titulo: 'O mapa da galáxia', texto: 'Do ponto L2, a 1,5 milhão de km da Terra, o Gaia mede a posição e a distância de quase 2 bilhões de estrelas. Parte das estrelas desta simulação vem dele.', foto: 'ESA-Gaia-DR1-2016-09-14', credito: 'ESA/Gaia/DPAC (CC BY-SA 3.0 IGO)' },
   ],
   soho: [
-    { iso: '1996-05-01T00:00Z', titulo: 'Vigiando o Sol', texto: 'Do ponto L1, entre a Terra e o Sol, a SOHO observa o Sol sem parar há décadas, e já descobriu mais de 5 mil cometas.', olhar: 'sol' },
+    { iso: '1996-05-01T00:00Z', titulo: 'Vigiando o Sol', texto: 'Do ponto L1, entre a Terra e o Sol, a SOHO observa o Sol sem parar há décadas, e já descobriu mais de 5 mil cometas.', olhar: 'sol', foto: 'GSFC_20171208_Archive_e002112', credito: 'NASA/GSFC/SOHO/ESA' },
   ],
   kepler: [
     { iso: '2011-12-05T00:00Z', titulo: 'Planetas por toda parte', texto: 'O Kepler vigia 150 mil estrelas ao mesmo tempo, à espera da leve queda de brilho quando um planeta passa na frente. Encontrou mais de 2.600 planetas.' },
@@ -163,10 +163,10 @@ export const MOMENTOS = {
     { iso: '2020-07-05T00:00Z', titulo: 'NEOWISE sobre a Estação Espacial', texto: 'O cometa mais brilhante do hemisfério norte desde o Hale-Bopp, fotografado em julho de 2020.', olhar: 'cometa', foto: 'NHQ202007180001', credito: 'NASA/Bill Ingalls' },
   ],
   '67p': [
-    { iso: '2015-08-13T02:03Z', titulo: 'Periélio, com a Rosetta ao lado', texto: 'O ponto da órbita mais perto do Sol, quando o cometa ficou mais ativo.', olhar: 'cometa' },
+    { iso: '2015-08-13T02:03Z', titulo: 'Periélio, com a Rosetta ao lado', texto: 'O ponto da órbita mais perto do Sol, quando o cometa ficou mais ativo.', olhar: 'cometa', foto: 'ESA-Rosetta-2015-08-13', credito: 'ESA/Rosetta/NAVCAM - CC BY-SA IGO 3.0' },
   ],
   atlas3i: [
-    { iso: '2025-07-01T00:00Z', titulo: 'Descoberta', texto: 'O terceiro objeto interestelar já visto, vindo de fora do Sistema Solar numa órbita aberta (hiperbólica).', olhar: 'cometa' },
+    { iso: '2025-07-01T00:00Z', titulo: 'Descoberta', texto: 'O terceiro objeto interestelar já visto, vindo de fora do Sistema Solar numa órbita aberta (hiperbólica).', olhar: 'cometa', foto: 'Hubble-3I-ATLAS-2025-07-21', credito: 'NASA, ESA, D. Jewitt (UCLA); Image Processing: J. DePasquale (STScI)' },
     { iso: '2025-10-29T00:00Z', titulo: 'Periélio', texto: 'O ponto mais perto do Sol; depois disso, ele vai embora para sempre.', olhar: 'cometa' },
   ],
 };

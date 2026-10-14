@@ -142,5 +142,281 @@
   "data": "1986-03-08",
   "centro": "NASA/NSSDC",
   "descricao": "O cometa Halley visto da Ilha de Páscoa por W. Liller, da Rede de Fenômenos de Grande Escala do International Halley Watch (NASA)."
+ },
+ "PIA21747": {
+  "titulo": "Voyager 1 Launch",
+  "data": "1977-09-05",
+  "centro": "JPL",
+  "descricao": "NASA's Voyager 1 spacecraft launched atop its Titan/Centaur-6 launch vehicle from the Kennedy Space Center Launch Complex in Florida on September 5, 1977, at 8:56 a.m. local time. https://photojournal.jpl.nasa.gov/catalog/PIA21747"
+ },
+ "PIA21744": {
+  "titulo": "Voyager 2 Launch",
+  "data": "1977-08-20",
+  "centro": "JPL",
+  "descricao": "NASA's Voyager 2 spacecraft launched atop its Titan/Centaur-7 launch vehicle from Cape Canaveral Air Force Station in Florida on August 20, 1977, at 10:29 a.m. local time. https://photojournal.jpl.nasa.gov/catalog/PIA21744"
+ },
+ "ARC-1979-A79-7087": {
+  "titulo": "Voyager 2 close-up of Europa (ARC-1979-A79-7087)",
+  "data": "1979-07-09",
+  "centro": "ARC",
+  "descricao": "P-21758 BW Range: 246,000 kilometers (152,000 miles) This picture by Voyager 2 is the first close look ever obtained of Jupiter's satellite, Europa. The linear crack-like features had been seen from a much greater distance by Voyager 1 but this image provides a resolution of about four kilometers (2"
+ },
+ "PIA00030": {
+  "titulo": "Saturn With Rhea and Dione True Color",
+  "data": "1996-01-29",
+  "centro": "JPL",
+  "descricao": "NASA Voyager 2 took this true color photograph of Saturn on July 21, 1981. The moons Rhea and Dione appear as blue dots to the south and southeast of Saturn, respectively."
+ },
+ "PIA09665": {
+  "titulo": "Tvashtar in Motion",
+  "data": "2007-05-14",
+  "centro": "JPL",
+  "descricao": "This five-frame sequence of New Horizons images captures the giant plume from Io Tvashtar volcano. These were snapped by the probe Long Range Reconnaissance Imager LORRI as the spacecraft flew past Jupiter earlier this year."
+ },
+ "PIA02321": {
+  "titulo": "Single Still Image",
+  "data": "1999-09-10",
+  "centro": "JPL",
+  "descricao": "This narrow angle image taken NASA Cassini camera system of the Moon is one of the best of a sequence of narrow angle frames taken as the spacecraft passed by the Moon on the way to its closest approach with Earth on August 17, 1999."
+ },
+ "PIA02873": {
+  "titulo": "High Resolution Globe of Jupiter",
+  "data": "2001-01-30",
+  "centro": "JPL",
+  "descricao": "This true-color simulated view of Jupiter is composed of 4 images taken by NASA's Cassini spacecraft on December 7, 2000. To illustrate what Jupiter would have looked like if the cameras had a field-of-view large enough to capture the entire planet, the cylindrical map was projected onto a globe. Th"
+ },
+ "PIA21892": {
+  "titulo": "Saturn: Before the Plunge",
+  "data": "2017-09-15",
+  "centro": "JPL",
+  "descricao": "This image of Saturn's northern hemisphere was taken by NASA's Cassini spacecraft on Sept. 13, 2017. It is among the last images Cassini sent back to Earth. The view was taken in visible red light using the Cassini spacecraft wide-angle camera at a distance of 684,000 miles (1.1 million kilometers) "
+ },
+ "PIA14447": {
+  "titulo": "Earth Triptych from NASA Juno Spacecraft",
+  "data": "2013-10-09",
+  "centro": "JPL",
+  "descricao": "This trio of NASA Junocam views of Earth was taken during Juno close flyby on October 9, 2013."
+ },
+ "PIA20707": {
+  "titulo": "Juno Post-arrival View",
+  "data": "2016-07-12",
+  "centro": "JPL",
+  "descricao": "This color view from NASA's Juno spacecraft is made from some of the first images taken by JunoCam after the spacecraft entered orbit around Jupiter on July 5th (UTC). The view shows that JunoCam survived its first pass through Jupiter's extreme radiation environment, and is ready to collect images "
+ },
+ "NHQ201808120013": {
+  "titulo": "Parker Solar Probe Launch",
+  "data": "2018-08-12",
+  "centro": "HQ",
+  "descricao": "The United Launch Alliance Delta IV Heavy rocket launches NASA's Parker Solar Probe to touch the Sun, Sunday, Aug. 12, 2018 from Launch Complex 37 at Cape Canaveral Air Force Station, Florida. Parker Solar Probe is humanity’s first-ever mission into a part of the Sun’s atmosphere called the corona. "
+ },
+ "Parker-2024-12-24": {
+  "titulo": "The Closest Images Ever Taken of the Sun's Atmosphere (Parker Solar Probe WISPR)",
+  "data": "2024-12-24",
+  "centro": "JHU APL / NASA GSFC SVS",
+  "descricao": "Image from the WISPR (Wide-Field Imager for Solar Probe) camera captured during Parker Solar Probe's record-breaking closest approach to the Sun on Dec. 24, 2024, showing coronal structures and solar wind streaming out. Released in July 2025."
+ },
+ "Pioneer11-Saturn-1979": {
+  "titulo": "Pioneer 11 Image of Saturn and Its Moon Titan",
+  "data": "1979-09-01",
+  "centro": "ARC",
+  "descricao": "This image from Pioneer 11 shows Saturn and its moon Titan. The irregularities in ring silhouette and shadow are due to technical anomalies in the preliminary data later corrected. At the time this image was taken, Pioneer was 2,846,000 km (1,768,422 miles) from Saturn."
+ },
+ "PIA00111": {
+  "titulo": "Venus Colorized Clouds",
+  "data": "1996-02-01",
+  "centro": "JPL",
+  "descricao": "This colorized picture of Venus was taken Feb. 14, 1990, from a distance of almost 1.7 million miles, about 6 days after NASA's Galileo made it closest approach to the planet. http://photojournal.jpl.nasa.gov/catalog/PIA00111"
+ },
+ "PIA00114": {
+  "titulo": "Earth - South America First Frame of Earth Spin Movie",
+  "data": "1996-01-29",
+  "centro": "JPL",
+  "descricao": "This color image of the Earth was obtained by NASA's Galileo at about 6:10 a.m. Pacific Standard Time on Dec. 11, 1990, when the spacecraft was about 1.3 million miles from the planet during the first of two Earth flybys on its way to Jupiter. The color composite used images taken through the red, g"
+ },
+ "PIA00139": {
+  "titulo": "Comet Shoemaker-Levy 9 Fragment W Impact With Jupiter",
+  "data": "1996-01-29",
+  "centro": "JPL",
+  "descricao": "These four images of Jupiter and the luminous night-side impact of fragment W of Comet Shoemaker-Levy 9 were taken NASA's Galileo spacecraft on July 22, 1994. http://photojournal.jpl.nasa.gov/catalog/PIA00139"
+ },
+ "PIA10176": {
+  "titulo": "MESSENGER Views Mercury Horizon",
+  "data": "2008-01-17",
+  "centro": "JPL",
+  "descricao": "As NASA MESSENGER spacecraft drew closer to Mercury for its historic first flyby, the spacecraft Narrow Angle Camera NAC on the Mercury Dual Imaging System MDIS acquired an image mosaic of the sunlit portion of the planet."
+ },
+ "GSFC_20171208_Archive_e001920": {
+  "titulo": "First NAC Image Obtained in Mercury Orbit",
+  "data": "2017-12-08",
+  "centro": "GSFC",
+  "descricao": "NASA image acquired: March 29, 2011 This is the first image of Mercury taken from orbit with MESSENGER’s Narrow Angle Camera (NAC). MESSENGER’s camera system, the Mercury Dual Imaging System (MDIS), has two cameras: the Narrow Angle Camera and the Wide Angle Camera (WAC). Comparison of this image wi"
+ },
+ "PIA19448": {
+  "titulo": "MESSENGER Final Image",
+  "data": "2015-04-30",
+  "centro": "JPL",
+  "descricao": "Today, the MESSENGER spacecraft sent its final image. Originally planned to orbit Mercury for one year, the mission exceeded all expectations, lasting for over four years and acquiring extensive datasets with its seven scientific instruments and radio science investigation. This afternoon, the space"
+ },
+ "PIA14313": {
+  "titulo": "Latest Image of Vesta captured by Dawn on July 17, 2011",
+  "data": "2011-07-18",
+  "centro": "JPL",
+  "descricao": "This is the first image obtained by NASA Dawn spacecraft after successfully entering orbit around Vesta."
+ },
+ "PIA19312": {
+  "titulo": "Ceres at Dawn - Take Two",
+  "data": "2015-03-06",
+  "centro": "JPL",
+  "descricao": "The slim crescent of Ceres smiles back as the dwarf planet awaits the arrival of an emissary from Earth. This image was taken by NASA's Dawn spacecraft on March 1, 2015, just a few days before the mission achieved orbit around the previously unexplored world. Following the image sequence in which th"
+ },
+ "PIA05571": {
+  "titulo": "Comet Wild 2 Up Close and Personal",
+  "data": "2004-01-02",
+  "centro": "JPL",
+  "descricao": "On January 2, 2004 NASA's Stardust spacecraft made a close flyby of comet Wild 2 (pronounced \"Vilt-2\"). Among the equipment the spacecraft carried on board was a navigation camera. This is the 34th of the 72 images taken by Stardust's navigation camera during close encounter. The exposure time was 1"
+ },
+ "PIA03671": {
+  "titulo": "Stardust Sample Return",
+  "data": "2006-01-17",
+  "centro": "JPL",
+  "descricao": "This image shows the return capsule inside a protective covering. The capsule, which landed at 2:10 a.m. Pacific time 3:10 a.m. Mountain time, contains cometary and interstellar samples gathered by NASA Stardust spacecraft."
+ },
+ "PIA02137": {
+  "titulo": "Tempel Alive with Light",
+  "data": "2005-07-05",
+  "centro": "JPL",
+  "descricao": "This spectacular image of comet Tempel 1 was taken 67 seconds after it obliterated NASA Deep Impact impactor spacecraft."
+ },
+ "PIA13602": {
+  "titulo": "Flight of the Comet",
+  "data": "2010-11-05",
+  "centro": "JPL",
+  "descricao": "Image taken by NASA EPOXI mission spacecraft during its flyby of comet Hartley 2 on Nov. 4, 2010. The spacecraft came within about 700 kilometers 435 miles of the comet nucleus at the time of closest approach."
+ },
+ "OSIRIS-REx-Bennu-arrival": {
+  "titulo": "Bennu PolyCam mosaic obtained at arrival",
+  "data": "2018-12-02",
+  "centro": "GSFC",
+  "descricao": "Mosaic of asteroid Bennu made from images taken by the PolyCam imager of NASA's OSIRIS-REx spacecraft on Dec. 2, 2018, from about 24 km, released with the press release \"NASA's newly arrived OSIRIS-REx spacecraft already discovers water on asteroid\"."
+ },
+ "OSIRIS-REx-TAG-2020-10-20": {
+  "titulo": "OSIRIS-REx SamCam TAGSAM Event 2020-10-20",
+  "data": "2020-10-20",
+  "centro": "GSFC",
+  "descricao": "Frame from the SamCam imaging sequence of NASA's OSIRIS-REx spacecraft showing the TAGSAM sampler head touching the surface of asteroid Bennu at the Nightingale site during the Touch-And-Go sample collection on Oct. 20, 2020."
+ },
+ "NHQ202309240002": {
+  "titulo": "OSIRIS-REx Sample Return",
+  "data": "2023-09-24",
+  "centro": "HQ",
+  "descricao": "The sample return capsule from NASA’s OSIRIS-REx mission is seen shortly after touching down in the desert, Sunday, Sept. 24, 2023, at the Department of Defense's Utah Test and Training Range. The sample was collected from the asteroid Bennu in October 2020 by NASA’s OSIRIS-REx spacecraft. Photo Cre"
+ },
+ "DART-2022-09-26": {
+  "titulo": "Last image showing all of Dimorphos by DART",
+  "data": "2022-09-26",
+  "centro": "JHU APL",
+  "descricao": "Last image showing the whole of asteroid Dimorphos, captured by the DRACO camera aboard NASA's DART spacecraft seconds before the kinetic impact on Sept. 26, 2022."
+ },
+ "Lucy-Dinkinesh-2023-11-01": {
+  "titulo": "Dinkinesh First Look L'LORRI",
+  "data": "2023-11-01",
+  "centro": "GSFC",
+  "descricao": "First look at asteroid Dinkinesh and its small companion from the L'LORRI imager aboard NASA's Lucy spacecraft during the Nov. 1, 2023 flyby, which revealed that the satellite (named Selam) is itself a contact binary."
+ },
+ "Lucy-Donaldjohanson-2025-04-20": {
+  "titulo": "Donaldjohanson closest approach (Lucy)",
+  "data": "2025-04-20",
+  "centro": "GSFC",
+  "descricao": "Image of asteroid Donaldjohanson, a contact-binary-shaped main-belt asteroid, taken by the L'LORRI imager of NASA's Lucy spacecraft near closest approach on April 20, 2025."
+ },
+ "NHQ202310130017": {
+  "titulo": "Psyche Launch",
+  "data": "2023-10-13",
+  "centro": "HQ",
+  "descricao": "A SpaceX Falcon Heavy rocket with the Psyche spacecraft onboard is launched from Launch Complex 39A, Friday, Oct. 13, 2023, at NASA’s Kennedy Space Center in Florida. NASA’s Psyche spacecraft will travel to a metal-rich asteroid by the same name orbiting the Sun between Mars and Jupiter to study it’"
+ },
+ "ESA-Juice-2024-08-19": {
+  "titulo": "Juice snaps Moon en route to Earth",
+  "data": "2024-08-19",
+  "centro": "ESA",
+  "descricao": "Image of the Moon taken by one of Juice's Monitoring Cameras (JMC) during the lunar-Earth flyby of August 2024. Also visible are parts of the spacecraft and its antennas and booms. ESA/Juice/JMC, licença CC BY-SA 3.0 IGO."
+ },
+ "PIA26567": {
+  "titulo": "Europa Clipper Captures Mars, Phobos, and Deimos",
+  "data": "2025-07-24",
+  "centro": "JPL",
+  "descricao": "NASA's Europa Clipper captured this infrared image of the heat radiation from Mars and its moons Phobos (closest to Mars) and Deimos (seen in upper left corner) on Feb. 28, 2025, as the spacecraft approached the Red Planet while en route to the Jupiter system to investigate the icy moon Europa. The "
+ },
+ "ESA-BepiColombo-2021-10-01": {
+  "titulo": "BepiColombo meets Mercury",
+  "data": "2021-10-01",
+  "centro": "ESA",
+  "descricao": "The joint European-Japanese BepiColombo mission captured this view of Mercury on 1 October 2021 as the spacecraft flew past the planet for a gravity assist manoeuvre. Taken at 23:41:12 UTC by the Mercury Transfer Module's Monitoring Camera 2 from 1410 km. ESA/BepiColombo/MTM, licença CC BY-SA 3.0 IG"
+ },
+ "ESA-BepiColombo-2025-01-08": {
+  "titulo": "Best images from BepiColombo's sixth Mercury flyby",
+  "data": "2025-01-08",
+  "centro": "ESA",
+  "descricao": "A selection of the best monitoring-camera images from BepiColombo's sixth and final Mercury flyby on 8 January 2025, when the spacecraft passed 295 km above the surface. ESA/BepiColombo/MTM, licença CC BY-SA 3.0 IGO."
+ },
+ "ESA-SolarOrbiter-2022-03-26": {
+  "titulo": "Solar Orbiter at perihelion - 27 March 2022",
+  "data": "2022-03-27",
+  "centro": "ESA",
+  "descricao": "Image of the Sun taken by the Extreme Ultraviolet Imager (EUI) on Solar Orbiter at perihelion, 27 March 2022, when the spacecraft was about 0.32 AU from the Sun. ESA & NASA/Solar Orbiter/EUI Team, licença CC BY-SA 3.0 IGO."
+ },
+ "ESA-SolarOrbiter-2025-03-20": {
+  "titulo": "Solar Orbiter's view of the Sun's south pole",
+  "data": "2025-03-23",
+  "centro": "ESA",
+  "descricao": "View of the Sun's south pole from the Extreme Ultraviolet Imager (EUI) on Solar Orbiter, obtained when the spacecraft reached a heliographic latitude of about 17 degrees in March 2025 - the first images of the Sun's poles from outside the ecliptic plane. ESA & NASA/Solar Orbiter/EUI Team, licença CC"
+ },
+ "art001e000274": {
+  "titulo": "Artemis I flight day 6: A close up of the Moon",
+  "data": "2022-11-21",
+  "centro": "JSC",
+  "descricao": "art001e000274 Nov. 21, 2022 -- On the sixth day of the Artemis I mission, Orion's optical navigation camera was commanded to take this black-and-white photo of the lunar surface. Orion uses the optical navigation camera to capture imagery of the Earth and the Moon at different phases and distances, "
+ },
+ "art001e000673": {
+  "titulo": "Artemis I Flight Day 13: Orion, Earth, and Moon",
+  "data": "2022-11-28",
+  "centro": "JSC",
+  "descricao": "art001e000673 (Nov. 28, 2022) On flight day 13, Orion reached its maximum distance from Earth during the Artemis I mission when it was 268,563 miles away from our home planet. Orion has now traveled farther than any other spacecraft built for humans."
+ },
+ "art001e002164": {
+  "titulo": "The lunar surface",
+  "data": "2022-12-05",
+  "centro": "JSC",
+  "descricao": "art001e002164 (Dec. 5, 2022): Cameras mounted on the crew module of the Orion spacecraft captured these views of the Moon’s surface. On flight day 20 of the Artemis I mission, the spacecraft made its second and final close approach to the Moon before its returned powered flyby burn."
+ },
+ "KSC-20221211-PH-JMB01-0003": {
+  "titulo": "Orion Splashdown",
+  "data": "2022-12-11",
+  "centro": "KSC",
+  "descricao": "At 12:40 p.m. EST, Dec. 11, 2022, NASA’s Orion spacecraft for the Artemis I mission splashed down in the Pacific Ocean with the USS Portland seen in the distance after a 25.5 day mission to the Moon. Orion will be recovered by NASA’s Landing and Recovery team, U.S. Navy and Department of Defense par"
+ },
+ "ESA-Gaia-DR1-2016-09-14": {
+  "titulo": "Gaia's first sky map",
+  "data": "2016-09-14",
+  "centro": "ESA",
+  "descricao": "All-sky map showing the density of stars observed by Gaia during its first 14 months of observations (July 2014 to September 2015), released with Gaia Data Release 1 on 14 September 2016. Brighter regions indicate denser concentrations of stars. ESA/Gaia/DPAC, licença CC BY-SA 3.0 IGO."
+ },
+ "GSFC_20171208_Archive_e002112": {
+  "titulo": "EIT 171",
+  "data": "2017-12-08",
+  "centro": "GSFC",
+  "descricao": "This EIT 171 image shows a wide variety of loops and active regions (lighter areas on the surface). Taken on November 9, 1998. The 171 filter shows emission from 8 and 9 times ionized iron at about 1 million degrees C. Credit: NASA/GSFC/SOHO/ESA To learn more go to the SOHO website: sohowww.nascom.n"
+ },
+ "ESA-Rosetta-2015-08-13": {
+  "titulo": "Comet at perihelion",
+  "data": "2015-08-13",
+  "centro": "ESA",
+  "descricao": "Single frame Rosetta navigation camera image acquired at 01:04 GMT on 13 August 2015, just one hour before Comet 67P/Churyumov-Gerasimenko reached perihelion. Taken around 327 km from the comet, 28 m/pixel, processed to bring out the details of the comet's activity. ESA/Rosetta/NAVCAM, licença CC BY"
+ },
+ "Hubble-3I-ATLAS-2025-07-21": {
+  "titulo": "Hubble observes interstellar comet 3I/ATLAS",
+  "data": "2025-07-21",
+  "centro": "ESA/Hubble",
+  "descricao": "Hubble Space Telescope image of interstellar comet 3I/ATLAS taken on 21 July 2025, three weeks after its discovery on 1 July 2025. The surrounding streaks are background stars trailed by tracking the comet. NASA, ESA, D. Jewitt (UCLA); Image Processing: J. DePasquale (STScI)."
  }
 }
