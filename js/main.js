@@ -3385,14 +3385,25 @@ function painel() {
 }
 
 renderer.setAnimationLoop(passo); // (e não requestAnimationFrame: nos óculos quem dá o ritmo é a sessão WebXR)
-// Versão nova publicada: uma aba aberta há horas continuaria com o código antigo; a cada 10 minutos compara a
-// etiqueta (ETag) da página e do código no servidor com a do começo e, se mudou, oferece recarregar
+// Versão nova publicada: uma aba aberta há horas continuaria com o código antigo; a cada 10 minutos olha a data de
+// modificação da página e do código no servidor e, se for mais nova que a do começo, oferece recarregar.
+// Compara datas, não etiquetas (ETag): proxies de rede corporativa e servidores diferentes do CDN mudam a etiqueta
+// (comprimida ou não, "W/"…) sem que o arquivo tenha mudado, e o aviso aparecia toda hora.
 if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
-  const marca = () => Promise.all(['./', 'js/main.js'].map((u) => fetch(u, { method: 'HEAD', cache: 'no-store' }).then((r) => r.headers.get('etag') || r.headers.get('last-modified') || '')))
-    .then((l) => l.join('|'));
-  let inicial = null;
+  const data = (r) => {
+    const lm = Date.parse(r.headers.get('last-modified') || '');
+    if (lm) return lm;
+    const h = /^(?:W\/)?"?([0-9a-f]{8})-/i.exec(r.headers.get('etag') || ''); // GitHub Pages: "<data em hexa>-<tamanho>"
+    return h ? parseInt(h[1], 16) * 1000 : NaN;
+  };
+  const marca = () => Promise.all(['./', 'js/main.js'].map((u) => fetch(u, { method: 'HEAD', cache: 'no-store' }).then(data)))
+    .then((l) => (l.every(Number.isFinite) ? Math.max(...l) : NaN));
+  let inicial = NaN;
   marca().then((m) => (inicial = m)).catch(() => {});
-  setInterval(() => marca().then((m) => { if (inicial && m && m !== inicial) $('novaVersao').hidden = false; }).catch(() => {}), 600000);
+  setInterval(() => marca().then((m) => {
+    if (!Number.isFinite(inicial)) inicial = m;
+    else if (m > inicial + 1000) $('novaVersao').hidden = false;
+  }).catch(() => {}), 600000);
   $('btAtualizar').onclick = () => location.reload();
 }
 // Contador de visitas (GoatCounter, sem cookies). Só aparece no site publicado e se o contador público estiver ligado lá.
