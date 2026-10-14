@@ -566,17 +566,35 @@ export const CMB_F = LOGF + RUIDO + /* glsl */ `
 // Via Láctea vista do Sistema Solar: mapa em coordenadas galácticas numa esfera em volta da câmera.
 // No modo relatividade, desfaz a aberração para achar a direção de origem de cada pixel e tinge pelo Doppler.
 // Linhas das constelações: direções fixas (vistas do Sistema Solar), com aberração no modo relatividade
+// Faixas com largura fixa na tela (linhas do WebGL têm 1 pixel físico: quase somem em telas Retina e de celular)
 export const LINHA_CEU_V = LOGV + REL + /* glsl */ `
+  attribute vec3 outra; attribute vec2 canto; // canto.x: 0 nesta ponta, 1 na outra; canto.y: lado (−1 ou 1)
+  uniform vec2 res; uniform float meia; // tamanho da imagem e meia largura, em pixels físicos
+  varying float vLado;
   void main() {
     float D;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(aberrar(refratar(position), D), 1.0);
+    vec4 a = modelViewMatrix * vec4(aberrar(refratar(position), D), 1.0);
+    vec4 b = modelViewMatrix * vec4(aberrar(refratar(outra), D), 1.0);
+    float k = 1e-3 * length(a.xyz);
+    if (a.z > -k && b.z > -k) { gl_Position = vec4(2.0, 2.0, 2.0, 1.0); return; } // atrás da câmera
+    if (a.z > -k) a = mix(a, b, (a.z + k) / (a.z - b.z));
+    if (b.z > -k) b = mix(b, a, (b.z + k) / (b.z - a.z));
+    vec4 ca = projectionMatrix * a, cb = projectionMatrix * b;
+    vec2 d = (cb.xy / cb.w - ca.xy / ca.w) * res;
+    vec2 n = length(d) > 1e-6 ? normalize(vec2(-d.y, d.x)) : vec2(0.0, 1.0);
+    vLado = canto.y;
+    gl_Position = ca;
+    gl_Position.xy += n * canto.y * (meia + 1.0) * 2.0 / res * ca.w;
     #include <logdepthbuf_vertex>
   }`;
 export const LINHA_CEU_F = LOGF + /* glsl */ `
-  uniform float opac;
+  uniform float opac, meia;
+  varying float vLado;
   void main() {
     #include <logdepthbuf_fragment>
-    gl_FragColor = vec4(0.55, 0.72, 1.0, opac);
+    float px = abs(vLado) * (meia + 1.0);       // distância ao eixo, em pixels físicos
+    float a = clamp(meia + 0.5 - px, 0.0, 1.0); // borda suave de um pixel
+    gl_FragColor = vec4(0.55, 0.72, 1.0, opac * a);
   }`;
 
 export const CEU_VIA_F = LOGF + REL + /* glsl */ `

@@ -1252,12 +1252,26 @@ $('ceuData').onchange = $('ceuHora').onchange = () => {
 let linhasConst = null;
 fetch('dados/constelacoes_linhas.bin').then((r) => r.arrayBuffer()).then((buf) => {
   const p = new Float32Array(buf).map((v) => v * 1e9); // "no infinito", além de qualquer objeto
+  // cada segmento vira uma faixa de 4 vértices (2 em cada ponta), com largura fixa na tela
+  const nSeg = p.length / 6;
+  const pos = new Float32Array(nSeg * 12), outra = new Float32Array(nSeg * 12), canto = new Float32Array(nSeg * 8), idx = new Uint32Array(nSeg * 6);
+  for (let s = 0; s < nSeg; s++) {
+    for (let v = 0; v < 4; v++) {
+      const ponta = v >> 1, i = s * 4 + v; // vértices 0 e 1 na ponta A, 2 e 3 na ponta B
+      for (let k = 0; k < 3; k++) { pos[i * 3 + k] = p[s * 6 + ponta * 3 + k]; outra[i * 3 + k] = p[s * 6 + (1 - ponta) * 3 + k]; }
+      canto[i * 2] = ponta; canto[i * 2 + 1] = (v & 1 ? 1 : -1) * (ponta ? -1 : 1); // o lado inverte na ponta B (a direção também)
+    }
+    idx.set([s * 4, s * 4 + 1, s * 4 + 2, s * 4 + 1, s * 4 + 3, s * 4 + 2], s * 6);
+  }
   const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(p, 3));
-  linhasConst = new THREE.LineSegments(geo, new THREE.ShaderMaterial({
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('outra', new THREE.BufferAttribute(outra, 3));
+  geo.setAttribute('canto', new THREE.BufferAttribute(canto, 2));
+  geo.setIndex(new THREE.BufferAttribute(idx, 1));
+  linhasConst = new THREE.Mesh(geo, new THREE.ShaderMaterial({
     vertexShader: S.LINHA_CEU_V, fragmentShader: S.LINHA_CEU_F,
-    uniforms: { opac: { value: 0.35 }, beta: { value: new THREE.Vector3() }, zenite: { value: new THREE.Vector3(0, 1, 0) }, refr: { value: 0 } },
-    transparent: true, depthWrite: false,
+    uniforms: { opac: { value: 0.35 }, beta: { value: new THREE.Vector3() }, zenite: { value: new THREE.Vector3(0, 1, 0) }, refr: { value: 0 }, res: { value: new THREE.Vector2(1, 1) }, meia: { value: 0.6 } },
+    transparent: true, depthWrite: false, side: THREE.DoubleSide,
   }));
   linhasConst.frustumCulled = false;
   linhasConst.renderOrder = 4;
@@ -3214,6 +3228,8 @@ function desenharCeu(abs, postos) {
     linhasConst.visible = estado.linhasConst && op > 0.01;
     linhasConst.material.uniforms.opac.value = op;
     linhasConst.material.uniforms.beta.value.copy(betaVec);
+    renderer.getDrawingBufferSize(linhasConst.material.uniforms.res.value);
+    linhasConst.material.uniforms.meia.value = 0.6 * renderer.getPixelRatio(); // ~1,2 pixel de tela de largura
   }
   const verConst = estado.constelacoes && estado.nomes && abs.distanceTo(PORID.sol.abs) < 100 * AL && diaNoCeu < 0.6;
   const up = estado.ceuModo ? estado.local.clone().normalize() : null;
