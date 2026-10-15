@@ -27,7 +27,12 @@ const KEPLER = {
     0.00026291, 0.00005105, 0.00035372, 218.45945325, -0.32241464, -0.00508664],
   plutao: [39.48211675, 0.2488273, 17.14001206, 238.92903833, 224.06891629, 110.30393684,
     -0.00031596, 0.0000517, 0.00004818, 145.20780515, -0.04062942, -0.01183482],
+  // Ceres e Vesta: elementos osculadores do JPL (SBDB, época 2461200,5), sem as perturbações seculares (erro de
+  // poucos décimos de grau por década); L0 levado para J2000 pelo movimento médio
+  ceres: [2.765552595, 0.0796922951, 10.5880278, 158.745564, 153.542841, 80.2486268, 0, 0, 0, 7827.47006, 0, 0],
+  vesta: [2.361365965, 0.0902037438, 7.14392555, 233.749009, 255.169941, 103.701293, 0, 0, 0, 9920.860649, 0, 0],
 };
+const SO_KEPLER = ['ceres', 'vesta']; // posição pelos elementos acima (os demais, pelo VSOP87 do astronomy-engine)
 
 const norm360 = (x) => ((x % 360) + 360) % 360;
 
@@ -139,6 +144,10 @@ export const CORPOS = [
   { id: 'saturno', nome: 'Saturno', tipo: 'planeta', pai: 'sol', raio: 58232, cor: 0xe3cf9e, textura: '2k_saturn.jpg', soi: 5.48e7, polo: [40.589, 83.537], W: [38.9, 810.7939024], aneis: [74500, 140220], atm: [0.9, 0.82, 0.6, 0.012] },
   { id: 'urano', nome: 'Urano', tipo: 'planeta', pai: 'sol', raio: 25362, cor: 0x9fd8e0, textura: '2k_uranus.jpg', soi: 5.18e7, polo: [257.311, -15.175], W: [203.81, -501.1600928], atm: [0.6, 0.85, 0.95, 0.02] },
   { id: 'netuno', nome: 'Netuno', tipo: 'planeta', pai: 'sol', raio: 24622, cor: 0x5a7fe0, textura: '2k_neptune.jpg', soi: 8.66e7, polo: [299.36, 43.46], W: [253.18, 536.3128492], atm: [0.45, 0.6, 1.0, 0.02] },
+  // Ceres e Vesta, visitados pela Dawn: polo e rotação da IAU (2015); relevo e imagens da Dawn (DLR). Vesta é
+  // achatada (569 × 554 × 453 km): o raio é o médio e a forma vem do relevo.
+  { id: 'ceres', nome: 'Ceres', tipo: 'anao', pai: 'sol', raio: 470, cor: 0x8c8780, textura: '2k_ceres.jpg', soi: 8.8e4, polo: [291.418, 66.764], W: [170.65, 952.1532], relevo: ['relevo/ceres_2048.png', -27.92, 17], rochoso: true },
+  { id: 'vesta', nome: 'Vesta', tipo: 'anao', pai: 'sol', raio: 262.7, cor: 0xa59c90, textura: '2k_vesta.jpg', soi: 4.5e4, polo: [309.031, 42.235], W: [285.39, 1617.3329428], relevo: ['relevo/vesta_2048.png', -50.73, 30.25], rochoso: true },
   { id: 'plutao', nome: 'Plutão', tipo: 'anao', pai: 'sol', raio: 1188.3, cor: 0xc9b39a, soi: 3.1e6, polo: [132.993, -6.163], W: [302.695, 56.3625225], rochoso: true },
   // Luas. A nossa tem efeméride própria; as outras: órbita circular no equador do planeta,
   // período real, posição ao longo da órbita aproximada. orbita: [raio km, período dias (negativo = retrógrada)]
@@ -154,7 +163,9 @@ export const CORPOS = [
   { id: 'tetis', nome: 'Tétis', tipo: 'lua', pai: 'saturno', raio: 531.1, cor: 0xdedbd5, orbita: [294619, 1.887802], rochoso: true },
   { id: 'dione', nome: 'Dione', tipo: 'lua', pai: 'saturno', raio: 561.4, cor: 0xd2cfca, orbita: [377396, 2.736915], rochoso: true },
   { id: 'reia', nome: 'Reia', tipo: 'lua', pai: 'saturno', raio: 763.8, cor: 0xcac6bf, orbita: [527108, 4.518212], rochoso: true },
-  { id: 'tita', nome: 'Titã', tipo: 'lua', pai: 'saturno', raio: 2574.7, cor: 0xd9a246, orbita: [1221870, 15.945], atm: [0.95, 0.65, 0.3, 0.12] },
+  // Titã: de fora, a névoa laranja (como se vê); com a névoa desligada, a superfície por baixo dela: imagem da Cassini
+  // no infravermelho próximo (ISS) e relevo do radar (Corlies et al. 2017)
+  { id: 'tita', nome: 'Titã', tipo: 'lua', pai: 'saturno', raio: 2574.7, cor: 0xd9a246, orbita: [1221870, 15.945], atm: [0.95, 0.65, 0.3, 0.12], textura: '2k_titan_surface.jpg', relevo: ['relevo/tita_2048.png', -1.66, 1.14], nevoa: true },
   { id: 'japeto', nome: 'Jápeto', tipo: 'lua', pai: 'saturno', raio: 734.5, cor: 0x9a8f80, orbita: [3560820, 79.3215], rochoso: true },
   { id: 'miranda', nome: 'Miranda', tipo: 'lua', pai: 'urano', raio: 235.8, cor: 0xb8b8b8, orbita: [129390, 1.413479], rochoso: true },
   { id: 'ariel', nome: 'Ariel', tipo: 'lua', pai: 'urano', raio: 578.9, cor: 0xc4c2be, orbita: [191020, 2.520379], rochoso: true },
@@ -287,6 +298,7 @@ export function atualizarPosicoes(jd) {
     const v = Astro.HelioVector(Astro.Body[CORPO_ASTRO[id]], t);
     equatorialParaCena(v.x * UA, v.y * UA, v.z * UA, PORID[id].abs);
   }
+  for (const id of SO_KEPLER) if (PORID[id]) kepler(KEPLER[id], T, PORID[id].abs);
   const L = PORID.lua;
   const m = Astro.GeoMoon(t);
   equatorialParaCena(m.x * UA, m.y * UA, m.z * UA, L.relPai);
@@ -319,6 +331,10 @@ export function atualizarPosicoes(jd) {
 const _v1 = new THREE.Vector3(), _v2 = new THREE.Vector3();
 export function velocidadePlaneta(id, jd) {
   const b = CORPO_ASTRO[id];
+  if (SO_KEPLER.includes(id)) { // por diferença em 60 s
+    const T = (jd - 2451545.0) / 36525, dT = 60 / 86400 / 36525;
+    return kepler(KEPLER[id], T + dT, _v2).sub(kepler(KEPLER[id], T, _v1)).divideScalar(60).clone();
+  }
   if (!b) return new THREE.Vector3();
   const e = Astro.HelioState(Astro.Body[b], tempoAstro(jd)); // UA/dia
   const k = UA / 86400;

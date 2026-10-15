@@ -103,7 +103,7 @@ const estado = {
   pousado: null,              // corpo em que se está caminhando
   nomes: true, linhas: true, freio: true, cinturoes: true,
   fichas: (() => { try { return localStorage.getItem('viagemFichas') !== '0'; } catch { return true; } })(), // fichas de chegada
-  nivelar: true, giraJunto: true, exagero: 1, texturas: true, inventado: true, ceuRealcado: false, efeito: 'dobra', bolha: true, cidades: 'grandes', fronteiras: true, nomesTerra: true, picos: true, aviao: false, altAviao: 1, epocaMa: 0, nivelMar: 0, gelo: false, ceuModo: false, vistaFora: false, nuvensReais: true, nuvensDeriva: true, meteoros: true, meteoros10: false, bortle: 0, messier: true, refracao: true, predios: true, telescopio: false, zoom: 10, rastrear: true, atmFisica: true, constelacoes: false, linhasConst: false, ilustrativas: true, viaReal: true,
+  nivelar: true, giraJunto: true, exagero: 1, texturas: true, inventado: true, ceuRealcado: false, efeito: 'dobra', bolha: true, cidades: 'grandes', fronteiras: true, nomesTerra: true, picos: true, aviao: false, altAviao: 1, epocaMa: 0, nivelMar: 0, gelo: false, ceuModo: false, vistaFora: false, nuvensReais: true, nuvensDeriva: true, meteoros: true, meteoros10: false, bortle: 0, messier: true, refracao: true, predios: true, telescopio: false, zoom: 10, rastrear: true, atmFisica: true, constelacoes: false, linhasConst: false, ilustrativas: true, viaReal: true, nevoaTita: true,
 };
 
 // ------------------------------- texturas -------------------------------
@@ -116,6 +116,16 @@ function textura(nome, cor = true) {
   return t;
 }
 
+// Mapa de relevo global de um corpo: baixado na primeira vez que a câmera chega a menos de 3 mil raios dele
+// (são até 3 MB cada; abrir a página não precisa de nenhum). Até chegar, a esfera fica lisa.
+function pedirRelevo(c) {
+  c.relevoPedido = true;
+  carregarAlturas(c);
+  const u = c.malha.material.uniforms;
+  u.relevo.value = carregador.load(`texturas/${c.relevo[0]}`, () => { c.relevoPronto = true; if (!c.nevoa) u.temRelevo.value = 1; });
+  u.relevo.value.anisotropy = 8;
+  u.relevo.value.wrapS = THREE.RepeatWrapping;
+}
 // Alturas na CPU (mesma amostragem da GPU) para pousar e não atravessar o chão
 function carregarAlturas(c) {
   const img = new Image();
@@ -126,7 +136,7 @@ function carregarAlturas(c) {
     ctx.drawImage(img, 0, 0);
     const px = ctx.getImageData(0, 0, img.width, img.height).data;
     const h = new Float32Array(img.width * img.height);
-    for (let i = 0; i < h.length; i++) h[i] = px[i * 4] / 255;
+    for (let i = 0; i < h.length; i++) h[i] = (px[i * 4] * 65280 + px[i * 4 + 1] * 255) / (65535 * 255); // 16 bits (vermelho e verde) ou cinza
     c.alturas = { w: img.width, h: img.height, dados: h };
     if (c.malha) c.malha.material.uniforms.texel.value.set(1 / img.width, 1 / img.height);
   };
@@ -181,6 +191,7 @@ function raioSuperficie(c, dirCena) {
     }
     if (!c.relevo) return c.raio; // Terra antiga: segue pelo caminho do relevo, abaixo
   }
+  if (c.nevoa && estado.nevoaTita) return c.raio; // Titã com a névoa: a esfera lisa que se vê
   if (c.solo && c.solo.ativo) {
     const h = c.solo.altura(_dl.copy(dirCena).normalize().applyQuaternion(_qi.copy(c.qOri).invert()));
     if (h !== null) return c.raio + h * estado.exagero;
@@ -215,18 +226,17 @@ for (const c of CORPOS) {
   c.cor3 = new THREE.Color(c.cor);
   if (c.tipo === 'galaxia' || c.tipo === 'marco') continue;
   const estrela = c.tipo === 'estrela';
-  const temRelevo = !!c.relevo;
-  if (temRelevo) carregarAlturas(c);
+  const temRelevo = !!c.relevo; // o mapa de relevo só é baixado quando a câmera chega perto (pedirRelevo)
   const mat = new THREE.ShaderMaterial({
     vertexShader: S.PLANETA_V,
     fragmentShader: S.PLANETA_F,
     uniforms: {
       mapa: { value: c.textura ? textura(c.textura) : null },
       noite: { value: c.noite ? textura(c.noite) : null },
-      relevo: { value: temRelevo ? textura(c.relevo[0], false) : null },
+      relevo: { value: null },
       temMapa: { value: c.textura ? 1 : 0 },
       temNoite: { value: c.noite ? 1 : 0 },
-      temRelevo: { value: temRelevo ? 1 : 0 },
+      temRelevo: { value: 0 },
       hMin: { value: temRelevo ? c.relevo[1] : 0 },
       hMax: { value: temRelevo ? c.relevo[2] : 0 },
       texel: { value: new THREE.Vector2(1 / 1024, 1 / 512) }, // corrigido quando a imagem de relevo chega
@@ -431,8 +441,8 @@ const satelites = criarSatelites(PORID, PORID.terra.raio); // ISS, Hubble e Tian
 const frotaSat = criarFrota(PORID, PORID.terra.raio); // os demais satélites, como pontos
 missoes.usarVelPlaneta((id, jd) => (id === '67p' ? missoes.porId['67p']?.vel.clone() ?? new THREE.Vector3() : velocidadePlaneta(id, jd)));
 const terra = criarTerra(cena, S, PORID.terra.raio); // Terra em ladrilhos (relevo e satélite), perto do chão
-// Lua, Marte e Mercúrio: relevo de alta resolução em ladrilhos, perto da superfície
-for (const id of ['lua', 'marte', 'mercurio']) {
+// Lua, Marte, Mercúrio, Ceres, Vesta e Titã: relevo de alta resolução em ladrilhos, perto da superfície
+for (const id of ['lua', 'marte', 'mercurio', 'ceres', 'vesta', 'tita']) {
   lerManifesto(id).then((man) => {
     if (!man) return;
     const c = PORID[id];
@@ -479,6 +489,23 @@ criarOrbitas(estado.jd);
 carregarEfemeridesLuas().then(() => criarOrbitas(estado.jd)); // luas na posição exata (JPL)
 
 // ------------------------------- referencial -------------------------------
+// Arrastar sobre um planeta (de longe ou de média altura) gira a câmera em volta dele, como girar um globo na mão;
+// arrastar no céu continua virando o olhar. Perto do chão, pousado, olhando o céu, no telescópio ou viajando: só o olhar.
+const _gEixo = new THREE.Vector3(), _gQ = new THREE.Quaternion(), _gDir = new THREE.Vector3();
+function podeGirarGlobo() {
+  const r = estado.ref;
+  if (!r || !r.malha || !r.raio || r.tipo === 'galaxia' || r.tipo === 'marco') return false;
+  if (estado.pousado || estado.ceuModo || estado.telescopio || estado.piloto || estado.embarcado || vr.ativo) return false;
+  return estado.local.length() - r.raio > r.raio * 0.2;
+}
+function pegouGlobo(px, py) {
+  if (!podeGirarGlobo()) return false;
+  const t = Math.tan((camera.fov * GRAU) / 2);
+  _gDir.set(((px / innerWidth) * 2 - 1) * t * camera.aspect, (1 - (py / innerHeight) * 2) * t, -1).normalize().applyQuaternion(estado.q);
+  // centro do corpo visto da câmera: −local; o raio do toque pega o planeta se passa a menos de um raio dele (com folga)
+  const c = _gEixo.copy(estado.local).negate(), ao = c.dot(_gDir);
+  return ao > 0 && c.lengthSq() - ao * ao < (estado.ref.raio * 1.03) ** 2;
+}
 const camAbs = (out = new THREE.Vector3()) => (estado.ref ? out.copy(estado.ref.abs).add(estado.local) : out.copy(estado.local));
 let saltoRef = false;
 
@@ -817,6 +844,7 @@ chave('btRelevo', ['Relevo exagerado ×10', 'Relevo real'], () => estado.exagero
 chave('btAparencia', ['Aparência: fotos', 'Aparência: procedural'], () => estado.texturas, () => (estado.texturas = !estado.texturas), 'KeyV');
 chave('btNivelar', ['Nivelar horizonte', 'Horizonte livre'], () => estado.nivelar, () => (estado.nivelar = !estado.nivelar), 'KeyN');
 chave('btPredios', ['Construções em 3D: ligadas', 'Construções em 3D: desligadas'], () => estado.predios, () => (estado.predios = !estado.predios));
+chave('btNevoaTita', ['Névoa de Titã: ligada', 'Névoa de Titã: desligada (superfície)'], () => estado.nevoaTita, () => (estado.nevoaTita = !estado.nevoaTita));
 chave('btAtm', ['Atmosfera: física', 'Atmosfera: simples'], () => estado.atmFisica, () => (estado.atmFisica = !estado.atmFisica));
 chave('btFichas', ['Fichas de chegada: ligadas', 'Fichas de chegada: desligadas'], () => estado.fichas, () => { estado.fichas = !estado.fichas; guardar('viagemFichas', estado.fichas ? '1' : '0'); if (!estado.fichas) fecharFicha(); });
 chave('btInventado', ['Detalhe inventado', 'Só dado real'], () => estado.inventado, () => (estado.inventado = !estado.inventado), 'KeyI');
@@ -1751,6 +1779,7 @@ function posOrbital(q, e, i, om, w, dtPeri, out) {
 }
 Promise.all([fetch('dados/asteroides.json').then((r) => r.json()), fetch('dados/cometas.json').then((r) => r.json())]).then(([a, c]) => {
   for (const [nome, sa, e, i, om, w, ma, ep, H, G] of a.dados) {
+    if (nome === '1 Ceres' || nome === '4 Vesta') continue; // são corpos de verdade (js/corpos.js)
     const q = sa * (1 - e), n = K_GAUSS / Math.sqrt(sa ** 3);
     const tp = ep - (ma * GRAU) / n; // instante do periélio equivalente
     pequenos.push({ nome, tipo: 'asteroide', q, e, i, om, w, tp, H, G, abs: new THREE.Vector3(), soCeu: true, textoRotulo: nome.replace(/^\d+ /, '') });
@@ -2580,7 +2609,17 @@ function passo() {
   const mvVR = vr.entrada(dt, estado.q);
   if (mvVR.frente || mvVR.lado) { ex.frente = mvVR.frente; ex.lado = mvVR.lado; }
   const giro = 1.4 * dt * (estado.telescopio ? 1 / estado.zoom : 1); // no telescópio, as setas movem devagar
-  if (mouse.dx || mouse.dy) {
+  if (mouse.novo) { mouse.novo = false; mouse.globo = pegouGlobo(mouse.px, mouse.py); }
+  if ((mouse.dx || mouse.dy) && mouse.globo && podeGirarGlobo()) {
+    // arrastar o planeta: a câmera dá a volta nele (o ponto pego acompanha o dedo, aproximadamente)
+    const r = estado.ref, d = estado.local.length();
+    const k = ((camera.fov * GRAU) / innerHeight) * Math.min(Math.max((d - r.raio) / r.raio, 0.05), 20);
+    const qGiro = tmpQ.setFromAxisAngle(_gEixo.set(0, 1, 0).applyQuaternion(estado.q), -mouse.dx * k);
+    qGiro.multiply(_gQ.setFromAxisAngle(_gEixo.set(1, 0, 0).applyQuaternion(estado.q), mouse.dy * k));
+    estado.local.applyQuaternion(qGiro);
+    estado.q.premultiply(qGiro);
+    mouse.dx = mouse.dy = 0;
+  } else if (mouse.dx || mouse.dy) {
     const k = (camera.fov * GRAU) / innerHeight;
     estado.q.multiply(tmpQ.setFromAxisAngle(eixoY, -mouse.dx * k));
     estado.q.multiply(tmpQ.setFromAxisAngle(eixoX, -mouse.dy * k));
@@ -2829,6 +2868,7 @@ function desenhar() {
 
     if (c.malha) {
       const u = c.malha.material.uniforms;
+      if (c.relevo?.[0] && !c.relevoPedido && d < c.raio * 3000) pedirRelevo(c);
       aberrarJS(c.malha.position.copy(rel).multiplyScalar(s));
       c.malha.scale.setScalar(c.raio * s);
       c.malha.quaternion.copy(c.qOri);
@@ -2837,7 +2877,7 @@ function desenhar() {
       uniformsEclipse(c, u, luz);
       // relevo em ladrilhos: carrega abaixo de 1,5 raio de altitude e assume abaixo de 1 raio, com a esfera afundada por baixo
       if (c.solo) {
-        const altC = d - c.raio, quer = altC < c.raio * 1.5 && !vr.ativo;
+        const altC = d - c.raio, quer = altC < c.raio * 1.5 && !vr.ativo && !(c.nevoa && estado.nevoaTita);
         if (quer) {
           const inv = tmpQ.copy(c.qOri).invert();
           c.solo.ativo = altC < c.raio && (c.solo.ativo || c.solo.completo());
@@ -2856,6 +2896,10 @@ function desenhar() {
       u.kmPorUnidade.value = 1 / s;
       u.exagero.value = estado.exagero;
       u.usarTextura.value = estado.texturas ? 1 : 0;
+      if (c.nevoa) { // Titã: a névoa por cima ou a superfície
+        u.temMapa.value = estado.nevoaTita ? 0 : 1;
+        u.temRelevo.value = estado.nevoaTita || !c.relevoPronto ? 0 : 1;
+      }
       u.detalhe.value = c.rochoso && estado.inventado ? 1 : 0;
       u.exposicao.value = c.id === 'lua' && diaNoCeu < 1 && ra && ra.id === 'terra' && d > c.raio * 20 ? 3.2 : 1; // vista do chão à noite, a Lua brilha como de verdade
       u.polo.value.copy(polo.set(0, 1, 0).applyQuaternion(c.qOri));

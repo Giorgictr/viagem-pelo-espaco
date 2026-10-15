@@ -46,7 +46,7 @@ export function montarFicha(c, h) {
     return f;
   }
   // Sistema Solar
-  f.tipo = c.tipo === 'lua' ? t('Lua {de:p}', { p: c.paiObj }) : t(TIPO_SS[c.id] ?? 'Corpo do Sistema Solar');
+  f.tipo = c.tipo === 'lua' ? t('Lua {de:p}', { p: c.paiObj }) : t(cur?.tipo ?? TIPO_SS[c.id] ?? 'Corpo do Sistema Solar');
   const diam = c.raio * 2;
   add('Diâmetro', `${num(diam)} km` + (c.id !== 'terra' ? ` (${t(c.raio / RAIO_TERRA < 2 ? '{n} vez a Terra' : '{n} vezes a Terra', { n: c.raio / RAIO_TERRA >= 100 ? num(c.raio / RAIO_TERRA) : h.sig(c.raio / RAIO_TERRA) })})` : ''));
   if (cur?.massa) {

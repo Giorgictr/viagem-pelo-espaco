@@ -73,7 +73,7 @@
   <a href="#vr">Gafas de realidad virtual</a>
   <a href="#eclipses">Eclipses</a>
   <a href="#roteiros">Recorridos guiados</a>
-  <a href="#detalhe">Marte, la Luna y Mercurio de cerca</a>
+  <a href="#detalhe">La Luna, Marte, Mercurio, Ceres, Vesta y Titán de cerca</a>
   <a href="#exoplanetas">Exoplanetas</a>
   <a href="#sondas">Sondas, cometas y satélites</a>
   <a href="#terra">La Tierra de cerca</a>
@@ -124,7 +124,7 @@
   <li><b>Por internet</b>: <a href="https://giorgictr.github.io/viagem-pelo-espaco/">giorgictr.github.io/viagem-pelo-espaco</a>. Funciona en cualquier navegador moderno, incluido el del Meta Quest. La opción "mis músicas" solo existe en la versión para computadora.</li>
   <li><b>En la computadora</b>: en la carpeta <code>Simulação 3D</code>, haz doble clic en <b>Abrir Viagem.command</b>. Este enciende un pequeño servidor en tu propia computadora y abre el navegador. La primera vez, macOS puede pedir confirmación: haz clic derecho sobre el archivo, elige <b>Abrir</b> y confirma.</li>
   <li>Si prefieres abrirlo a mano, la dirección es <code>http://127.0.0.1:8743</code>. Funciona en Chrome, en Safari y en otros navegadores.</li>
-  <li>Solo se necesita internet para ver de cerca la Tierra (relieve, imágenes satelitales y luces nocturnas), la Luna, Marte y Mercurio (relieve e imágenes). Todo lo demás funciona sin conexión.</li>
+  <li>Solo se necesita internet para ver de cerca la Tierra (relieve, imágenes satelitales y luces nocturnas), la Luna, Marte, Mercurio, Ceres, Vesta y Titán (relieve e imágenes). Todo lo demás funciona sin conexión.</li>
 </ol>
 
 <h2 id="primeiros">Primeros pasos</h2>
@@ -141,6 +141,7 @@
 <table>
   <tr><th>Acción</th><th>Teclado y mouse</th><th>Toque</th></tr>
   <tr><td>Mirar alrededor</td><td>arrastrar el mouse</td><td>arrastrar el dedo</td></tr>
+  <tr><td>Girar el planeta (darle la vuelta)</td><td>arrastrar el mouse sobre el planeta</td><td>arrastrar el dedo sobre el planeta</td></tr>
   <tr><td>Adelante / reversa</td><td><kbd>↑</kbd> <kbd>↓</kbd> o <kbd>W</kbd> <kbd>S</kbd></td><td>botones ▲ ▼</td></tr>
   <tr><td>Girar hacia los lados</td><td><kbd>←</kbd> <kbd>→</kbd></td><td>arrastrar</td></tr>
   <tr><td>Inclinar hacia arriba / abajo</td><td><kbd>Shift</kbd> + <kbd>↑</kbd> <kbd>↓</kbd></td><td>arrastrar</td></tr>
@@ -188,11 +189,13 @@
 <h3>Burbuja de radio</h3>
 <p>Es la esfera hasta donde han llegado las transmisiones humanas de radio desde 1920, hoy con ~106 años luz, y crece con la fecha de la simulación. Al salir de ella, un aviso dice que ninguna señal humana ha llegado todavía allí.</p>
 
-<h2 id="detalhe">Marte, la Luna y Mercurio de cerca</h2>
+<h2 id="detalhe">La Luna, Marte, Mercurio, Ceres, Vesta y Titán de cerca</h2>
 <p>Por debajo de una altitud igual al radio del cuerpo, la <b>Luna</b>, <b>Marte</b> y <b>Mercurio</b> pasan a dibujarse en teselas, como la Tierra: relieve real e imágenes de alta resolución, cargados durante el vuelo, con más detalle cuanto más cerca. Puedes ver el cráter Tycho con sus paredes en escalones y el pico central, o descender por los cañones de Valles Marineris.</p>
 <ul>
   <li><b>Relieve</b>: el cuerpo entero con un punto cada ~670 m en la Luna (LRO LOLA), ~1,3 km en Marte (HRSC y MOLA) y ~940 m en Mercurio (MESSENGER). En las regiones destacadas, un punto cada ~170 m en la Luna (alunizajes de las misiones Apolo 11, 12, 14, 15, 16 y 17, Chang'e 3 y 4, Tycho, Copérnico y Aristarco) y ~330 m en Marte (Monte Olimpo, centro de Valles Marineris, Gale, Jezero, Gusev, Meridiani, Utopia, Elysium, Chryse y Ares Vallis; el resto de Valles Marineris con ~650 m). La línea de créditos, abajo, muestra la resolución del relieve en el punto donde estás.</li>
   <li><b>Imágenes</b>: NASA Trek, la <b>Luna</b> con la cámara gran angular de la LRO (~100 m por píxel), <b>Marte</b> con el mosaico a color de las Viking (~330 m) y <b>Mercurio</b> con la MESSENGER (~230 m).</li>
+  <li><b>Ceres y Vesta</b>, los dos mayores cuerpos del cinturón de asteroides, visitados por la Dawn: relieve de todo el cuerpo con un punto cada ~180 m en Ceres y ~100 m en Vesta, e imágenes de la Dawn (~140 m y ~60 m por píxel). Vesta es achatada (569 × 554 × 453 km): su forma de papa viene del propio relieve, y el polo sur es la cuenca Rheasilvia, de 500 km, con un pico central de 22 km. Con el relieve exagerado, la forma también se exagera.</li>
+  <li><b>Titán</b>: la neblina naranja oculta el suelo. El interruptor <b>Neblina de Titán</b> (panel "Tiempo y visualización") quita la neblina y muestra la superficie: la imagen de la Cassini en el infrarrojo cercano, teñida con el color de la foto de la Huygens en el suelo (el color es <span class="ilus">aproximado</span>), y el relieve medido por el radar. El relieve de Titán es suave (de −1,7 a +1,1 km) y se midió solo en ~9% de la superficie; el resto está interpolado (~11 km entre puntos), con el detalle de las franjas del radar (~1,4 km) sumado donde existen. Vale activar el relieve exagerado ×10.</li>
   <li>Más cerca que eso, el detalle inventado (interruptor <kbd>I</kbd>) continúa por encima: piedras y cráteres pequeños que no están en los datos.</li>
   <li>La foto ya trae las sombras del relieve real; la iluminación calculada a partir del relieve vale un poco menos sobre ella, para que la sombra no quede doblada.</li>
   <li>Las fotos se tomaron con otra posición del Sol: las sombras dibujadas en ellas no cambian con la hora de la simulación.</li>
@@ -365,7 +368,7 @@
   <li><b>Cielo profundo</b> (interruptor en el panel del cielo): los 110 objetos de Messier y otros 5.288 del NGC y del IC (nebulosas, cúmulos, nebulosas planetarias y las galaxias hasta la magnitud 14), con tamaño, forma y orientación reales. El brillo en pantalla sigue el brillo superficial: los objetos grandes y dispersos, como la Hélice y Andrómeda, quedan tenues; los compactos, como los cúmulos globulares, quedan vivos. Aparecen según lo que alcanzaría el ojo o el telescopio. Los más famosos tienen nombre en español (Omega Centauri, Nebulosa de Carina, Tarántula, Velo, Roseta, Joyero…); los demás aparecen por número en el telescopio. Busca "m13", "ngc 7000" o por el nombre; haz clic en el nombre para elegirlo como objetivo.</li>
   <li><b>Contaminación lumínica</b>: elige entre cielo natural (predeterminado), campo muy oscuro, zona rural, suburbio, ciudad y centro de metrópoli (escala de Bortle de 1 a 9). Cuanta más luz, menos estrellas, menos objetos de Messier y un cielo más pardo anaranjado cerca del horizonte; la Vía Láctea desaparece a partir del suburbio.</li>
   <li><b>Refracción</b> (activada por defecto): eleva los astros cercanos al horizonte, como hace el aire de verdad.</li>
-  <li><b>Asteroides y cometas</b> (junto con el cielo profundo): 8.726 asteroides (de Ceres hasta los de unos 15 km) y 1.991 cometas, cada uno en su propia órbita, con los elementos de la base de datos del JPL y el brillo calculado como en las efemérides oficiales. Verificado con JPL Horizons el 12/10/2026: Ceres y Vesta en la posición correcta con 0,01° de diferencia y en la magnitud correcta con 0,01. Aparecen según lo que alcanzaría el ojo o el telescopio; los mayores asteroides y los cometas más brillantes reciben nombre. Busca "Vesta" o el nombre de un cometa. Límite: la órbita se calcula sin la atracción de los planetas, así que los cometas muy antiguos o que pasaron cerca de Júpiter pueden estar fuera de lugar.</li>
+  <li><b>Asteroides y cometas</b> (junto con el cielo profundo): 8.724 asteroides (de Palas hasta los de unos 15 km; Ceres y Vesta son cuerpos de verdad, con relieve) y 1.991 cometas, cada uno en su propia órbita, con los elementos de la base de datos del JPL y el brillo calculado como en las efemérides oficiales. Verificado con JPL Horizons el 12/10/2026: Ceres y Vesta en la posición correcta con 0,01° de diferencia y en la magnitud correcta con 0,01. Aparecen según lo que alcanzaría el ojo o el telescopio; los mayores asteroides y los cometas más brillantes reciben nombre. Busca "Vesta" o el nombre de un cometa. Límite: la órbita se calcula sin la atracción de los planetas, así que los cometas muy antiguos o que pasaron cerca de Júpiter pueden estar fuera de lugar.</li>
   <li><b>Lluvias de meteoros</b> (interruptor en el panel del cielo): las principales lluvias anuales (Cuadrántidas, Líridas, Eta Acuáridas, Perseidas, Oriónidas, Leónidas, Gemínidas y otras), con radiante, pico, tasa y velocidad del calendario de la Organización Internacional de Meteoros, más los meteoros esporádicos (~5 por hora). El panel dice cuáles están activas y cuántos meteoros por hora cabría esperar ahora, según la altura del radiante, la Luna y la contaminación lumínica. Como en la vida real, hace falta paciencia: 20 por hora es uno cada tres minutos. El interruptor <b>10× más</b> acelera solo los meteoros. Las rayas se sortean al azar; no son registros de meteoros reales.</li>
 </ul>
 <h3>Telescopio</h3>
@@ -475,6 +478,7 @@
   <tr><td>Relieve de la Luna, de Marte y de Mercurio</td><td><span class="real">Real</span>, 0,7–1,3 km en todo el cuerpo y 170–330 m en las regiones destacadas; detalle más fino <span class="ilus">inventado</span> (interruptor)</td></tr>
   <tr><td>Exoplanetas: tamaño, órbita, año</td><td><span class="real">Reales</span> (NASA Exoplanet Archive); posición en la órbita real en los que transitan; orientación en el cielo <span class="ilus">aproximada</span>; apariencia <span class="ilus">ilustrativa</span></td></tr>
   <tr><td>Imágenes de cerca de Marte, la Luna y Mercurio</td><td><span class="real">Reales</span> (NASA Trek, 100–330 m por píxel)</td></tr>
+  <tr><td>Relieve de Ceres, Vesta y Titán</td><td><span class="real">Real</span>, ~100–180 m en Ceres y Vesta; en Titán medido en ~9% de la superficie e <span class="ilus">interpolado</span> en el resto; color de la superficie de Titán <span class="ilus">aproximado</span></td></tr>
   <tr><td>Tierra: relieve, imágenes satelitales, luces, lugares</td><td><span class="real">Real</span></td></tr>
   <tr><td>Vía Láctea vista desde aquí</td><td><span class="real">Real</span> (mapa de la NASA); de lejos, <span class="ilus">modelo</span> basado en medidas publicadas</td></tr>
   <tr><td>Estrellas hasta la magnitud 12</td><td><span class="real">Real</span> (HYG + Gaia DR3); las distancias de estrellas débiles sin buena paralaje son <span class="ilus">estimadas</span></td></tr>
@@ -670,6 +674,7 @@
   <li><b>Órbitas</b>: elementos orbitales aproximados del JPL/NASA; orientación de los planetas: IAU.</li>
   <li><b>Texturas de los planetas</b>: Solar System Scope (CC BY 4.0), basadas en imágenes de la NASA.</li>
   <li><b>Relieve de la Luna, de Marte y de Mercurio</b>: mosaicos globales del USGS Astrogeology Science Center, convertidos en teselas (dados/gerar_relevo.py): Luna con el LRO LOLA LDEM de 118 m (NASA/GSFC); Marte con la mezcla HRSC y MOLA de 200 m (Mars Express, ESA/DLR/FU Berlin, y Mars Global Surveyor, NASA); Mercurio con el MESSENGER de 665 m (NASA/JHUAPL/Carnegie Institution). Visto de lejos, Marte usa el MOLA a través de NASA Trek.</li>
+  <li><b>Relieve de Ceres y de Vesta</b>: modelos del DLR a partir de las imágenes de la Dawn (NASA/JPL-Caltech/UCLA/MPS/DLR/IDA), mosaicos del USGS Astrogeology (Ceres HAMO DTM de 137 m, Vesta HAMO DTM de 93 m). <b>Relieve de Titán</b>: Corlies et al. (2017), "Titan's Topography and Shape at the End of the Cassini Mission", datos de la Cassini RADAR en Cornell (doi:10.7298/m4dv-gv95, CC0), armados por dados/preparar_tita.py.</li>
   <li><b>Estrellas</b>: catálogo HYG v4.1 (astronexus, CC BY-SA 4.0), a partir de Hipparcos, Yale y Gliese.</li>
   <li><b>Galaxias</b>: 2MASS Redshift Survey (Huchra et al., 2012).</li>
   <li><b>Sondas y cometas</b>: trayectorias del sistema JPL Horizons (NASA/JPL-Caltech).</li>
@@ -677,6 +682,7 @@
   <li><b>Satélites</b>: elementos orbitales de CelesTrak (T. S. Kelso), calculados con la biblioteca satellite.js (licencia MIT).</li>
   <li><b>Efemérides</b>: biblioteca astronomy-engine, © Don Cross (licencia MIT), con VSOP87 (Bretagnon y Francou) para los planetas.</li>
   <li><b>Imágenes de cerca de Marte, la Luna y Mercurio</b>: NASA Trek (NASA/JPL-Caltech), con los mosaicos LRO WAC (NASA/GSFC/Arizona State University), Viking MDIM 2.1 a color (NASA/USGS) y MESSENGER MDIS (NASA/JHUAPL/Carnegie Institution).</li>
+  <li><b>Imágenes de Ceres, de Vesta y de Titán</b>: NASA Trek, con los mosaicos de la Dawn FC (NASA/JPL-Caltech/UCLA/MPS/DLR/IDA) y el mosaico de Titán de la Cassini ISS en 938 nm (NASA/JPL-Caltech/Space Science Institute).</li>
   <li><b>Asteroides y cometas</b>: JPL Small-Body Database (NASA/JPL-Caltech).</li>
   <li><b>Exoplanetas</b>: NASA Exoplanet Archive, tabla Planetary Systems Composite Parameters (NASA/Caltech-IPAC; dados/baixar_exoplanetas.py). Zona habitable: Kopparapu et al. (2013), ApJ 765, 131.</li>
   <li><b>Eclipses</b>: Five Millennium Canon of Solar/Lunar Eclipses, F. Espenak y J. Meeus (NASA/GSFC, dominio público).</li>

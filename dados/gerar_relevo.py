@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Ladrilhos de relevo da Lua, de Marte e de Mercúrio, a partir dos mosaicos globais do USGS (Astrogeology).
+"""Ladrilhos de relevo da Lua, de Marte, de Mercúrio, de Ceres, de Vesta e de Titã (mosaicos globais do USGS Astrogeology;
+Titã: grade montada por preparar_tita.py).
 
 Lê o GeoTIFF original em blocos de linhas direto do S3 do USGS (o arquivo não é guardado: a Lua tem 8,5 GB),
 monta o globo inteiro até o nível zGlobal e, nas regiões de destaque, guarda a resolução nativa até zMax.
@@ -11,9 +12,10 @@ Altura = (R·256 + G − 32768) × passo[z] (metros), em WebP sem perdas. O pass
 pontos (~1/250 dele, em potências de 2 da unidade do arquivo): o erro de inclinação fica abaixo de 0,2% e os
 bits de ruído, que não se comprimem, saem.
 
-Uso: python3 gerar_relevo.py lua|marte|mercurio [--formato webp|png] [--saida dados/relevo]
+Uso: python3 gerar_relevo.py lua|marte|mercurio|ceres|vesta|tita [--formato webp|png] [--saida dados/relevo]
      python3 gerar_relevo.py lua --so-regioes   (refaz só as regiões de destaque, lendo só as linhas delas)
      python3 gerar_relevo.py lua --requantizar   (ladrilhos já gravados com o passo da unidade do arquivo)
+     python3 gerar_relevo.py vesta --so-mapa     (refaz só o mapa global de 16 bits, dos ladrilhos do nível 3)
 Precisa de numpy e Pillow.
 """
 import argparse, json, math, os, sys, time, urllib.request
@@ -34,6 +36,18 @@ CORPOS = {
                   credito='MGS MOLA e Mars Express HRSC, mistura de 200 m (NASA/ESA/DLR/FU Berlin), mosaico do USGS Astrogeology'),
     'mercurio': dict(raio=2439400.0, arq='Mercury_Messenger_USGS_DEM_Global_665m_v2.tif', W=23040, H=11520, inicio=92981, ppd=64.0, lon0=0.0,
                      escala=0.5, zg=5, credito='MESSENGER MDIS 665 m (NASA/JHUAPL/Carnegie), mosaico do USGS Astrogeology'),
+    # Ceres e Vesta (Dawn, DLR): o arquivo traz o raio de cada ponto (Ceres: em metros acima de 470 km; Vesta: em metros),
+    # e não a altura; 'soma' converte para altura sobre a esfera do corpo. Os dados começam 1 byte antes do que diz o
+    # rótulo (que conta a partir de 1). Vesta é achatada: a "altura" vai de −40 a +30 km e inclui a forma do corpo.
+    'ceres': dict(raio=470000.0, arq='Ceres_Dawn_FC_HAMO_DTM_DLR_Global_60ppd_Oct2016.tif', W=21600, H=10800, inicio=87217, ppd=60.0,
+                  lon0=0.0, escala=1.0, zg=5, soma=0.0,
+                  credito='Dawn FC HAMO DTM 137 m (NASA/JPL-Caltech/UCLA/MPS/DLR/IDA), mosaico do USGS Astrogeology'),
+    'vesta': dict(raio=262700.0, arq='Vesta_Dawn_HAMO_DTM_DLR_Global_48ppd.tif', W=17280, H=8640, inicio=69785, ppd=48.0,
+                  lon0=-180.0, escala=1.0, zg=5, tipo='<f4', soma=-262700.0,
+                  credito='Dawn FC HAMO DTM 93 m (NASA/JPL-Caltech/UCLA/MPS/DLR/IDA), mosaico do USGS Astrogeology'),
+    # Titã: alturas sobre a esfera de 2575 km; o corpo tem 2574,7
+    'tita': dict(raio=2574700.0, local='brutos/tita/tita_32ppd.npy', W=11520, H=5760, ppd=32.0, lon0=-180.0, escala=1.0, zg=4, soma=300.0,
+                 credito='Cassini RADAR: altimetria, SARTopo e estéreo, interpolados (Corlies et al. 2017, Cornell, CC0)'),
 }
 
 # Regiões de destaque com a resolução nativa: (nome, lat mín, lat máx, lon mín, lon máx, nível máximo)
@@ -53,7 +67,7 @@ REGIOES = {
         ('Elysium (InSight)', 2.9, 6.1, 134.0, 137.2, 7), ('Chryse (Viking 1)', 20.7, 23.9, -49.6, -46.4, 7),
         ('Ares Vallis (Pathfinder)', 17.5, 20.7, -34.8, -31.6, 7),
     ],
-    'mercurio': [],
+    'mercurio': [], 'ceres': [], 'vesta': [], 'tita': [],
 }
 
 
@@ -71,18 +85,35 @@ def baixar(url, a, n):
 
 
 def blocos(cfg, linhas=64, paralelo=4):
-    """Gera (j0, matriz int16) em ordem, com alguns blocos baixando à frente."""
-    url, W, H = S3 + cfg['arq'], cfg['W'], cfg['H']
+    """Gera (j0, matriz float32 em unidades do arquivo, NaN sem dado) em ordem, com alguns blocos baixando à frente."""
+    W, H = cfg['W'], cfg['H']
+    if 'local' in cfg:  # grade já pronta em disco
+        a = np.load(os.path.join(os.path.dirname(os.path.abspath(__file__)), cfg['local']), mmap_mode='r')
+        for j0 in range(0, H, linhas):
+            yield j0, np.asarray(a[j0:j0 + linhas], np.float32) + np.float32(cfg.get('soma', 0))
+        return
+    tipo = cfg.get('tipo', '<i2')
+    b = np.dtype(tipo).itemsize
+    url = S3 + cfg['arq']
+
+    def converter(raw, n):
+        d = np.frombuffer(raw, tipo).reshape(n, W)
+        if tipo == '<i2':
+            v = d.astype(np.float32)
+            v[d == SEM_DADO] = np.nan
+        else:
+            v = np.where(np.isfinite(d) & (d > -1e30), d, np.nan).astype(np.float32)
+        return v + np.float32(cfg.get('soma', 0))
     inicios = list(range(0, H, linhas))
     with ThreadPoolExecutor(paralelo) as ex:
         fila = []
         for k, j0 in enumerate(inicios):
             j1 = min(j0 + linhas, H)
-            fila.append((j0, j1, ex.submit(baixar, url, cfg['inicio'] + j0 * W * 2, (j1 - j0) * W * 2)))
+            fila.append((j0, j1, ex.submit(baixar, url, cfg['inicio'] + j0 * W * b, (j1 - j0) * W * b)))
             if len(fila) > paralelo + 2 or k == len(inicios) - 1:
                 while fila and (len(fila) > paralelo or k == len(inicios) - 1):
-                    a, b, f = fila.pop(0)
-                    yield a, np.frombuffer(f.result(), '<i2').reshape(b - a, W)
+                    a, c, f = fila.pop(0)
+                    yield a, converter(f.result(), c - a)
 
 
 def ajustar(cfg, reg):
@@ -105,7 +136,7 @@ def janela(cfg, reg):
 
 def ler_janelas(cfg, regioes):
     """Só as janelas das regiões, uma linha por pedido (muitos em paralelo)."""
-    assert cfg['lon0'] == -180.0
+    assert cfg['lon0'] == -180.0 and cfg.get('tipo', '<i2') == '<i2' and 'local' not in cfg and not cfg.get('soma')
     url, W = S3 + cfg['arq'], cfg['W']
     janelas = []
     with ThreadPoolExecutor(16) as ex:
@@ -130,23 +161,23 @@ def ler(cfg, regioes):
     dt = 180.0 / Ht
     cidx = np.rint((lon_colunas(cfg) + 180.0) / dt).astype(np.int64) % Wt
     soma = np.zeros((Ht + 1, Wt), np.float32)
-    cont = np.zeros((Ht + 1, Wt), np.float32)
+    cont = np.zeros((Ht + 1, Wt), np.uint8)  # poucos pontos do arquivo por ponto da grade: cabe em 1 byte e poupa memória
     janelas = []
     for reg in regioes:
         assert cfg['lon0'] == -180.0
         j0, j1, i0, i1 = janela(cfg, reg)
-        janelas.append(dict(nome=reg[0], j0=j0, i0=i0, dados=np.full((j1 - j0, i1 - i0), SEM_DADO, np.int16)))
+        janelas.append(dict(nome=reg[0], j0=j0, i0=i0, dados=np.full((j1 - j0, i1 - i0), np.nan, np.float32)))
     t0, feito = time.time(), 0
     for j0, d in blocos(cfg):
         n = d.shape[0]
-        valido = d != SEM_DADO
-        v = np.where(valido, d, 0).astype(np.float32)
+        valido = ~np.isnan(d)
+        v = np.where(valido, d, 0)
         lat = 90.0 - (np.arange(j0, j0 + n) + 0.5) / ppd
         r = np.clip(np.rint((90.0 - lat) / dt).astype(np.int64), 0, Ht)
         for rr in np.unique(r):
             sel = r == rr
             soma[rr] += np.bincount(cidx, v[sel].sum(0), minlength=Wt).astype(np.float32)
-            cont[rr] += np.bincount(cidx, valido[sel].sum(0).astype(np.float64), minlength=Wt).astype(np.float32)
+            cont[rr] += np.bincount(cidx, valido[sel].sum(0).astype(np.float64), minlength=Wt).astype(np.uint8)
         for J in janelas:
             a, b = max(j0, J['j0']), min(j0 + n, J['j0'] + J['dados'].shape[0])
             if a < b:
@@ -156,8 +187,7 @@ def ler(cfg, regioes):
             dec = time.time() - t0
             print(f'  {feito}/{H} linhas, {dec:.0f} s, faltam ~{dec / feito * (H - feito):.0f} s', flush=True)
     with np.errstate(invalid='ignore', divide='ignore'):
-        g = soma / cont
-    del soma
+        g = np.divide(soma, cont, out=soma)  # no lugar: sem outra grade inteira na memória
     falta = cont == 0
     if falta.any():
         print(f'  {falta.sum()} pontos sem dado: preenchidos pela média da linha', flush=True)
@@ -202,7 +232,9 @@ def ladrilhos_regiao(cfg, J, z, la0, la1, lo0, lo1):
         return None, []
     k = max(1, int(ppd / (T / vao)))  # média em blocos k × k antes de interpolar
     d = J['dados'].astype(np.float32)
-    if (J['dados'] == SEM_DADO).any():
+    if J['dados'].dtype == np.int16:
+        d[J['dados'] == SEM_DADO] = np.nan
+    if np.isnan(d).any():
         print(f'  aviso: {J["nome"]} tem pontos sem dado', flush=True)
     h, w = (d.shape[0] // k) * k, (d.shape[1] // k) * k
     m = d[:h, :w].reshape(h // k, k, w // k, k).mean((1, 3))
@@ -223,7 +255,8 @@ def ladrilhos_regiao(cfg, J, z, la0, la1, lo0, lo1):
 def passo(cfg, z):
     """Passo de altura do nível z, em unidades do arquivo (potência de 2)."""
     espac = cfg['raio'] * math.pi / 2 ** z / T
-    return 2 ** max(0, int(math.floor(math.log2(espac / 250.0 / cfg['escala']))))
+    minimo = math.ceil(math.log2(cfg['amp'] / 32000.0)) if cfg.get('amp') else 0  # alturas grandes (Vesta) cabem em 16 bits
+    return 2 ** max(0, minimo, int(math.floor(math.log2(espac / 250.0 / cfg['escala']))))
 
 
 def gravar(args):
@@ -267,6 +300,38 @@ def requantizar(a, cfg):
     print(f'{len(tarefas)} ladrilhos, {total / 1e6:.1f} MB; passos (m): {man["passo"]}')
 
 
+def gravar_mapa(a, cfg, g3):
+    """Mapa global (2048 × 1024, centros de pixel) para a esfera vista de longe, do nível 3 (4096 × 2049 cantos).
+    Altura de 0 a 1 em 16 bits: byte alto no vermelho, baixo no verde (em Vesta, 8 bits dariam degraus de 300 m)."""
+    pix = (g3[:-1] + g3[1:]) * 0.5
+    pix = (pix + np.roll(pix, -1, 1)) * 0.5
+    pix = pix.reshape(1024, 2, 2048, 2).mean((1, 3))
+    hm = pix * cfg['escala'] / 1000.0
+    lo, hi = float(np.floor(hm.min() * 100) / 100), float(np.ceil(hm.max() * 100) / 100)
+    v = np.rint((hm - lo) / (hi - lo) * 65535).astype(np.uint16)
+    rgb = np.zeros(v.shape + (3,), np.uint8)
+    rgb[..., 0], rgb[..., 1] = v >> 8, v & 255
+    os.makedirs(a.global_png, exist_ok=True)
+    Image.fromarray(rgb, 'RGB').save(os.path.join(a.global_png, f'{a.corpo}_2048.png'), optimize=True)
+    print(f'  mapa global: {a.corpo}_2048.png, de {lo} a {hi} km', flush=True)
+    return lo, hi
+
+
+def mapa_dos_ladrilhos(a, cfg):
+    """Refaz só o mapa global, juntando os ladrilhos do nível 3 já gravados."""
+    man = json.load(open(os.path.join(a.saida, f'{a.corpo}.json')))
+    q = man['passo'][3] / cfg['escala']
+    g3 = np.zeros((8 * T + 1, 16 * T), np.float32)
+    for x in range(16):
+        for y in range(8):
+            px = np.asarray(Image.open(os.path.join(a.saida, a.corpo, '3', str(x), f'{y}.{man["formato"]}'))).astype(np.float32)
+            t = (px[..., 0] * 256 + px[..., 1] - 32768) * q
+            g3[y * T:y * T + T + 1, x * T:x * T + T] = t[1:T + 2, 1:T + 1]
+    lo, hi = gravar_mapa(a, cfg, g3)
+    man['mapaGlobal'] = [f'relevo/{a.corpo}_2048.png', lo, hi]
+    json.dump(man, open(os.path.join(a.saida, f'{a.corpo}.json'), 'w'), ensure_ascii=False, indent=1)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('corpo', choices=CORPOS)
@@ -275,17 +340,22 @@ def main():
     ap.add_argument('--global-png', default=os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'texturas', 'relevo'))
     ap.add_argument('--requantizar', action='store_true')
     ap.add_argument('--so-regioes', action='store_true')
+    ap.add_argument('--so-mapa', action='store_true')
     a = ap.parse_args()
     cfg = CORPOS[a.corpo]
     regioes = [ajustar(cfg, r) for r in REGIOES[a.corpo]]
     if a.requantizar:
         return requantizar(a, cfg)
+    if a.so_mapa:
+        return mapa_dos_ladrilhos(a, cfg)
     base = os.path.join(a.saida, a.corpo)
-    print(f'{a.corpo}: lendo {cfg["arq"]}', flush=True)
+    print(f'{a.corpo}: lendo {cfg.get("arq") or cfg["local"]}', flush=True)
     if a.so_regioes:
         g, janelas = None, ler_janelas(cfg, regioes)
     else:
         g, janelas = ler(cfg, regioes)
+    if g is not None:
+        cfg['amp'] = float(np.nanmax(np.abs(g)))
     ext = a.formato
     ex = ProcessPoolExecutor(os.cpu_count())
     pendentes, total, contagem = [], [0], [0]
@@ -305,20 +375,11 @@ def main():
             niveis[z] = gz
             for y in range(2 ** z):
                 for x in range(2 ** (z + 1)):
-                    guardar(os.path.join(base, str(z), str(x), f'{y}.{ext}'), np.rint(ladrilho_global(gz, x, y)).astype(np.int16))
+                    guardar(os.path.join(base, str(z), str(x), f'{y}.{ext}'), np.rint(ladrilho_global(gz, x, y)).astype(np.int32))
             if z > 0:
                 gz = reduzir(gz)
             z -= 1
-        # mapa global em tons de cinza (2048 × 1024, centros de pixel) para a esfera vista de longe
-        g10 = niveis[3]  # 4096 × 2049 cantos
-        pix = (g10[:-1] + g10[1:]) * 0.5
-        pix = (pix + np.roll(pix, -1, 1)) * 0.5
-        pix = pix.reshape(1024, 2, 2048, 2).mean((1, 3))
-        hm = pix * cfg['escala'] / 1000.0
-        lo, hi = float(np.floor(hm.min() * 100) / 100), float(np.ceil(hm.max() * 100) / 100)
-        os.makedirs(a.global_png, exist_ok=True)
-        Image.fromarray(np.rint((hm - lo) / (hi - lo) * 255).astype(np.uint8), 'L').save(os.path.join(a.global_png, f'{a.corpo}_2048.png'), optimize=True)
-        print(f'  mapa global: {a.corpo}_2048.png, de {lo} a {hi} km', flush=True)
+        lo, hi = gravar_mapa(a, cfg, niveis[3])
     # regiões
     manifesto_regioes = []
     for (nome, la0, la1, lo0, lo1, zr), J in zip(regioes, janelas):
@@ -329,7 +390,7 @@ def main():
                 continue
             info['niveis'][z] = faixa
             for x, y, t in lad:
-                guardar(os.path.join(base, str(z), str(x), f'{y}.{ext}'), np.rint(t).astype(np.int16))
+                guardar(os.path.join(base, str(z), str(x), f'{y}.{ext}'), np.rint(t).astype(np.int32))
         manifesto_regioes.append(info)
         print(f'  região {nome}: {info["niveis"]}', flush=True)
     del janelas

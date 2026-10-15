@@ -73,7 +73,7 @@
   <a href="#vr">Virtual reality headsets</a>
   <a href="#eclipses">Eclipses</a>
   <a href="#roteiros">Guided tours</a>
-  <a href="#detalhe">Mars, Moon and Mercury up close</a>
+  <a href="#detalhe">Moon, Mars, Mercury, Ceres, Vesta and Titan up close</a>
   <a href="#exoplanetas">Exoplanets</a>
   <a href="#sondas">Probes, comets and satellites</a>
   <a href="#terra">Earth up close</a>
@@ -123,7 +123,7 @@
   <li><b>Online</b>: <a href="https://giorgictr.github.io/viagem-pelo-espaco/">giorgictr.github.io/viagem-pelo-espaco</a>. It works in any modern browser, including the Meta Quest one. The "My music" option only exists in the computer version.</li>
   <li><b>On your computer</b>: in the <code>Simulação 3D</code> folder, double-click <b>Abrir Viagem.command</b>. It starts a small server on your own computer and opens the browser. The first time, macOS may ask for confirmation: right-click the file, choose <b>Open</b> and confirm.</li>
   <li>If you prefer to open it by hand, the address is <code>http://127.0.0.1:8743</code>. It works in Chrome, Safari and other browsers.</li>
-  <li>The internet is only needed to see the Earth up close (terrain, satellite imagery and night lights), and the Moon, Mars and Mercury (terrain and imagery). Everything else works offline.</li>
+  <li>The internet is only needed to see the Earth up close (terrain, satellite imagery and night lights), and the Moon, Mars, Mercury, Ceres, Vesta and Titan (terrain and imagery). Everything else works offline.</li>
 </ol>
 
 <h2 id="primeiros">Getting started</h2>
@@ -140,6 +140,7 @@
 <table>
   <tr><th>Action</th><th>Keyboard and mouse</th><th>Touch</th></tr>
   <tr><td>Look around</td><td>drag the mouse</td><td>drag a finger</td></tr>
+  <tr><td>Turn the planet (go around it)</td><td>drag the mouse over the planet</td><td>drag a finger over the planet</td></tr>
   <tr><td>Forward / reverse</td><td><kbd>↑</kbd> <kbd>↓</kbd> or <kbd>W</kbd> <kbd>S</kbd></td><td>▲ ▼ buttons</td></tr>
   <tr><td>Turn left / right</td><td><kbd>←</kbd> <kbd>→</kbd></td><td>drag</td></tr>
   <tr><td>Pitch up / down</td><td><kbd>Shift</kbd> + <kbd>↑</kbd> <kbd>↓</kbd></td><td>drag</td></tr>
@@ -187,11 +188,13 @@
 <h3>Radio bubble</h3>
 <p>This is the sphere reached by human radio transmissions since 1920, today about 106 light-years across, growing with the simulation date. When you leave it, a notice says that no human signal has reached that far yet.</p>
 
-<h2 id="detalhe">Mars, Moon and Mercury up close</h2>
+<h2 id="detalhe">Moon, Mars, Mercury, Ceres, Vesta and Titan up close</h2>
 <p>Below an altitude equal to the body's radius, the <b>Moon</b>, <b>Mars</b> and <b>Mercury</b> are drawn in tiles, like the Earth: real terrain and high-resolution imagery, loaded during flight, with more detail the closer you get. You can see the crater Tycho with its terraced walls and central peak, or descend through the canyons of Valles Marineris.</p>
 <ul>
   <li><b>Terrain</b>: the whole body with one point every ~670 m on the Moon (LRO LOLA), ~1.3 km on Mars (HRSC and MOLA) and ~940 m on Mercury (MESSENGER). In highlighted regions, one point every ~170 m on the Moon (the Apollo 11, 12, 14, 15, 16 and 17 landing sites, Chang'e 3 and 4, Tycho, Copernicus and Aristarchus) and ~330 m on Mars (Olympus Mons, center of Valles Marineris, Gale, Jezero, Gusev, Meridiani, Utopia, Elysium, Chryse and Ares Vallis; the rest of Valles Marineris at ~650 m). The credits line at the bottom shows the terrain resolution at the point where you are.</li>
   <li><b>Imagery</b>: NASA Trek, the <b>Moon</b> from the LRO wide-angle camera (~100 m per pixel), <b>Mars</b> from the Viking color mosaic (~330 m) and <b>Mercury</b> from MESSENGER (~230 m).</li>
+  <li><b>Ceres and Vesta</b>, the two largest bodies in the asteroid belt, visited by Dawn: terrain of the whole body with a point every ~180 m on Ceres and ~100 m on Vesta, and Dawn imagery (~140 m and ~60 m per pixel). Vesta is flattened (569 × 554 × 453 km): its potato shape comes from the terrain itself, and the south pole is the 500 km Rheasilvia basin, with a 22 km central peak. With exaggerated terrain, the shape is exaggerated too.</li>
+  <li><b>Titan</b>: the orange haze hides the ground. The <b>Titan's haze</b> toggle ("Time and display" panel) removes the haze and shows the surface: Cassini's near-infrared image, tinted with the color of the Huygens photo from the ground (the color is <span class="ilus">approximate</span>), and the terrain measured by radar. Titan's terrain is gentle (−1.7 to +1.1 km) and was measured on only ~9% of the surface; the rest is interpolated (~11 km between points), with the detail of the radar strips (~1.4 km) added where they exist. Try the ×10 exaggerated terrain.</li>
   <li>Closer than that, the invented detail (toggle <kbd>I</kbd>) continues on top: rocks and small craters that are not in the data.</li>
   <li>The photo already carries the shadows of the real terrain; lighting calculated from the terrain counts for a little less on top of it, so the shadow isn't doubled.</li>
   <li>The photos were taken with a different Sun position: the shadows drawn in them do not change with the simulation time.</li>
@@ -364,7 +367,7 @@
   <li><b>Deep sky</b> (toggle in the sky panel): the 110 Messier objects and 5,288 more from the NGC and IC (nebulae, clusters, planetary nebulae and galaxies down to magnitude 14), with real size, shape and orientation. On-screen brightness follows surface brightness: large, spread-out objects, such as the Helix and Andromeda, look faint; compact ones, such as globular clusters, look vivid. They appear according to what the eye or the telescope could reach. The most famous have common names (Omega Centauri, Carina Nebula, Tarantula, Veil, Rosette, Jewel Box…); the rest appear by their number in the telescope. Search for "m13", "ngc 7000" or by name; click the name to pick it as a target.</li>
   <li><b>Light pollution</b>: choose between natural sky (default), very dark countryside, rural area, suburb, city and big-city center (Bortle scale 1 to 9). The more light, the fewer stars, the fewer Messier objects and the browner-orange the sky near the horizon; the Milky Way disappears from the suburb level on.</li>
   <li><b>Refraction</b> (on by default): lifts bodies near the horizon, as the air really does.</li>
-  <li><b>Asteroids and comets</b> (along with the deep sky): 8,726 asteroids (from Ceres down to ones of about 15 km) and 1,991 comets, each on its own orbit, with elements from the JPL database and brightness calculated as in the official ephemerides. Checked against JPL Horizons on October 12, 2026: Ceres and Vesta at the right position to 0.01° and the right magnitude to 0.01. They appear according to what the eye or the telescope could reach; the largest asteroids and the brightest comets get a name. Search for "Vesta" or a comet's name. Limit: the orbit is calculated without the planets' pull, so very old comets or ones that passed close to Jupiter may be out of place.</li>
+  <li><b>Asteroids and comets</b> (along with the deep sky): 8,724 asteroids (from Pallas down to ones of about 15 km; Ceres and Vesta are real bodies, with terrain) and 1,991 comets, each on its own orbit, with elements from the JPL database and brightness calculated as in the official ephemerides. Checked against JPL Horizons on October 12, 2026: Ceres and Vesta at the right position to 0.01° and the right magnitude to 0.01. They appear according to what the eye or the telescope could reach; the largest asteroids and the brightest comets get a name. Search for "Vesta" or a comet's name. Limit: the orbit is calculated without the planets' pull, so very old comets or ones that passed close to Jupiter may be out of place.</li>
   <li><b>Meteor showers</b> (toggle in the sky panel): the main annual showers (Quadrantids, Lyrids, Eta Aquariids, Perseids, Orionids, Leonids, Geminids and others), with radiant, peak, rate and speed from the International Meteor Organization calendar, plus sporadic meteors (~5 per hour). The panel says which are active and how many meteors per hour would fit right now, depending on the radiant's altitude, the Moon and light pollution. As in real life, you need patience: 20 per hour is one every three minutes. The <b>10× more</b> toggle speeds up only the meteors. The streaks are drawn at random; they are not records of real meteors.</li>
 </ul>
 <h3>Telescope</h3>
@@ -474,6 +477,7 @@
   <tr><td>Terrain of the Moon, Mars and Mercury</td><td><span class="real">Real</span>, 0.7–1.3 km across the whole body and 170–330 m in highlighted regions; finer detail <span class="ilus">invented</span> (toggle)</td></tr>
   <tr><td>Exoplanets: size, orbit, year</td><td><span class="real">Real</span> (NASA Exoplanet Archive); position along the orbit real for those that transit; orientation in the sky <span class="ilus">approximate</span>; appearance <span class="ilus">illustrative</span></td></tr>
   <tr><td>Close-up imagery of Mars, Moon and Mercury</td><td><span class="real">Real</span> (NASA Trek, 100–330 m per pixel)</td></tr>
+  <tr><td>Terrain of Ceres, Vesta and Titan</td><td><span class="real">Real</span>, ~100–180 m on Ceres and Vesta; on Titan measured on ~9% of the surface and <span class="ilus">interpolated</span> elsewhere; color of Titan's surface <span class="ilus">approximate</span></td></tr>
   <tr><td>Earth: terrain, satellite imagery, lights, places</td><td><span class="real">Real</span></td></tr>
   <tr><td>Milky Way seen from here</td><td><span class="real">Real</span> (NASA map); from afar, a <span class="ilus">model</span> based on published measurements</td></tr>
   <tr><td>Stars down to magnitude 12</td><td><span class="real">Real</span> (HYG + Gaia DR3); distances of faint stars without a good parallax are <span class="ilus">estimated</span></td></tr>
@@ -669,6 +673,7 @@
   <li><b>Orbits</b>: approximate orbital elements from JPL/NASA; planet orientation: IAU.</li>
   <li><b>Planet textures</b>: Solar System Scope (CC BY 4.0), based on NASA images.</li>
   <li><b>Terrain of the Moon, Mars and Mercury</b>: global mosaics from the USGS Astrogeology Science Center, converted into tiles (dados/gerar_relevo.py): the Moon from the 118 m LRO LOLA LDEM (NASA/GSFC); Mars from the 200 m HRSC and MOLA blend (Mars Express, ESA/DLR/FU Berlin, and Mars Global Surveyor, NASA); Mercury from the 665 m MESSENGER (NASA/JHUAPL/Carnegie Institution). Seen from afar, Mars uses MOLA via NASA Trek.</li>
+  <li><b>Terrain of Ceres and Vesta</b>: DLR models from Dawn imagery (NASA/JPL-Caltech/UCLA/MPS/DLR/IDA), USGS Astrogeology mosaics (Ceres HAMO DTM at 137 m, Vesta HAMO DTM at 93 m). <b>Terrain of Titan</b>: Corlies et al. (2017), "Titan's Topography and Shape at the End of the Cassini Mission", Cassini RADAR data at Cornell (doi:10.7298/m4dv-gv95, CC0), assembled by dados/preparar_tita.py.</li>
   <li><b>Stars</b>: HYG v4.1 catalog (astronexus, CC BY-SA 4.0), from Hipparcos, Yale and Gliese.</li>
   <li><b>Galaxies</b>: 2MASS Redshift Survey (Huchra et al., 2012).</li>
   <li><b>Probes and comets</b>: trajectories from the JPL Horizons system (NASA/JPL-Caltech).</li>
@@ -676,6 +681,7 @@
   <li><b>Satellites</b>: orbital elements from CelesTrak (T. S. Kelso), calculated with the satellite.js library (MIT license).</li>
   <li><b>Ephemerides</b>: astronomy-engine library, © Don Cross (MIT license), with VSOP87 (Bretagnon and Francou) for the planets.</li>
   <li><b>Close-up imagery of Mars, Moon and Mercury</b>: NASA Trek (NASA/JPL-Caltech), with the LRO WAC mosaics (NASA/GSFC/Arizona State University), Viking MDIM 2.1 color (NASA/USGS) and MESSENGER MDIS (NASA/JHUAPL/Carnegie Institution).</li>
+  <li><b>Imagery of Ceres, Vesta and Titan</b>: NASA Trek, with the Dawn FC mosaics (NASA/JPL-Caltech/UCLA/MPS/DLR/IDA) and Cassini ISS's 938 nm mosaic of Titan (NASA/JPL-Caltech/Space Science Institute).</li>
   <li><b>Asteroids and comets</b>: JPL Small-Body Database (NASA/JPL-Caltech).</li>
   <li><b>Exoplanets</b>: NASA Exoplanet Archive, Planetary Systems Composite Parameters table (NASA/Caltech-IPAC; dados/baixar_exoplanetas.py). Habitable zone: Kopparapu et al. (2013), ApJ 765, 131.</li>
   <li><b>Eclipses</b>: Five Millennium Canon of Solar/Lunar Eclipses, F. Espenak and J. Meeus (NASA/GSFC, public domain).</li>

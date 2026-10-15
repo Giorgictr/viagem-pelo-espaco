@@ -1,4 +1,4 @@
-// Imagem de alta resolução de Marte, da Lua e de Mercúrio (NASA Trek, ladrilhos em grade de latitude e longitude):
+// Imagem de alta resolução de Marte, da Lua, de Mercúrio, de Ceres e de Vesta (NASA Trek, ladrilhos em grade de latitude e longitude):
 // perto da superfície, um mosaico de 6 × 6 ladrilhos em volta do ponto abaixo da câmera substitui a textura global.
 // O relevo continua o global (MOLA, LOLA), com o detalhe inventado por cima.
 import * as THREE from '../vendor/three.module.js';
@@ -7,6 +7,8 @@ export const CAMADAS = {
   lua: { url: 'Moon/EQ/LRO_WAC_Mosaic_Global_303ppd_v02', zMax: 8, credito: 'LRO WAC (NASA/GSFC/Arizona State University), via NASA Trek' },
   marte: { url: 'Mars/EQ/Mars_Viking_MDIM21_ClrMosaic_global_232m', zMax: 7, credito: 'Viking MDIM 2.1 colorido (NASA/USGS), via NASA Trek' },
   mercurio: { url: 'Mercury/EQ/Mercury_MESSENGER_MDIS_Basemap_BDR_Mosaic_Global_166m', zMax: 7, credito: 'MESSENGER MDIS (NASA/JHUAPL/Carnegie), via NASA Trek' },
+  ceres: { url: 'Ceres/EQ/Ceres_Dawn_FC_DLR_global_59ppd_Feb2016', zMax: 5, credito: 'Dawn FC (NASA/JPL-Caltech/UCLA/MPS/DLR/IDA), via NASA Trek' },
+  vesta: { url: 'Vesta/EQ/Vesta_Dawn_FC_HAMO_Mosaic_Global_74ppd', zMax: 6, credito: 'Dawn FC HAMO (NASA/JPL-Caltech/UCLA/MPS/DLR/IDA), via NASA Trek' },
 };
 const N = 6, TAM = 256; // mosaico N × N ladrilhos
 

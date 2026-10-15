@@ -21,6 +21,7 @@ export function ligarMouse(tela) {
   tela.addEventListener('pointerdown', (e) => {
     mouse.arrastando = true;
     mouse.moveu = 0;
+    mouse.novo = true; mouse.px = e.clientX; mouse.py = e.clientY; // onde começou (o laço decide se pegou um planeta)
     ultimo = [e.clientX, e.clientY];
     tela.setPointerCapture(e.pointerId);
   });

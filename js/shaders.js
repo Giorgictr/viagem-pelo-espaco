@@ -70,7 +70,12 @@ const RUIDO = /* glsl */ `
     return normalize(abs(det) * n - g);
   }`;
 
-export const PLANETA_V = LOGV + /* glsl */ `
+// Mapa de relevo global: altura de 0 a 1 em 16 bits (byte alto no vermelho, baixo no verde); num mapa cinza de
+// 8 bits (vermelho = verde) dá o próprio valor. A conta é linear, então a interpolação da textura continua certa.
+const ALT16 = /* glsl */ `
+  float alt16(vec4 c) { return dot(c.rg, vec2(65280.0, 255.0) / 65535.0); }
+`;
+export const PLANETA_V = LOGV + ALT16 + /* glsl */ `
   uniform sampler2D relevo;
   uniform float temRelevo, hMin, hMax, exagero, raio, usarPiso, pisoMar;
   varying vec3 vN, vP, vMundo; varying vec2 vUv;
@@ -87,7 +92,7 @@ export const PLANETA_V = LOGV + /* glsl */ `
     vN = normalize(mat3(modelMatrix) * dirAlt.xyz);
     #else
     if (temRelevo > 0.5) {
-      float h = mix(hMin, hMax, texture2D(relevo, uv).r);
+      float h = mix(hMin, hMax, alt16(texture2D(relevo, uv)));
       if (usarPiso > 0.5) h = max(h, pisoMar); // superfície do mar plana (Terra antiga)
       pos *= 1.0 + h * exagero / raio;
     }
@@ -121,7 +126,7 @@ const ECLIPSE = /* glsl */ `
     return clamp(1.0 - A / (3.14159265 * a2), 0.0, 1.0);
   }`;
 
-export const PLANETA_F = LOGF + RUIDO + ECLIPSE + /* glsl */ `
+export const PLANETA_F = LOGF + RUIDO + ECLIPSE + ALT16 + /* glsl */ `
   uniform sampler2D mapa, noite, relevo, detalheMapa, detalheMapa2;
   uniform vec4 detalheJanela, detalheJanela2; uniform float detalheAtivo, detalheAtivo2;
   uniform float temMapa, temNoite, emissivo, temRelevo, hMin, hMax, exagero, raio, detalhe, kmPorUnidade, usarTextura, usarPiso, pisoMar, exposicao;
@@ -186,10 +191,10 @@ export const PLANETA_F = LOGF + RUIDO + ECLIPSE + /* glsl */ `
       n = normalize(n - T * s.x - B * s.y);
     }
     #else
-    bool sobAgua = usarPiso > 0.5 && mix(hMin, hMax, texture2D(relevo, vUv).r) < pisoMar;
+    bool sobAgua = usarPiso > 0.5 && mix(hMin, hMax, alt16(texture2D(relevo, vUv))) < pisoMar;
     if (temRelevo > 0.5 && !sobAgua) {
-      float hE = texture2D(relevo, vUv + vec2(texel.x, 0.0)).r, hW = texture2D(relevo, vUv - vec2(texel.x, 0.0)).r;
-      float hN = texture2D(relevo, vUv + vec2(0.0, texel.y)).r, hS = texture2D(relevo, vUv - vec2(0.0, texel.y)).r;
+      float hE = alt16(texture2D(relevo, vUv + vec2(texel.x, 0.0))), hW = alt16(texture2D(relevo, vUv - vec2(texel.x, 0.0)));
+      float hN = alt16(texture2D(relevo, vUv + vec2(0.0, texel.y))), hS = alt16(texture2D(relevo, vUv - vec2(0.0, texel.y)));
       float k = (hMax - hMin) * exagero / raio;
       float coslat = max(sqrt(max(1.0 - pow(dot(n0, polo), 2.0), 0.0)), 0.05);
       float dx = (hE - hW) * k / (2.0 * texel.x * 6.2831853 * coslat);
