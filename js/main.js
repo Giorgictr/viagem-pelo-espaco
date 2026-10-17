@@ -635,7 +635,7 @@ function pararTudo() {
 // ------------------------------- interface -------------------------------
 const $ = (id) => document.getElementById(id);
 let avisoAte = 0;
-function aviso(txt) { $('aviso').textContent = txt; avisoAte = performance.now() + 4500; }
+function aviso(txt, ms = 4500) { $('aviso').textContent = txt; avisoAte = performance.now() + ms; }
 
 const slider = $('velSlider');
 const PRESETS = [
@@ -648,6 +648,12 @@ for (const [nome, v] of PRESETS) {
   b.onclick = () => definirV(v);
   $('presets').append(b);
 }
+// Relatividade: a viagem corre no relógio de quem viaja. A uma velocidade v (medida no referencial), as distâncias se
+// contraem por γ e o viajante percorre γ·v quilômetros por segundo do próprio relógio; enquanto isso, fora, passam γ
+// segundos a cada um. Na velocidade da luz (ou acima, que não existe), o relógio de bordo para: a chegada é imediata.
+const relativistico = () => estado.efeito === 'relatividade';
+const gama = (v) => 1 / Math.sqrt(1 - Math.min(v / C, 0.999999999999) ** 2);
+const passoBordo = (v) => (!relativistico() ? v : v >= C ? Infinity : v * gama(v)); // km por segundo de bordo
 function definirV(v) {
   estado.v = Math.min(Math.max(v, 1e-3), 10 ** +slider.max);
   slider.value = Math.log10(estado.v);
@@ -2576,7 +2582,8 @@ function passo() {
   vigiarDesempenho(agora);
 
   // Tempo da simulação e posições
-  if (estado.orbitasMovem) estado.jd += (dt * estado.ritmo) / 86400;
+  // no modo relatividade, em movimento, o tempo lá fora corre γ vezes mais rápido que o de bordo
+  if (estado.orbitasMovem) estado.jd += (dt * estado.ritmo * (relativistico() && velMedida > 1e-3 * C ? gama(velMedida) : 1)) / 86400;
   atualizarPosicoes(estado.jd);
   if (quadro % 30 === 0 || estado.alvo?.exo || estado.ref?.exo) escolherSistemaExo();
   moverExo();
@@ -2663,12 +2670,21 @@ function passo() {
     const rumo = chegada.clone().sub(abs);
     const resta = rumo.length();
     const freioMax = resta * (1 - Math.exp(-dt * 2.5));
-    let passoKm = estado.v * dt;
-    if (passoKm > freioMax) { passoKm = freioMax; freando = true; }
-    estado.local.addScaledVector(rumo, passoKm / resta);
+    let passoKm = passoBordo(estado.v) * dt;
+    if (passoKm === Infinity) { // na luz: zero de tempo a bordo
+      estado.local.add(rumo);
+      const tTerra = resta / C;
+      if (estado.orbitasMovem) estado.jd += tTerra / 86400;
+      aviso(tr('Na velocidade da luz, o relógio de bordo não anda: a chegada é imediata. Lá fora passaram {t}.', { t: duracao(tTerra) }) + (estado.orbitasMovem && tTerra > 86400 ? ' ' + tr('A data da simulação avançou junto ("Agora" volta para hoje).') : ''), 9000);
+      saltoRef = true;
+      estado.piloto = null; mudarRef(p.alvo); chegou(p.alvo);
+    } else {
+      if (passoKm > freioMax) { passoKm = freioMax; freando = true; }
+      estado.local.addScaledVector(rumo, passoKm / resta);
+    }
     if (!p.olharLivre) estado.q.slerp(quatOlhando(alvoAbs.clone().sub(abs), tmpQ), 1 - Math.exp(-dt * 3));
     p.resta = resta;
-    if (resta < Math.max(distChegada(p.alvo) * 0.01, 0.01)) { estado.piloto = null; mudarRef(p.alvo); chegou(p.alvo); }
+    if (estado.piloto && resta < Math.max(distChegada(p.alvo) * 0.01, 0.01)) { estado.piloto = null; mudarRef(p.alvo); chegou(p.alvo); }
   } else if (p && p.modo === 'pouso') {
     p.t += dt;
     const u = Math.min(p.t / p.dur, 1);
@@ -2747,7 +2763,7 @@ function passo() {
   } else {
     const frente = estado.cruzeiro ? 1 : ex.frente;
     if (frente || ex.lado || ex.vertical) {
-      let v = estado.v;
+      let v = Math.min(passoBordo(estado.v), 1e6 * C); // sem destino, na luz: γ de um milhão
       if (estado.freio && proximo && v > altProx * 0.9) { v = Math.max(altProx * 0.9, 0.0005); freando = true; }
       tmpV.set(ex.lado, ex.vertical, -frente).normalize().applyQuaternion(vr.ativo ? vr.qOlhar() : estado.q); // nos óculos, para onde se olha
       estado.local.addScaledVector(tmpV, v * dt);
@@ -2784,7 +2800,10 @@ function passo() {
   if (!saltoRef && dt > 0) {
     const inst = estado.local.distanceTo(ultimoLocal) / dt;
     if (inst === 0) velMedida = velMedida < 1e-6 ? 0 : velMedida * 0.6;
-    else { velMedida += (inst - velMedida) * (1 - Math.exp(-dt * 10)); velVetor.subVectors(estado.local, ultimoLocal).normalize(); }
+    else {
+      const vRef = relativistico() ? inst / Math.sqrt(1 + (inst / C) ** 2) : inst; // de γv (a bordo) para v (no referencial)
+      velMedida += (vRef - velMedida) * (1 - Math.exp(-dt * 10)); velVetor.subVectors(estado.local, ultimoLocal).normalize();
+    }
   }
   saltoRef = false;
   ultimoLocal.copy(estado.local);
@@ -3380,10 +3399,11 @@ function painel() {
 
   let rel = '';
   if (estado.efeito === 'relatividade' && velMedida > 0.01 * C) {
-    if (velMedida < C) {
-      const g = 1 / Math.sqrt(1 - (velMedida / C) ** 2);
-      rel = tr('γ = {g} · 1 s a bordo = {d} na Terra', { g: sig(g), d: duracao(g) });
-    } else rel = tr('Acima de c não há física real: o céu é mostrado como a 99,5% de c');
+    const g = gama(velMedida);
+    rel = tr('γ = {g} · 1 s a bordo = {d} na Terra', { g: sig(g), d: duracao(g) });
+  }
+  if (relativistico() && estado.v >= C) {
+    rel = tr('Na luz, o relógio de bordo para: com destino, a chegada é imediata.') + (estado.v > C ? ' ' + tr('(Acima da luz não existe; vale como na luz.)') : '');
   }
   $('relInfo').textContent = rel;
   $('refFrame').textContent = (estado.ref ? estado.ref.nome : tr('espaço (fixo)')) + (estado.pousado ? tr(' · pousado') : '');
@@ -3417,8 +3437,9 @@ function painel() {
   let st = '';
   if (p && p.modo === 'vel') {
     const t = (p.resta || 0) / Math.max(velMedida, 1e-9);
-    const bordo = estado.efeito === 'relatividade' && velMedida < C ? tr(' (a bordo: {d})', { d: duracao(t * Math.sqrt(1 - (velMedida / C) ** 2)) }) : '';
-    st = tr('A caminho {de:c}: faltam {d} · chegada em {t}', { c: p.alvo, d: distancia(p.resta || 0), t: duracao(t) }) + bordo;
+    st = relativistico()
+      ? tr('A caminho {de:c}: faltam {d} · chegada em {b} a bordo ({t} lá fora)', { c: p.alvo, d: distancia(p.resta || 0), b: duracao(t / gama(velMedida)), t: duracao(t) })
+      : tr('A caminho {de:c}: faltam {d} · chegada em {t}', { c: p.alvo, d: distancia(p.resta || 0), t: duracao(t) });
   }
   else if (p && p.modo === 'tempo') st = tr('A caminho {de:c}: {d} · {t} restantes', { c: p.alvo, d: distancia(abs.distanceTo(p.alvo.abs)), t: duracao(Math.max(p.dur - p.t, 0)) });
   else if (p && p.modo === 'pouso') st = tr('Pousando {em:c}: altitude {d}', { c: p.alvo, d: distancia(Math.max(altProx, 0)) });
@@ -3429,7 +3450,9 @@ function painel() {
   else if (estado.alvo) {
     const dc = distChegada(estado.alvo);
     const d = abs.distanceTo(estado.alvo.abs) - dc;
-    st = d < dc * 0.02 ? tr('Você está {em:c}.', { c: estado.alvo }) : tr('{c}: {d} · na velocidade escolhida, {t}', { c: estado.alvo, d: distancia(d), t: duracao(d / estado.v) });
+    st = d < dc * 0.02 ? tr('Você está {em:c}.', { c: estado.alvo }) : (relativistico()
+      ? tr('{c}: {d} · na velocidade escolhida, {b} a bordo ({t} lá fora)', { c: estado.alvo, d: distancia(d), b: estado.v >= C ? duracao(0) : duracao(d / passoBordo(estado.v)), t: duracao(d / Math.min(estado.v, C)) })
+      : tr('{c}: {d} · na velocidade escolhida, {t}', { c: estado.alvo, d: distancia(d), t: duracao(d / estado.v) }));
   }
   if (estado.cruzeiro) st = st ? `${tr('Cruzeiro ligado (C para desligar)')} · ${st}` : tr('Cruzeiro ligado (C para desligar)');
   $('statusViagem').textContent = st;

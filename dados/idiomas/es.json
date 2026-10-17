@@ -1564,5 +1564,11 @@
 "O maior corpo do cinturão de asteroides, com um terço da massa dele todo. As manchas brilhantes da cratera Occator são sal deixado por água salgada que subiu de dentro.": "El mayor cuerpo del cinturón de asteroides, con un tercio de toda su masa. Las manchas brillantes del cráter Occator son sal dejada por agua salada que subió desde el interior.",
 "Um embrião de planeta que parou de crescer. No polo sul, a bacia Rheasilvia tem 500 km e um pico central de 22 km; pedaços arrancados nesse choque caem na Terra como meteoritos.": "Un embrión de planeta que dejó de crecer. En el polo sur, la cuenca Rheasilvia mide 500 km y tiene un pico central de 22 km; los fragmentos arrancados en ese impacto caen en la Tierra como meteoritos.",
 "Arrastar sobre um planeta": "Arrastrar sobre un planeta",
-"girar o planeta (dar a volta nele)": "girar el planeta (darle la vuelta)"
+"girar o planeta (dar a volta nele)": "girar el planeta (darle la vuelta)",
+"Na velocidade da luz, o relógio de bordo não anda: a chegada é imediata. Lá fora passaram {t}.": "A la velocidad de la luz, el reloj de a bordo no avanza: la llegada es inmediata. Afuera pasaron {t}.",
+"A data da simulação avançou junto (\"Agora\" volta para hoje).": "La fecha de la simulación avanzó también (\"Ahora\" vuelve a hoy).",
+"Na luz, o relógio de bordo para: com destino, a chegada é imediata.": "A la velocidad de la luz el reloj de a bordo se detiene: con destino, la llegada es inmediata.",
+"(Acima da luz não existe; vale como na luz.)": "(Más rápido que la luz no existe; cuenta como la luz.)",
+"A caminho {de:c}: faltam {d} · chegada em {b} a bordo ({t} lá fora)": "Rumbo {a:c}: faltan {d} · llegada en {b} a bordo ({t} afuera)",
+"{c}: {d} · na velocidade escolhida, {b} a bordo ({t} lá fora)": "{c}: {d} · a la velocidad elegida, {b} a bordo ({t} afuera)"
 }

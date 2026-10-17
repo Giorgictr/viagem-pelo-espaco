@@ -1564,5 +1564,11 @@
 "O maior corpo do cinturão de asteroides, com um terço da massa dele todo. As manchas brilhantes da cratera Occator são sal deixado por água salgada que subiu de dentro.": "The largest body in the asteroid belt, with a third of its entire mass. The bright spots in Occator crater are salt left by brine that rose from inside.",
 "Um embrião de planeta que parou de crescer. No polo sul, a bacia Rheasilvia tem 500 km e um pico central de 22 km; pedaços arrancados nesse choque caem na Terra como meteoritos.": "A planetary embryo that stopped growing. At the south pole, the Rheasilvia basin is 500 km wide with a 22 km central peak; pieces blasted off in that impact fall on Earth as meteorites.",
 "Arrastar sobre um planeta": "Drag over a planet",
-"girar o planeta (dar a volta nele)": "turn the planet (go around it)"
+"girar o planeta (dar a volta nele)": "turn the planet (go around it)",
+"Na velocidade da luz, o relógio de bordo não anda: a chegada é imediata. Lá fora passaram {t}.": "At the speed of light, the on-board clock does not run: arrival is immediate. Outside, {t} went by.",
+"A data da simulação avançou junto (\"Agora\" volta para hoje).": "The simulation date moved forward too (\"Now\" goes back to today).",
+"Na luz, o relógio de bordo para: com destino, a chegada é imediata.": "At light speed the on-board clock stops: with a destination, arrival is immediate.",
+"(Acima da luz não existe; vale como na luz.)": "(Faster than light does not exist; it counts as light speed.)",
+"A caminho {de:c}: faltam {d} · chegada em {b} a bordo ({t} lá fora)": "On the way to {o:c}: {d} to go · arrival in {b} on board ({t} outside)",
+"{c}: {d} · na velocidade escolhida, {b} a bordo ({t} lá fora)": "{c}: {d} · at the chosen speed, {b} on board ({t} outside)"
 }
