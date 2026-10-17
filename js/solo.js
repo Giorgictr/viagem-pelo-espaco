@@ -12,7 +12,7 @@ const A = 259;                 // amostras por lado do ladrilho de dados (257 no
 const Z_MALHA = 13;
 const MAX_SIMULTANEOS = 6, MAX_NOS = 500;
 // os ladrilhos ficam num site à parte (repositório relevo-planetas); no computador, na pasta dados/relevo
-const BASE = location.hostname === 'localhost' ? 'dados/relevo/' : 'https://giorgictr.github.io/relevo-planetas/';
+const BASE = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) ? 'dados/relevo/' : 'https://giorgictr.github.io/relevo-planetas/';
 
 // Direção no referencial do corpo: longitude 0 em +x, leste em −z, norte em +y (igual às texturas)
 const direcao = (lat, lon, out) => out.set(Math.cos(lat) * Math.cos(lon), Math.sin(lat), -Math.cos(lat) * Math.sin(lon));

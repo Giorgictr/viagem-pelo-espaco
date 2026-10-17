@@ -18,7 +18,7 @@ Uso: python3 gerar_relevo.py lua|marte|mercurio|ceres|vesta|tita [--formato webp
      python3 gerar_relevo.py vesta --so-mapa     (refaz só o mapa global de 16 bits, dos ladrilhos do nível 3)
 Precisa de numpy e Pillow.
 """
-import argparse, json, math, os, sys, time, urllib.request
+import argparse, atexit, json, math, os, shutil, sys, tempfile, time, urllib.request
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 import numpy as np
 from PIL import Image
@@ -46,6 +46,14 @@ CORPOS = {
                   lon0=-180.0, escala=1.0, zg=5, tipo='<f4', soma=-262700.0,
                   credito='Dawn FC HAMO DTM 93 m (NASA/JPL-Caltech/UCLA/MPS/DLR/IDA), mosaico do USGS Astrogeology'),
     # Titã: alturas sobre a esfera de 2575 km; o corpo tem 2574,7
+    # Plutão e Caronte (New Horizons, 300 m): só o hemisfério visto de perto tem relevo; o resto é preenchido liso.
+    # Conferir o meridiano central (GeoKey 3088) de cada arquivo: o de Plutão é 180°, o de Caronte, 0°
+    'plutao': dict(raio=1188300.0, arq='Pluto_NewHorizons_Global_DEM_300m_Jul2017_16bit.tif', W=24888, H=12444, inicio=100199,
+                   ppd=24888 / 360.0, lon0=0.0, escala=1.0, zg=5,  # projeção centrada em 180°: o arquivo começa em 0°
+                   credito='New Horizons LORRI e MVIC, 300 m (NASA/JHUAPL/SwRI), mosaico do USGS Astrogeology'),
+    'caronte': dict(raio=606000.0, arq='Charon_NewHorizons_Global_DEM_300m_Jul2017_16bit.tif', W=12693, H=6347, inicio=51427,
+                    ppd=12693 / 360.0, lon0=-180.0, escala=1.0, zg=5,
+                    credito='New Horizons LORRI e MVIC, 300 m (NASA/JHUAPL/SwRI), mosaico do USGS Astrogeology'),
     'tita': dict(raio=2574700.0, local='brutos/tita/tita_32ppd.npy', W=11520, H=5760, ppd=32.0, lon0=-180.0, escala=1.0, zg=4, soma=300.0,
                  credito='Cassini RADAR: altimetria, SARTopo e estéreo, interpolados (Corlies et al. 2017, Cornell, CC0)'),
 }
@@ -67,7 +75,7 @@ REGIOES = {
         ('Elysium (InSight)', 2.9, 6.1, 134.0, 137.2, 7), ('Chryse (Viking 1)', 20.7, 23.9, -49.6, -46.4, 7),
         ('Ares Vallis (Pathfinder)', 17.5, 20.7, -34.8, -31.6, 7),
     ],
-    'mercurio': [], 'ceres': [], 'vesta': [], 'tita': [],
+    'mercurio': [], 'ceres': [], 'vesta': [], 'tita': [], 'plutao': [], 'caronte': [],
 }
 
 
@@ -160,8 +168,11 @@ def ler(cfg, regioes):
     Wt, Ht = 2 ** (zg + 1) * T, 2 ** zg * T
     dt = 180.0 / Ht
     cidx = np.rint((lon_colunas(cfg) + 180.0) / dt).astype(np.int64) % Wt
-    soma = np.zeros((Ht + 1, Wt), np.float32)
-    cont = np.zeros((Ht + 1, Wt), np.uint8)  # poucos pontos do arquivo por ponto da grade: cabe em 1 byte e poupa memória
+    # as duas grades ficam em arquivos (memória mapeada): com outros programas abertos, 8 GB não davam conta
+    tmp = tempfile.mkdtemp(prefix='relevo_')
+    atexit.register(shutil.rmtree, tmp, True)
+    soma = np.lib.format.open_memmap(os.path.join(tmp, 'soma.npy'), 'w+', np.float32, (Ht + 1, Wt))
+    cont = np.lib.format.open_memmap(os.path.join(tmp, 'cont.npy'), 'w+', np.uint8, (Ht + 1, Wt))  # poucos pontos por ponto da grade: 1 byte basta
     janelas = []
     for reg in regioes:
         assert cfg['lon0'] == -180.0
@@ -189,13 +200,45 @@ def ler(cfg, regioes):
     with np.errstate(invalid='ignore', divide='ignore'):
         g = np.divide(soma, cont, out=soma)  # no lugar: sem outra grade inteira na memória
     falta = cont == 0
+    del cont
     if falta.any():
-        print(f'  {falta.sum()} pontos sem dado: preenchidos pela média da linha', flush=True)
-        for rr in np.where(falta.any(1))[0]:
-            linha = g[rr]
-            ok = ~np.isnan(linha)
-            g[rr] = np.where(ok, linha, linha[ok].mean() if ok.any() else 0.0)
+        print(f'  {falta.sum()} pontos sem dado ({100 * falta.mean():.1f}%): preenchidos com a média em volta, sem degraus', flush=True)
+        preencher_grade(g, falta)
     return g, janelas
+
+
+def preencher_grade(g, falta, k=16):
+    """Buracos da grade global ganham a média dos dados em volta: numa grade k × k vezes menor, preenchida por difusão,
+    e ampliada de volta com interpolação bilinear (em faixas, para caber na memória)."""
+    H1, W = g.shape
+    h, w = (H1 - 1) // k, W // k
+    v, p = np.zeros((h, w)), np.zeros((h, w))
+    for i in range(h):  # em faixas de k linhas, sem cópia da grade inteira
+        f = falta[i * k:(i + 1) * k, :w * k]
+        v[i] = np.where(f, 0, g[i * k:(i + 1) * k, :w * k]).reshape(k, w, k).sum((0, 2), dtype=np.float64)
+        p[i] = (~f).reshape(k, w, k).sum((0, 2), dtype=np.float64)
+    # células sem dado: difusão (cada uma vira a média das vizinhas, até assentar), sem os degraus de níveis grosseiros
+    tem = p > 0
+    grosso = np.where(tem, v / np.maximum(p, 1), (v.sum() / max(p.sum(), 1)))
+    for passo in range(3000):
+        viz = (np.roll(grosso, 1, 1) + np.roll(grosso, -1, 1) + np.vstack([grosso[:1], grosso[:-1]]) + np.vstack([grosso[1:], grosso[-1:]])) / 4
+        novo = np.where(tem, grosso, viz)
+        if passo % 200 == 0 and np.abs(novo - grosso).max() < 0.05:
+            break
+        grosso = novo
+    fx = np.clip((np.arange(W) + 0.5) / k - 0.5, 0, w - 1.0001)
+    x0 = np.floor(fx).astype(int)
+    tx = (fx - x0).astype(np.float32)
+    for a0 in range(0, H1, 256):
+        a1 = min(a0 + 256, H1)
+        sel = falta[a0:a1]
+        if not sel.any():
+            continue
+        fy = np.clip((np.arange(a0, a1) + 0.5) / k - 0.5, 0, h - 1.0001)
+        y0 = np.floor(fy).astype(int)
+        ty = (fy - y0)[:, None].astype(np.float32)
+        b = (grosso[y0][:, x0] * (1 - tx) + grosso[y0][:, x0 + 1] * tx) * (1 - ty) + (grosso[y0 + 1][:, x0] * (1 - tx) + grosso[y0 + 1][:, x0 + 1] * tx) * ty
+        g[a0:a1][sel] = b[sel]
 
 
 def reduzir(g):

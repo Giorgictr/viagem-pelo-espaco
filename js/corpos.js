@@ -148,32 +148,32 @@ export const CORPOS = [
   // achatada (569 × 554 × 453 km): o raio é o médio e a forma vem do relevo.
   { id: 'ceres', nome: 'Ceres', tipo: 'anao', pai: 'sol', raio: 470, cor: 0x8c8780, textura: '2k_ceres.jpg', soi: 8.8e4, polo: [291.418, 66.764], W: [170.65, 952.1532], relevo: ['relevo/ceres_2048.png', -27.92, 17], rochoso: true },
   { id: 'vesta', nome: 'Vesta', tipo: 'anao', pai: 'sol', raio: 262.7, cor: 0xa59c90, textura: '2k_vesta.jpg', soi: 4.5e4, polo: [309.031, 42.235], W: [285.39, 1617.3329428], relevo: ['relevo/vesta_2048.png', -50.73, 30.25], rochoso: true },
-  { id: 'plutao', nome: 'Plutão', tipo: 'anao', pai: 'sol', raio: 1188.3, cor: 0xc9b39a, soi: 3.1e6, polo: [132.993, -6.163], W: [302.695, 56.3625225], rochoso: true },
+  { id: 'plutao', nome: 'Plutão', tipo: 'anao', pai: 'sol', raio: 1188.3, cor: 0xc9b39a, soi: 3.1e6, polo: [132.993, -6.163], W: [302.695, 56.3625225], textura: '2k_plutao.jpg', relevo: ['relevo/plutao_2048.png', -4.02, 5.99], rochoso: true },
   // Luas. A nossa tem efeméride própria; as outras: órbita circular no equador do planeta,
   // período real, posição ao longo da órbita aproximada. orbita: [raio km, período dias (negativo = retrógrada)]
   { id: 'lua', nome: 'Lua', tipo: 'lua', pai: 'terra', raio: 1737.4, cor: 0xbdbab5, textura: '2k_moon.jpg', soi: 6.6e4, relevo: ['relevo/lua_2048.png', -8.62, 10.49], rochoso: true },
-  { id: 'fobos', nome: 'Fobos', tipo: 'lua', pai: 'marte', raio: 11.1, cor: 0x8a7d70, orbita: [9376, 0.31891], rochoso: true },
+  { id: 'fobos', nome: 'Fobos', tipo: 'lua', pai: 'marte', raio: 11.1, cor: 0x8a7d70, orbita: [9376, 0.31891], textura: '2k_fobos.jpg', relevo: ['relevo/fobos_2048.png', -2.94, 2.92], rochoso: true },
   { id: 'deimos', nome: 'Deimos', tipo: 'lua', pai: 'marte', raio: 6.2, cor: 0x9c8e7c, orbita: [23463, 1.26244], rochoso: true },
-  { id: 'io', nome: 'Io', tipo: 'lua', pai: 'jupiter', raio: 1821.6, cor: 0xe6cf63, orbita: [421700, 1.769138], rochoso: true },
-  { id: 'europa', nome: 'Europa', tipo: 'lua', pai: 'jupiter', raio: 1560.8, cor: 0xd8c9ad, orbita: [671034, 3.551181], rochoso: true },
-  { id: 'ganimedes', nome: 'Ganimedes', tipo: 'lua', pai: 'jupiter', raio: 2634.1, cor: 0xa09584, orbita: [1070412, 7.154553], rochoso: true },
-  { id: 'calisto', nome: 'Calisto', tipo: 'lua', pai: 'jupiter', raio: 2410.3, cor: 0x756a5b, orbita: [1882709, 16.689018], rochoso: true },
-  { id: 'mimas', nome: 'Mimas', tipo: 'lua', pai: 'saturno', raio: 198.2, cor: 0xc9c6c0, orbita: [185539, 0.942422], rochoso: true },
-  { id: 'encelado', nome: 'Encélado', tipo: 'lua', pai: 'saturno', raio: 252.1, cor: 0xf2f4f7, orbita: [237948, 1.370218], rochoso: true },
-  { id: 'tetis', nome: 'Tétis', tipo: 'lua', pai: 'saturno', raio: 531.1, cor: 0xdedbd5, orbita: [294619, 1.887802], rochoso: true },
-  { id: 'dione', nome: 'Dione', tipo: 'lua', pai: 'saturno', raio: 561.4, cor: 0xd2cfca, orbita: [377396, 2.736915], rochoso: true },
-  { id: 'reia', nome: 'Reia', tipo: 'lua', pai: 'saturno', raio: 763.8, cor: 0xcac6bf, orbita: [527108, 4.518212], rochoso: true },
+  { id: 'io', nome: 'Io', tipo: 'lua', pai: 'jupiter', raio: 1821.6, cor: 0xe6cf63, orbita: [421700, 1.769138], textura: '2k_io.jpg', rochoso: true },
+  { id: 'europa', nome: 'Europa', tipo: 'lua', pai: 'jupiter', raio: 1560.8, cor: 0xd8c9ad, orbita: [671034, 3.551181], textura: '2k_europa.jpg', rochoso: true },
+  { id: 'ganimedes', nome: 'Ganimedes', tipo: 'lua', pai: 'jupiter', raio: 2634.1, cor: 0xa09584, orbita: [1070412, 7.154553], textura: '2k_ganimedes.jpg', rochoso: true },
+  { id: 'calisto', nome: 'Calisto', tipo: 'lua', pai: 'jupiter', raio: 2410.3, cor: 0x756a5b, orbita: [1882709, 16.689018], textura: '2k_calisto.jpg', rochoso: true },
+  { id: 'mimas', nome: 'Mimas', tipo: 'lua', pai: 'saturno', raio: 198.2, cor: 0xc9c6c0, orbita: [185539, 0.942422], textura: '2k_mimas.jpg', rochoso: true },
+  { id: 'encelado', nome: 'Encélado', tipo: 'lua', pai: 'saturno', raio: 252.1, cor: 0xf2f4f7, orbita: [237948, 1.370218], textura: '2k_encelado.jpg', relevo: ['relevo/encelado_2048.png', -1.89, 1.41], rochoso: true },
+  { id: 'tetis', nome: 'Tétis', tipo: 'lua', pai: 'saturno', raio: 531.1, cor: 0xdedbd5, orbita: [294619, 1.887802], textura: '2k_tetis.jpg', rochoso: true },
+  { id: 'dione', nome: 'Dione', tipo: 'lua', pai: 'saturno', raio: 561.4, cor: 0xd2cfca, orbita: [377396, 2.736915], textura: '2k_dione.jpg', rochoso: true },
+  { id: 'reia', nome: 'Reia', tipo: 'lua', pai: 'saturno', raio: 763.8, cor: 0xcac6bf, orbita: [527108, 4.518212], textura: '2k_reia.jpg', rochoso: true },
   // Titã: de fora, a névoa laranja (como se vê); com a névoa desligada, a superfície por baixo dela: imagem da Cassini
   // no infravermelho próximo (ISS) e relevo do radar (Corlies et al. 2017)
   { id: 'tita', nome: 'Titã', tipo: 'lua', pai: 'saturno', raio: 2574.7, cor: 0xd9a246, orbita: [1221870, 15.945], atm: [0.95, 0.65, 0.3, 0.12], textura: '2k_titan_surface.jpg', relevo: ['relevo/tita_2048.png', -1.66, 1.14], nevoa: true },
-  { id: 'japeto', nome: 'Jápeto', tipo: 'lua', pai: 'saturno', raio: 734.5, cor: 0x9a8f80, orbita: [3560820, 79.3215], rochoso: true },
-  { id: 'miranda', nome: 'Miranda', tipo: 'lua', pai: 'urano', raio: 235.8, cor: 0xb8b8b8, orbita: [129390, 1.413479], rochoso: true },
-  { id: 'ariel', nome: 'Ariel', tipo: 'lua', pai: 'urano', raio: 578.9, cor: 0xc4c2be, orbita: [191020, 2.520379], rochoso: true },
-  { id: 'umbriel', nome: 'Umbriel', tipo: 'lua', pai: 'urano', raio: 584.7, cor: 0x7d7a76, orbita: [266000, 4.144177], rochoso: true },
-  { id: 'titania', nome: 'Titânia', tipo: 'lua', pai: 'urano', raio: 788.4, cor: 0xb2aca4, orbita: [435910, 8.705872], rochoso: true },
-  { id: 'oberon', nome: 'Oberon', tipo: 'lua', pai: 'urano', raio: 761.4, cor: 0xa59c92, orbita: [583520, 13.463239], rochoso: true },
-  { id: 'tritao', nome: 'Tritão', tipo: 'lua', pai: 'netuno', raio: 1353.4, cor: 0xd6c9c2, orbita: [354759, -5.876854], rochoso: true },
-  { id: 'caronte', nome: 'Caronte', tipo: 'lua', pai: 'plutao', raio: 606, cor: 0xa8a29c, orbita: [19591, 6.3872], rochoso: true },
+  { id: 'japeto', nome: 'Jápeto', tipo: 'lua', pai: 'saturno', raio: 734.5, cor: 0x9a8f80, orbita: [3560820, 79.3215], textura: '2k_japeto.jpg', rochoso: true },
+  { id: 'miranda', nome: 'Miranda', tipo: 'lua', pai: 'urano', raio: 235.8, cor: 0xb8b8b8, orbita: [129390, 1.413479], textura: '2k_miranda.jpg', rochoso: true },
+  { id: 'ariel', nome: 'Ariel', tipo: 'lua', pai: 'urano', raio: 578.9, cor: 0xc4c2be, orbita: [191020, 2.520379], textura: '2k_ariel.jpg', rochoso: true },
+  { id: 'umbriel', nome: 'Umbriel', tipo: 'lua', pai: 'urano', raio: 584.7, cor: 0x7d7a76, orbita: [266000, 4.144177], textura: '2k_umbriel.jpg', rochoso: true },
+  { id: 'titania', nome: 'Titânia', tipo: 'lua', pai: 'urano', raio: 788.4, cor: 0xb2aca4, orbita: [435910, 8.705872], textura: '2k_titania.jpg', rochoso: true },
+  { id: 'oberon', nome: 'Oberon', tipo: 'lua', pai: 'urano', raio: 761.4, cor: 0xa59c92, orbita: [583520, 13.463239], textura: '2k_oberon.jpg', rochoso: true },
+  { id: 'tritao', nome: 'Tritão', tipo: 'lua', pai: 'netuno', raio: 1353.4, cor: 0xd6c9c2, orbita: [354759, -5.876854], textura: '2k_tritao.jpg', rochoso: true },
+  { id: 'caronte', nome: 'Caronte', tipo: 'lua', pai: 'plutao', raio: 606, cor: 0xa8a29c, orbita: [19591, 6.3872], textura: '2k_caronte.jpg', relevo: ['relevo/caronte_2048.png', -13.91, 6.75], rochoso: true },
   // Via Láctea e além. Galáxias: raio do disco, ângulo de posição (pa) e inclinação (inc) reais, aproximados.
   // forma: espiral | barrada | eliptica | irregular. grupo: separa as listas de destino.
   { id: 'centro', nome: 'Centro da Via Láctea (Sgr A*)', tipo: 'marco', grupo: 'Via Láctea', raio: 1.2e7, cor: 0xffd9a0, lum: 4e6, ra: 266.4168, dec: -29.0078, dist: 8178 * PC },
@@ -233,7 +233,7 @@ for (const c of CORPOS) {
   c.qOriAnt = new THREE.Quaternion();
 }
 
-const tmp = new THREE.Vector3(), _q = new THREE.Quaternion(), _m = new THREE.Matrix4(), _y = new THREE.Vector3(0, 1, 0);
+const tmp = new THREE.Vector3(), _q = new THREE.Quaternion(), _m = new THREE.Matrix4(), _y = new THREE.Vector3(0, 1, 0), _pr = new THREE.Vector3();
 const eixoY = new THREE.Vector3(0, 1, 0);
 
 // Posição exata das luas (JPL Horizons, 1970–2040): integra a órbita (com o achatamento do planeta) a partir
@@ -319,7 +319,8 @@ export function atualizarPosicoes(jd) {
       c.qOri.copy(c.base.quat).multiply(_q.setFromAxisAngle(eixoY, (((c.W[0] + c.W[1] * d) % 360) * GRAU)));
     } else if (c.tipo === 'lua') {
       const x = tmp.copy(c.relPai).negate().normalize();
-      const polo = c.id === 'lua' ? _y : c.paiObj.base.p;
+      // norte: o do planeta; numa órbita retrógrada (Tritão), o contrário, porque a lua gira junto com a órbita
+      const polo = c.id === 'lua' ? _y : c.orbita?.[1] < 0 ? _pr.copy(c.paiObj.base.p).negate() : c.paiObj.base.p;
       const z = new THREE.Vector3().crossVectors(x, polo).normalize();
       const y = new THREE.Vector3().crossVectors(z, x);
       c.qOri.setFromRotationMatrix(_m.makeBasis(x, y, z));

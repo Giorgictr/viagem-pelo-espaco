@@ -94,7 +94,7 @@ export const PLANETA_V = LOGV + ALT16 + /* glsl */ `
     if (temRelevo > 0.5) {
       float h = mix(hMin, hMax, alt16(texture2D(relevo, uv)));
       if (usarPiso > 0.5) h = max(h, pisoMar); // superfície do mar plana (Terra antiga)
-      pos *= 1.0 + h * exagero / raio;
+      pos *= max(1.0 + h * exagero / raio, 0.3); // exagerado, o relevo de Fobos e Vesta (é a forma do corpo) passaria do centro
     }
     vN = normalize(mat3(modelMatrix) * normal);
     #endif

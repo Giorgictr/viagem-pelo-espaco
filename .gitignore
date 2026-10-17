@@ -6,3 +6,5 @@ musica/*
 __pycache__/
 dados/relevo/
 dados/idiomas/faltantes.*.json
+testes/node_modules/
+testes/capturas/

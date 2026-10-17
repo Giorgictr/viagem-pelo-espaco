@@ -1,0 +1,8 @@
+{
+  "name": "viagem-testes",
+  "private": true,
+  "type": "module",
+  "description": "Teste de fumaça da Viagem pelo Espaço: abre a página no Chrome, visita corpos e idiomas e procura erros",
+  "scripts": { "fumaca": "node fumaca.mjs" },
+  "devDependencies": { "playwright-core": "1.48.2" }
+}

@@ -108,14 +108,21 @@ const estado = {
 
 // ------------------------------- texturas -------------------------------
 const carregador = new THREE.TextureLoader();
-function textura(nome, cor = true) {
-  const t = carregador.load(`texturas/${nome}`);
+function textura(nome, cor = true, pronta) {
+  const t = carregador.load(`texturas/${nome}`, pronta);
   if (cor) t.colorSpace = THREE.SRGBColorSpace;
   t.anisotropy = 8;
   t.wrapS = THREE.RepeatWrapping;
   return t;
 }
 
+// Foto de um corpo: baixada quando ele passa a aparecer como disco na tela (são dezenas; abrir a página só precisa destas)
+const CEDO = ['sol', 'terra', 'lua'];
+function pedirMapa(c) {
+  c.mapaPedido = true;
+  const u = c.malha.material.uniforms;
+  u.mapa.value = textura(c.textura, true, () => { c.mapaPronto = true; if (!c.nevoa) u.temMapa.value = 1; });
+}
 // Mapa de relevo global de um corpo: baixado na primeira vez que a câmera chega a menos de 3 mil raios dele
 // (são até 3 MB cada; abrir a página não precisa de nenhum). Até chegar, a esfera fica lisa.
 function pedirRelevo(c) {
@@ -165,7 +172,7 @@ function verticeGrade(c, ix, iy, out) {
   const u = ix / W, v = 1 - iy / H;
   const phi = u * 2 * Math.PI, th = (iy / H) * Math.PI;
   out.set(-Math.cos(phi) * Math.sin(th), Math.cos(th), Math.sin(phi) * Math.sin(th));
-  return out.multiplyScalar(1 + (amostraAltura(c, u, v) * estado.exagero) / c.raio);
+  return out.multiplyScalar(Math.max(1 + (amostraAltura(c, u, v) * estado.exagero) / c.raio, 0.3)); // como no shader
 }
 // Interseção do raio (origem no centro, direção dir) com o triângulo abc; devolve a distância
 function raioTriangulo(dir, a, b, c) {
@@ -206,7 +213,7 @@ function raioSuperficie(c, dirCena) {
   verticeGrade(c, ix + 1, iy, _a); verticeGrade(c, ix, iy, _b); verticeGrade(c, ix, iy + 1, _c); verticeGrade(c, ix + 1, iy + 1, _d);
   const t = raioTriangulo(dl, _a, _b, _d) ?? raioTriangulo(dl, _b, _c, _d);
   if (t) return t * c.raio;
-  return c.raio + amostraAltura(c, phi / (2 * Math.PI), 1 - th / Math.PI) * estado.exagero;
+  return Math.max(c.raio + amostraAltura(c, phi / (2 * Math.PI), 1 - th / Math.PI) * estado.exagero, c.raio * 0.3);
 }
 
 // Latitude e longitude (graus) do ponto abaixo da câmera
@@ -231,10 +238,10 @@ for (const c of CORPOS) {
     vertexShader: S.PLANETA_V,
     fragmentShader: S.PLANETA_F,
     uniforms: {
-      mapa: { value: c.textura ? textura(c.textura) : null },
+      mapa: { value: c.textura && CEDO.includes(c.id) ? textura(c.textura) : null }, // os outros: pedirMapa, quando aparecem
       noite: { value: c.noite ? textura(c.noite) : null },
       relevo: { value: null },
-      temMapa: { value: c.textura ? 1 : 0 },
+      temMapa: { value: c.textura && CEDO.includes(c.id) ? 1 : 0 },
       temNoite: { value: c.noite ? 1 : 0 },
       temRelevo: { value: 0 },
       hMin: { value: temRelevo ? c.relevo[1] : 0 },
@@ -441,8 +448,8 @@ const satelites = criarSatelites(PORID, PORID.terra.raio); // ISS, Hubble e Tian
 const frotaSat = criarFrota(PORID, PORID.terra.raio); // os demais satélites, como pontos
 missoes.usarVelPlaneta((id, jd) => (id === '67p' ? missoes.porId['67p']?.vel.clone() ?? new THREE.Vector3() : velocidadePlaneta(id, jd)));
 const terra = criarTerra(cena, S, PORID.terra.raio); // Terra em ladrilhos (relevo e satélite), perto do chão
-// Lua, Marte, Mercúrio, Ceres, Vesta e Titã: relevo de alta resolução em ladrilhos, perto da superfície
-for (const id of ['lua', 'marte', 'mercurio', 'ceres', 'vesta', 'tita']) {
+// Lua, Marte, Mercúrio, Ceres, Vesta, Titã, Plutão e Caronte: relevo de alta resolução em ladrilhos, perto da superfície
+for (const id of ['lua', 'marte', 'mercurio', 'ceres', 'vesta', 'tita', 'plutao', 'caronte']) {
   lerManifesto(id).then((man) => {
     if (!man) return;
     const c = PORID[id];
@@ -2869,6 +2876,7 @@ function desenhar() {
     if (c.malha) {
       const u = c.malha.material.uniforms;
       if (c.relevo?.[0] && !c.relevoPedido && d < c.raio * 3000) pedirRelevo(c);
+      if (c.textura && !c.mapaPedido && !CEDO.includes(c.id) && diamPx > 2) pedirMapa(c);
       aberrarJS(c.malha.position.copy(rel).multiplyScalar(s));
       c.malha.scale.setScalar(c.raio * s);
       c.malha.quaternion.copy(c.qOri);
@@ -2897,7 +2905,7 @@ function desenhar() {
       u.exagero.value = estado.exagero;
       u.usarTextura.value = estado.texturas ? 1 : 0;
       if (c.nevoa) { // Titã: a névoa por cima ou a superfície
-        u.temMapa.value = estado.nevoaTita ? 0 : 1;
+        u.temMapa.value = estado.nevoaTita || !c.mapaPronto ? 0 : 1;
         u.temRelevo.value = estado.nevoaTita || !c.relevoPronto ? 0 : 1;
       }
       u.detalhe.value = c.rochoso && estado.inventado ? 1 : 0;
