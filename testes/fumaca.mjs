@@ -31,13 +31,29 @@ for (let i = 0; ; i++) {
   await new Promise((r) => setTimeout(r, 200));
 }
 
-const navegador = await chromium.launch({ channel: 'chrome', headless: true, args: ['--ignore-gpu-blocklist', '--enable-unsafe-swiftshader'] });
+// com a placa de vídeo do Mac (Metal), como num navegador de verdade; o desenho por software (SwiftShader) às vezes
+// falha ao compilar o shader do céu na primeira abertura, sem nenhuma mensagem, e é bem mais lento
+const navegador = await chromium.launch({ channel: 'chrome', headless: true, args: ['--use-angle=metal', '--ignore-gpu-blocklist', '--enable-gpu'] });
 mkdirSync(CAPTURAS, { recursive: true });
 
 // Página com os vigias de erro ligados
 async function abrir(url, opcoes = {}) {
   const ctx = await navegador.newContext({ viewport: { width: 1280, height: 800 }, ...opcoes });
   await ctx.addInitScript(() => { try { localStorage.setItem('viagemVisitou', '1'); } catch { /* sem armazenamento */ } }); // sem a tela de boas-vindas
+  // se um shader não montar, diz qual (o three.js só mostra o registro do WebGL, que às vezes vem vazio)
+  await ctx.addInitScript(() => {
+    for (const C of [window.WebGL2RenderingContext, window.WebGLRenderingContext].filter(Boolean)) {
+      const orig = C.prototype.getProgramParameter;
+      C.prototype.getProgramParameter = function (prog, nome) {
+        const v = orig.call(this, prog, nome);
+        if (nome === this.LINK_STATUS && v === false) {
+          const fontes = (this.getAttachedShaders(prog) || []).map((sh) => (this.getShaderSource(sh) || '').split('\n').filter((l) => /uniform|attribute|varying|void main/.test(l)).slice(0, 6).join(' | ').slice(0, 300));
+          console.error(`[shader que não montou] contexto perdido: ${this.isContextLost()} · erro GL: ${this.getError()} · ${fontes.join(' ### ')}`);
+        }
+        return v;
+      };
+    }
+  });
   const p = await ctx.newPage();
   p.on('pageerror', (e) => falha(`erro de JavaScript: ${e.message.split('\n')[0]}`));
   p.on('console', (m) => {

@@ -72,6 +72,10 @@ def dos_dados():
     for c in fichas['corpos'].values():
         a.update(v for k, v in c.items() if isinstance(v, str))
     a.update(fichas['estrelas'].values())
+    tec = json.load(open(os.path.join(AQUI, 'fichas_dados.json')))
+    a.update(v[0] for v in tec['fontes'].values())
+    for grupo in ('corpos', 'galaxias'):
+        a.update(d['descobertaPor'] for d in tec[grupo].values() if d.get('descobertaPor'))
     for cor in ('vermelha', 'laranja', 'amarela', 'branca', 'azul'):
         a |= {f'gigante {cor}', f'supergigante {cor}'}
     return a

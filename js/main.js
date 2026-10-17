@@ -14,7 +14,7 @@ import { criarSatelites, criarFrota } from './satelites.js';
 import { criarPredios } from './predios.js';
 import { criarDetalhe, CAMADAS } from './detalhe.js';
 import { criarSolo, lerManifesto } from './solo.js';
-import { carregarFichas, montarFicha } from './fichas.js';
+import { carregarFichas, montarFicha, precisaExtras, carregarExtras, textoFicha } from './fichas.js';
 import { exo, carregarExoplanetas, corpoPlaneta, posicaoOrbita, pontoOrbita, resumoPlaneta } from './exoplanetas.js';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { DRACOLoader } from '../vendor/DRACOLoader.js';
@@ -910,15 +910,37 @@ function mostrarFicha(c) {
   $('fichaTipo').textContent = f.tipo;
   $('fichaNome').textContent = f.nome;
   $('fichaDados').textContent = '';
-  for (const [k, v] of f.linhas) {
-    const a = document.createElement('span'), b = document.createElement('span');
-    a.textContent = k; b.textContent = v;
-    $('fichaDados').append(a, b);
+  for (const [titulo, linhas] of f.secoes) {
+    const h4 = document.createElement('h4'), kv = document.createElement('div');
+    h4.textContent = titulo; kv.className = 'kv';
+    for (const [k, v] of linhas) {
+      const a = document.createElement('span'), b = document.createElement('span');
+      a.textContent = k; b.textContent = v;
+      kv.append(a, b);
+    }
+    $('fichaDados').append(h4, kv);
   }
   $('fichaCur').textContent = f.curiosidade;
+  $('fichaFontes').textContent = '';
+  if (f.fontes.length) {
+    $('fichaFontes').append(tr('Fontes') + (f.consultado ? ` (${tr('consultadas em {d}', { d: new Date(f.consultado).toLocaleDateString(LOCALE, { timeZone: 'UTC' }) })})` : '') + ': ');
+    f.fontes.forEach(([nome, url], i) => {
+      const a = document.createElement('a');
+      a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = nome;
+      $('fichaFontes').append(i ? ' · ' : '', a);
+    });
+  }
+  fichaAtual = f;
   $('ficha').hidden = false;
   if (ehCelular()) abrirAba(null); // no celular, uma coisa de cada vez
+  // dados de catálogo (estrelas) e da descoberta (exoplanetas) chegam depois, na primeira vez
+  if (precisaExtras(c)) carregarExtras().then(() => { if (!$('ficha').hidden && $('fichaNome').textContent === f.nome) mostrarFicha(c); });
 }
+let fichaAtual = null;
+$('fichaCopiar').onclick = async () => {
+  if (!fichaAtual) return;
+  try { await navigator.clipboard.writeText(textoFicha(fichaAtual)); aviso(tr('Ficha copiada, com as fontes.')); } catch { aviso(tr('Não consegui copiar: o navegador bloqueou.')); }
+};
 function fecharFicha() { $('ficha').hidden = true; }
 function chegou(c) { if (estado.fichas && !roteiro) mostrarFicha(c); }
 $('fichaFechar').onclick = fecharFicha;

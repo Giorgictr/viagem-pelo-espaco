@@ -8,14 +8,14 @@ própria e entram no catálogo de estrelas quando o app carrega.
 Uso: python3 baixar_exoplanetas.py [arquivo.csv já baixado]
 Só biblioteca padrão.
 """
-import csv, io, json, math, os, struct, sys, time, urllib.parse, urllib.request
+import csv, html, io, json, math, os, re, struct, sys, time, urllib.parse, urllib.request
 from collections import defaultdict
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
 TAP = 'https://exoplanetarchive.ipac.caltech.edu/TAP/async'
 COLUNAS = ('pl_name,hostname,sy_snum,sy_pnum,discoverymethod,disc_year,disc_facility,pl_orbper,pl_orbsmax,pl_rade,pl_bmasse,'
            'pl_orbeccen,pl_orbincl,pl_orblper,pl_tranmid,pl_eqt,pl_insol,st_teff,st_rad,st_mass,st_spectype,ra,dec,sy_dist,sy_vmag,'
-           'gaia_dr3_id,hip_name,hd_name')
+           'gaia_dr3_id,hip_name,hd_name,disc_refname,pl_radeerr1,pl_radeerr2,pl_bmasseerr1,pl_bmasseerr2,pl_orbpererr1')
 OBLIQ = math.radians(23.4392911)
 
 
@@ -181,16 +181,47 @@ def main():
                 'R': round(Rp, 3), 'M': round(Mp, 2), 'Teq': arred(num(q['pl_eqt']), 0), 'S': arred(num(q['pl_insol']), 3),
                 'ano': int(num(q['disc_year']) or 0), 'met': q['discoverymethod'], 'onde': q['disc_facility'], 'est': est,
             })
+            # para as fichas: quem publicou a descoberta (com o link do artigo) e as margens de erro medidas
+            ref = q.get('disc_refname') or ''
+            m = re.search(r'href=([^ >]+)[^>]*>([^<]+)<', ref)
+            if m:
+                pls[-1]['ref'] = html.unescape(m.group(2)).strip()
+                pls[-1]['refu'] = html.unescape(m.group(1).strip('"\''))
+            for chave, c1, c2 in (('eR', 'pl_radeerr1', 'pl_radeerr2'), ('eM', 'pl_bmasseerr1', 'pl_bmasseerr2')):
+                e1, e2 = num(q.get(c1) or ''), num(q.get(c2) or '')
+                if e1 is not None and not est & (1 if chave == 'eR' else 2):
+                    pls[-1][chave] = [arred(e1, 3), arred(e2, 3)]
+            eP = num(q.get('pl_orbpererr1') or '')
+            if eP is not None:
+                pls[-1]['eP'] = arred(eP, 6)
         if not pls:
             continue
         item = {'n': h, 'h': melhor, 'd': round(d, 3), 'T': round(T), 'R': arred(R, 3), 'm': round(mst, 3),
                 'sp': p['st_spectype'] or None, 'pl': pls}
+        for chave, col in (('hip', 'hip_name'), ('hd', 'hd_name')):
+            if p.get(col):
+                item[chave] = p[col]
+        if num(p.get('sy_vmag') or '') is not None:
+            item['v'] = arred(num(p['sy_vmag']), 2)
         if melhor < 0:
             item['p'] = [round(c, 4) for c in pos]
             item['M'] = round(M, 2)
             item['bv'] = round(bv_de(T), 3)
         saida.append(item)
     saida.sort(key=lambda e: e['d'])
+    # os dados só das fichas (referência da descoberta, margens de erro, catálogos) vão num arquivo à parte, que só
+    # é baixado ao abrir uma ficha: o principal é carregado ao abrir a página
+    fichas = {}
+    for e in saida:
+        extra = {k: e.pop(k) for k in ('hip', 'hd', 'v') if k in e}
+        if extra:
+            fichas[e['n']] = extra
+        for p_ in e['pl']:
+            extra = {k: p_.pop(k) for k in ('ref', 'refu', 'eR', 'eM', 'eP') if k in p_}
+            if extra:
+                fichas[p_['n']] = extra
+    with open(os.path.join(AQUI, 'exoplanetas_fichas.json'), 'w') as f:
+        json.dump(fichas, f, ensure_ascii=False, separators=(',', ':'))
     with open(os.path.join(AQUI, 'exoplanetas.json'), 'w') as f:
         json.dump({'fonte': 'NASA Exoplanet Archive (pscomppars), NASA/Caltech-IPAC', 'data': time.strftime('%Y-%m-%d'),
                    'estrelas': saida}, f, ensure_ascii=False, separators=(',', ':'))

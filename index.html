@@ -145,6 +145,12 @@
   #fichaTipo { text-transform: uppercase; letter-spacing: .1em; font-size: 11px; color: var(--acento); margin-right: 32px; }
   #fichaNome { margin: 2px 0 10px; font-size: 22px; }
   #fichaDados { font-size: 13px; }
+  #fichaDados h4 { margin: 10px 0 4px; font-size: 10.5px; text-transform: uppercase; letter-spacing: .12em; color: var(--acento); font-weight: 600; }
+  #fichaDados h4:first-child { margin-top: 0; }
+  #fichaFontes { margin-top: 8px; font-size: 11.5px; line-height: 1.5; color: #aab6c6; border-top: 1px solid rgba(255,255,255,.1); padding-top: 6px; }
+  #fichaFontes:empty { display: none; }
+  #fichaFontes a { color: #9cc4ff; }
+  #fichaCopiar { margin-top: 8px; font-size: 12px; }
   #fichaCur { margin: 10px 0 0; font-size: 13px; line-height: 1.45; color: #d9e1ec; border-top: 1px solid rgba(255,255,255,.1); padding-top: 8px; }
   #fichaCur:empty { display: none; }
   body.foto #ficha, body.telescopio #ficha { display: none; }
@@ -231,7 +237,7 @@
 <button id="btPaineis" aria-label="Mostrar ou esconder os painéis">☰</button>
 <div id="menuAbas" hidden></div>
 <div id="novaVersao" hidden><span>Há uma versão nova da Viagem.</span> <button id="btAtualizar">Atualizar</button></div>
-<div id="ficha" hidden><button id="fichaFechar" aria-label="Fechar a ficha">✕</button><div id="fichaTipo"></div><h3 id="fichaNome"></h3><div class="kv" id="fichaDados"></div><p id="fichaCur"></p></div>
+<div id="ficha" hidden><button id="fichaFechar" aria-label="Fechar a ficha">✕</button><div id="fichaTipo"></div><h3 id="fichaNome"></h3><div id="fichaDados"></div><p id="fichaCur"></p><div id="fichaFontes"></div><button id="fichaCopiar">Copiar ficha (com as fontes)</button></div>
 <div id="toque">
   <button data-tecla="KeyW" aria-label="Frente">▲</button>
   <button data-tecla="KeyS" aria-label="Ré">▼</button>
