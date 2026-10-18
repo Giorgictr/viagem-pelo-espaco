@@ -53,6 +53,25 @@ const RUIDO = /* glsl */ `
   // Ruído de valor com período de 289 células: permite somar a posição da câmera já reduzida (na CPU,
   // em precisão dupla) à posição relativa do pixel, sem perder precisão perto do chão
   float hash3(vec3 p) { p = mod(p, 289.0); p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+  // Crateras procedurais (detalhe inventado): numa grade de células, cada uma pode ter uma cratera com centro e raio
+  // sorteados; o perfil é uma bacia com borda elevada e um pouco de material ejetado em volta (forma das crateras
+  // simples da Lua). Devolve a altura em unidades da célula. Só as 8 células em volta do ponto contam (raio < 0,5).
+  float crateras(vec3 p) {
+    vec3 b = floor(p - 0.5);
+    float h = 0.0;
+    for (int dx = 0; dx < 2; dx++) for (int dy = 0; dy < 2; dy++) for (int dz = 0; dz < 2; dz++) {
+      vec3 cel = b + vec3(float(dx), float(dy), float(dz));
+      float sorte = hash3(cel + 17.0);
+      if (sorte > 0.55) continue; // nem toda célula tem cratera
+      vec3 centro = cel + 0.15 + 0.7 * vec3(hash3(cel), hash3(cel + 31.0), hash3(cel + 59.0));
+      float R = 0.18 + 0.27 * hash3(cel + 83.0);
+      float d = length(p - centro) / R;
+      float bacia = d < 1.0 ? (d * d - 1.0) * 0.4 : 0.0;
+      float borda = 0.11 * exp(-pow((d - 1.0) / (d < 1.0 ? 0.12 : 0.3), 2.0));
+      h += (bacia + borda) * R;
+    }
+    return h;
+  }
   float ruido(vec3 x) {
     vec3 i = floor(x), f = fract(x);
     f = f * f * (3.0 - 2.0 * f);
@@ -129,7 +148,7 @@ const ECLIPSE = /* glsl */ `
 export const PLANETA_F = LOGF + RUIDO + ECLIPSE + ALT16 + /* glsl */ `
   uniform sampler2D mapa, noite, relevo, detalheMapa, detalheMapa2;
   uniform vec4 detalheJanela, detalheJanela2; uniform float detalheAtivo, detalheAtivo2;
-  uniform float temMapa, temNoite, emissivo, temRelevo, hMin, hMax, exagero, raio, detalhe, kmPorUnidade, usarTextura, usarPiso, pisoMar, exposicao;
+  uniform float temMapa, temNoite, emissivo, temRelevo, hMin, hMax, exagero, raio, detalhe, kmPorUnidade, usarTextura, usarPiso, pisoMar, exposicao, crateraForca;
   uniform vec3 corBase, luz, polo;
   uniform vec2 texel;
   uniform vec3 camOct[16]; uniform mat3 paraCorpo;
@@ -179,8 +198,17 @@ export const PLANETA_F = LOGF + RUIDO + ECLIPSE + ALT16 + /* glsl */ `
       }
     }
     if (emissivo > 0.5) {
+      // superfície de estrela, como nas fotos em luz visível: quase branca no centro, com o limbo mais escuro e mais
+      // avermelhado (escurecimento do limbo: I(μ) = 1 − u(1 − μ), com u maior no azul; para o Sol, u ≈ 0,5–0,75)
+      // e a granulação, sutil; a foto do mapa só entra de leve, como textura das células
       float mu = max(dot(n, normalize(-vMundo)), 0.0);
-      gl_FragColor = vec4(base * (0.38 + 0.62 * pow(mu, 0.5)) * 1.35, 1.0);
+      vec3 u = vec3(0.50, 0.60, 0.74);
+      vec3 limbo = 1.0 - u * (1.0 - mu);
+      float g = ruido(vP * 220.0) * 0.55 + ruido(vP * 90.0) * 0.3 + ruido(vP * 25.0) * 0.15;
+      float textura = temMapa > 0.5 ? dot(texture2D(mapa, vUv).rgb, vec3(0.33)) : 0.5;
+      // a cor de corpo negro é mais "laranja" do que o olho vê: a luz forte satura e parece branca no centro
+      vec3 cor = mix(corBase, vec3(1.0), 0.5) * limbo * (0.93 + 0.1 * g + 0.08 * (textura - 0.5)) * 1.7;
+      gl_FragColor = vec4(cor, 1.0);
       #include <colorspace_fragment>
       return;
     }
@@ -208,21 +236,30 @@ export const PLANETA_F = LOGF + RUIDO + ECLIPSE + ALT16 + /* glsl */ `
       // tamanho do pixel no chão (km): cresce muito em visada rasante, o que evita serrilhado e moiré
       float pixKm = max(length(fwidth(vMundo)) * kmPorUnidade, 1e-7);
       vec3 rel = paraCorpo * (vMundo * kmPorUnidade); // km, no referencial do corpo, relativo à câmera
-      float h = 0.0, alb = 0.0, amp = 1.0, k = 1.0 / 40.0;
+      float h = 0.0, alb = 0.0, k = 1.0 / 40.0;
       // cada oitava gira (mesma rotação aplicada na CPU) para a grade do ruído não aparecer
       const mat3 GIRO = mat3(0.36, 0.48, -0.8, -0.8, 0.6, 0.0, 0.48, 0.64, 0.6);
       for (int i = 0; i < 16; i++) {
         float tamKm = 1.0 / k;
         float vis = clamp(tamKm / (pixKm * 6.0) - 1.0, 0.0, 1.0);
         if (vis <= 0.0) break;
-        float r = ruido(camOct[i] + rel * k);
+        vec3 q = camOct[i] + rel * k; // coordenada desta oitava (a câmera vem reduzida da CPU)
+        float r = ruido(q);
         rel = GIRO * rel;
         // oitavas muito maiores que o pixel quase não mudam o sombreamento, mas somariam alturas enormes
         // e a derivada de tela perderia precisão (aparecia uma grade); por isso saem suavemente
         float baixa = clamp(1.0 - log2(tamKm / (pixKm * 300.0)), 0.0, 1.0);
-        h += (r - 0.5) * amp * vis * baixa * tamKm;
-        alb += (r - 0.5) * vis * (i < 6 ? 0.5 : 0.25);
-        k *= 2.0; amp *= 0.5;
+        // terreno de verdade tem inclinações parecidas em todas as escalas: a altura de cada oitava acompanha o
+        // tamanho dela (antes caía duas vezes mais rápido e o chão de perto ficava liso). Das médias para baixo, cristas
+        // (ruído "dobrado"), que lembram rochas e sulcos em vez de ondulações moles.
+        // as cristas têm detalhe mais fino que a oitava: somem antes, para não serrilhar em visada rasante
+        float visC = clamp(tamKm / (pixKm * 14.0) - 1.0, 0.0, 1.0);
+        float forma = i >= 3 ? mix(r, 1.0 - abs(2.0 * r - 1.0), visC) : r;
+        h += (forma - 0.5) * vis * baixa * tamKm * 0.22 * pow(0.88, float(i));
+        // crateras em várias escalas (nos corpos sem atmosfera; menos em Marte), das oitavas de ~2,5 km às de metros
+        if (crateraForca > 0.0 && i >= 4 && mod(float(i), 2.0) < 0.5) h += crateras(q) * tamKm * crateraForca * visC * baixa;
+        alb += (r - 0.5) * vis * (i < 6 ? 0.5 : 0.35);
+        k *= 2.0;
       }
       vec3 nb = relevoTela(vMundo, n, h * 0.5 / kmPorUnidade);
       n = normalize(mix(n, nb, smoothstep(0.2, 0.7, clamp(dot(nb, n), 0.0, 1.0)))); // nunca vira o chão do avesso

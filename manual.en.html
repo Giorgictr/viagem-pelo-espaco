@@ -219,7 +219,8 @@
 <p>Near a rocky planet or a moon, press <kbd>P</kbd>: the ship descends to eye level (1.8 m). On the ground, the arrow keys make you walk following the terrain and <kbd>R</kbd> takes off. Gas giants have no ground.</p>
 <ul>
   <li><b>Terrain: real / exaggerated ×10</b> (<kbd>X</kbd>): shows the mountains at their true size or ten times taller.</li>
-  <li><b>Invented detail / real data only</b> (<kbd>I</kbd>): up close, the ground of Mars and the moons gains procedural rocks and undulations. Turned off, only the measured data appears.</li>
+  <li><b>Invented detail / real data only</b> (<kbd>I</kbd>): up close, the ground gains procedural terrain at many scales, from kilometers to meters: ridges, grooves and, on airless bodies (the Moon, Mercury, Ceres, Vesta, icy moons), craters with a bowl, a rim and ejecta, like the Moon's small simple craters; Mars has fewer, and Io and Europa, with young surfaces, almost none. Off, only the measured data appears.</li>
+  <li><b>The Sun and glare</b>: the Sun looks as it does in visible-light photos, almost white at the center and darker and more orange at the edge (limb darkening), with a halo of light around it. Looking near it, the surrounding sky turns black, as in a photo: the strong light "closes" the camera and the stars disappear. With <b>Enhanced sky</b>, the stars stay. Seen edge-on from inside, orbits fade (near the Earth, the planets' orbits used to become streaks across the screen); from above, they show in full. Up close, Mercury, Venus, Mars, Jupiter, Saturn and the Moon switch from a 2,000-pixel image to a 4,000-pixel one, and Saturn's ring is 8,000 pixels, with its divisions.</li>
   <li><b>Level horizon</b> (<kbd>N</kbd>) and <b>Rotate with the planet</b> (<kbd>J</kbd>): near the ground, the horizon stays level and you follow the rotation, like someone standing on the ground.</li>
 </ul>
 
@@ -676,7 +677,7 @@
 <h2 id="fontes">Data sources</h2>
 <ul>
   <li><b>Orbits</b>: approximate orbital elements from JPL/NASA; planet orientation: IAU.</li>
-  <li><b>Planet textures</b>: Solar System Scope (CC BY 4.0), based on NASA images.</li>
+  <li><b>Planet textures</b>: Solar System Scope (CC BY 4.0), based on NASA images, at 2,000 pixels and, up close, 4,000 (Saturn's ring: 8,000).</li>
   <li><b>Terrain of the Moon, Mars and Mercury</b>: global mosaics from the USGS Astrogeology Science Center, converted into tiles (dados/gerar_relevo.py): the Moon from the 118 m LRO LOLA LDEM (NASA/GSFC); Mars from the 200 m HRSC and MOLA blend (Mars Express, ESA/DLR/FU Berlin, and Mars Global Surveyor, NASA); Mercury from the 665 m MESSENGER (NASA/JHUAPL/Carnegie Institution). Seen from afar, Mars uses MOLA via NASA Trek.</li>
   <li><b>Terrain of Ceres and Vesta</b>: DLR models from Dawn imagery (NASA/JPL-Caltech/UCLA/MPS/DLR/IDA), USGS Astrogeology mosaics (Ceres HAMO DTM at 137 m, Vesta HAMO DTM at 93 m). <b>Terrain of Titan</b>: Corlies et al. (2017), "Titan's Topography and Shape at the End of the Cassini Mission", Cassini RADAR data at Cornell (doi:10.7298/m4dv-gv95, CC0), assembled by dados/preparar_tita.py.</li>
   <li><b>Stars</b>: HYG v4.1 catalog (astronexus, CC BY-SA 4.0), from Hipparcos, Yale and Gliese.</li>

@@ -123,6 +123,11 @@ function pedirMapa(c) {
   const u = c.malha.material.uniforms;
   u.mapa.value = textura(c.textura, true, () => { c.mapaPronto = true; if (!c.nevoa) u.temMapa.value = 1; });
 }
+// De perto (disco com mais de 700 pixels), a foto de 2k fica borrada: entra a de 4k, quando chegar
+function pedirMapa4k(c) {
+  c.mapa4kPedido = true;
+  const t = textura(c.textura4k, true, () => { c.malha.material.uniforms.mapa.value = t; });
+}
 // Mapa de relevo global de um corpo: baixado na primeira vez que a câmera chega a menos de 3 mil raios dele
 // (são até 3 MB cada; abrir a página não precisa de nenhum). Até chegar, a esfera fica lisa.
 function pedirRelevo(c) {
@@ -250,6 +255,7 @@ for (const c of CORPOS) {
       exagero: { value: 1 },
       raio: { value: c.raio },
       detalhe: { value: c.rochoso ? 1 : 0 },
+      crateraForca: { value: c.rochoso ? (c.atm ? 0.35 : c.id === 'io' || c.id === 'europa' || c.id === 'tita' ? 0.15 : 1) : 0 }, // Io e Europa: superfícies jovens, poucas crateras
       kmPorUnidade: { value: 1 },
       usarTextura: { value: 1 },
       emissivo: { value: estrela ? 1 : 0 },
@@ -321,7 +327,7 @@ for (const c of CORPOS) {
     const rr = new Float32Array(pos.count);
     for (let i = 0; i < pos.count; i++) rr[i] = (Math.hypot(pos.getX(i), pos.getZ(i)) - ri / c.raio) / ((re - ri) / c.raio);
     geo.setAttribute('raioRel', new THREE.BufferAttribute(rr, 1));
-    const t = carregador.load('texturas/2k_saturn_ring_alpha.png');
+    const t = carregador.load('texturas/8k_saturn_ring_alpha.png');
     t.colorSpace = THREE.SRGBColorSpace;
     c.anelMalha = new THREE.Mesh(geo, new THREE.ShaderMaterial({
       vertexShader: S.ANEIS_V, fragmentShader: S.ANEIS_F,
@@ -486,7 +492,12 @@ function criarOrbitas(jd) {
     const linha = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: c.cor3, transparent: true, opacity: 0.3, depthWrite: false }));
     linha.frustumCulled = false;
     cena.add(linha);
-    orbitas.push({ corpo: c, pts, linha, jd });
+    // plano e tamanho da órbita: de dentro dela e quase no plano, ela só apareceria como um risco cruzando a tela
+    const normal = new THREE.Vector3();
+    for (let k = 0; k + 1 < pts.length; k += Math.max(1, Math.floor(pts.length / 16))) normal.add(new THREE.Vector3().crossVectors(pts[k], pts[k + 1]));
+    normal.normalize();
+    const raioMax = pts.reduce((m, v) => Math.max(m, v.length()), 0);
+    orbitas.push({ corpo: c, pts, linha, jd, normal, raioMax });
   }
 }
 
@@ -2478,7 +2489,8 @@ function alvoNaDirecao(dir) {
 
 let tAnterior = performance.now();
 const ultimoLocal = new THREE.Vector3();
-let luar = 0, velMedida = 0, freando = false, proximo = null, altProx = Infinity, altRef = Infinity, quadro = 0, diaNoCeu = 0;
+let luar = 0, velMedida = 0, freando = false, proximo = null, altProx = Infinity, altRef = Infinity, quadro = 0, diaNoCeu = 0, ofusc = 0;
+const _ofD = new THREE.Vector3(), _ofV = new THREE.Vector3();
 const tmpV = new THREE.Vector3(), tmpQ = new THREE.Quaternion(), eixoX = new THREE.Vector3(1, 0, 0), eixoY = new THREE.Vector3(0, 1, 0), eixoZ = new THREE.Vector3(0, 0, 1);
 const _delta = new THREE.Quaternion(), velVetor = new THREE.Vector3(), betaVec = new THREE.Vector3();
 // Mesma aberração dos shaders, para os rótulos acompanharem as estrelas
@@ -2535,6 +2547,50 @@ function uniformsEclipse(c, u, luz) {
     if (k === 'eclOcl') terra.eclipse.eclOcl.value.copy(u.eclOcl.value); else terra.eclipse[k].value = u[k].value;
   }
 }
+// Halo do Sol: a luz que se espalha em volta de uma fonte muito forte (na lente, no olho, ou no ar). Do tamanho de
+// boa parte da tela perto da Terra; some quando um corpo tapa o Sol (luzSolAqui) e diminui longe dele.
+const haloSol = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: (() => {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 512;
+    const g = cv.getContext('2d'), img = g.createImageData(512, 512);
+    for (let y = 0; y < 512; y++) for (let x = 0; x < 512; x++) {
+      const r = Math.hypot(x - 255.5, y - 255.5) / 256;
+      const a = Math.max(0, 0.55 * Math.exp(-r * r * 30) + 0.35 * Math.exp(-r * 6) + 0.12 * Math.exp(-r * 2.5)) * Math.max(0, 1 - r) ** 1.5;
+      const k = (y * 512 + x) * 4;
+      img.data[k] = 255; img.data[k + 1] = 246 - 20 * r; img.data[k + 2] = 225 - 60 * r; img.data[k + 3] = Math.min(255, a * 255);
+    }
+    g.putImageData(img, 0, 0);
+    const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t;
+  })(),
+  blending: THREE.AdditiveBlending, depthWrite: false, depthTest: true, transparent: true, sizeAttenuation: false,
+}));
+haloSol.renderOrder = 6;
+cena.add(haloSol);
+// O Sol está atrás do corpo de referência ou do mais próximo? (linha de visada da câmera ao centro do Sol)
+const _st = new THREE.Vector3();
+function solTapado(abs) {
+  const d = _st.copy(PORID.sol.abs).sub(abs), dist = d.length();
+  d.divideScalar(dist);
+  for (const c of [estado.ref, proximo]) {
+    if (!c || !c.malha || c === PORID.sol || !c.raio) continue;
+    const oc = _ofV.copy(c.abs).sub(abs), t = oc.dot(d);
+    if (t > 0 && t < dist && oc.lengthSq() - t * t < c.raio * c.raio) return true;
+  }
+  return false;
+}
+function desenharHaloSol(abs) {
+  const sol = PORID.sol, dSol = abs.distanceTo(sol.abs);
+  const forca = Math.min(Math.max((Math.log10((UA / Math.max(dSol, 1)) ** 2) + 5) / 5, 0), 1);
+  haloSol.visible = forca > 0.01 && luzSolAqui > 0.01 && dSol > sol.raio * 1.05 && !solTapado(abs);
+  if (!haloSol.visible) return;
+  haloSol.position.copy(sol.malha.position);
+  const dentroAtm = diaNoCeu > 0.3 && !ofusc; // de dia, o céu claro já espalha a luz: halo menor
+  // escala: altura da tela ≈ escala / (2·tan(fov/2)); o halo vai a pelo menos 5 raios do disco
+  const raioAng = Math.asin(Math.min(sol.raio / dSol, 1));
+  haloSol.scale.setScalar(Math.max((0.25 + 1.15 * forca) * (dentroAtm ? 0.6 : 1), 2 * Math.tan(raioAng) * 5));
+  haloSol.material.opacity = Math.min(1, 0.25 + 0.75 * forca) * luzSolAqui;
+}
+
 // coroa solar: só aparece com o Sol totalmente tapado pela Lua (a parte de dentro fica atrás da Lua)
 const coroa = new THREE.Sprite(new THREE.SpriteMaterial({
   map: (() => {
@@ -2897,6 +2953,19 @@ function desenhar() {
     }
   }
 
+  // Ofuscamento: com o Sol no campo de visão (ou perto dele), a "câmera" fecha, como em qualquer foto: as estrelas e a
+  // Via Láctea somem em volta dele. Mais forte quanto mais perto do Sol; com "Céu realçado", desligado.
+  ofusc = 0;
+  {
+    const dSol = abs.distanceTo(sol.abs), dirSol = _ofD.copy(sol.abs).sub(abs).divideScalar(Math.max(dSol, 1));
+    const olhar = _ofV.set(0, 0, -1).applyQuaternion(estado.q);
+    const forca = Math.min(Math.max((Math.log10((UA / Math.max(dSol, 1)) ** 2) + 4) / 4, 0), 1); // 1 a 1 UA, some a ~100 UA
+    const ang = dirSol.dot(olhar), meioFov = (camera.fov * GRAU) / 2 * Math.max(camera.aspect, 1);
+    const noCampo = Math.min(Math.max((ang - Math.cos(meioFov + 0.35)) / (Math.cos(0.15) - Math.cos(meioFov + 0.35)), 0), 1);
+    ofusc = forca * noCampo * luzSolAqui * (dSol > sol.raio * 1.05 && !solTapado(abs) ? 1 : 0);
+    if (!estado.ceuRealcado && !estado.telescopio) diaNoCeu = Math.max(diaNoCeu, 0.92 * ofusc);
+  }
+
   // Terra em ladrilhos: liga abaixo de 3 raios de altitude (com a aparência "fotos")
   const T = PORID.terra;
   const relT = _relT.copy(T.abs).sub(abs);
@@ -2918,6 +2987,7 @@ function desenhar() {
       const u = c.malha.material.uniforms;
       if (c.relevo?.[0] && !c.relevoPedido && d < c.raio * 3000) pedirRelevo(c);
       if (c.textura && !c.mapaPedido && !CEDO.includes(c.id) && diamPx > 2) pedirMapa(c);
+      if (c.textura4k && !c.mapa4kPedido && diamPx > 700 && (c.mapaPronto || CEDO.includes(c.id))) pedirMapa4k(c);
       aberrarJS(c.malha.position.copy(rel).multiplyScalar(s));
       c.malha.scale.setScalar(c.raio * s);
       c.malha.quaternion.copy(c.qOri);
@@ -3031,7 +3101,12 @@ function desenhar() {
       alfa = Math.min(Math.max(brilho, 0.08), 1);
       if (c.tipo === 'galaxia') { tam = diamPx < 8 ? Math.max(3, diamPx) : 0; alfa = 0.7 * (1 - diamPx / 8); }
       else if (c.tipo === 'marco') { tam = Math.min(Math.max(tam, 3), 10); alfa = Math.max(alfa, 0.6); }
-      else tam = Math.max(tam, diamPx * 2.6);
+      else {
+        tam = Math.max(tam, diamPx * 2.6);
+        // estrela já vista como disco: o brilho de ponto encolhe e esmaece, para não lavar o disco (o Sol tem o halo próprio)
+        const k = Math.min(Math.max((diamPx - 6) / 30, 0), 1);
+        if (k > 0) { tam = tam * (1 - k) + diamPx * 1.15 * k; alfa *= 1 - (c === sol ? 0.9 : 0.6) * k; }
+      }
       if (c !== sol && c.id !== 'lua') alfa *= (1 - diaNoCeu) * (1 - 0.5 * luar);
       if (c === sol) { alfa *= luzSolAqui; tam *= 0.25 + 0.75 * luzSolAqui; } // eclipse: o brilho do Sol some com o disco tapado
     } else if (diamPx < 4 && visivel) {
@@ -3127,6 +3202,7 @@ function desenhar() {
       (dir) => (terra.ativo ? terra.altura(dir, estado.nivelMar / 1000) * estado.exagero : 0));
   }
   desenharCeu(abs, rotulosPostos);
+  desenharHaloSol(abs);
   desenharMessier(rotulosPostos, pxPorRad);
   desenharPequenos(abs, rotulosPostos);
   talvezGaia12();
@@ -3248,7 +3324,10 @@ function desenhar() {
       aberrarJS(tmpV.multiplyScalar(comprimir(tmpV.length()))).toArray(arr, k * 3);
     }
     o.linha.geometry.attributes.position.needsUpdate = true;
-    o.linha.material.opacity = (o.corpo.tipo === 'lua' ? 0.22 : 0.3) * (1 - diaNoCeu);
+    // vista de lado, de dentro da órbita: esmaece (as dos planetas, perto da Terra, viravam riscos pela tela toda)
+    const relO = tmpV.copy(abs).sub(base), alturaPlano = Math.abs(relO.dot(o.normal)) / o.raioMax;
+    const deLado = relO.length() < 2.5 * o.raioMax ? Math.min(Math.max((alturaPlano - 0.01) / 0.08, 0), 1) : 1;
+    o.linha.material.opacity = (o.corpo.tipo === 'lua' ? 0.22 : 0.3) * (1 - diaNoCeu) * deLado;
   }
 
   for (const v of vagasExo.map((v) => ({ m: v.linha, pts: v.pts, ok: !!v.obj, alfa: 0.3 })).concat({ m: zonaHab.malha, pts: zonaHab.pts, ok: true, alfa: 0.13 })) {
