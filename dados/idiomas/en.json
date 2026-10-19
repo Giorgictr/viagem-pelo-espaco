@@ -995,7 +995,7 @@
 "Pousar": "Land",
 "Pousar lá": "Land there",
 "Pousar na sua cidade": "Land in your city",
-"pousar no planeta ou lua mais próximo · no chão, setas andam e <kbd>R</kbd> decola": "land on the nearest planet or moon · on the ground, arrows walk and <kbd>R</kbd> takes off",
+"pousar no planeta ou lua mais próximo · no chão, setas andam, <kbd>Espaço</kbd> pula e <kbd>R</kbd> decola (nos gasosos, flutua sobre as nuvens)": "land on the nearest planet or moon · on the ground, arrows walk, <kbd>Space</kbd> jumps and <kbd>R</kbd> takes off (on gas giants, you float above the clouds)",
 "Pousar numa cidade": "Land in a city",
 "Pouso em {c}. Ande com as setas; R para decolar; Z para olhar o céu.": "Landed in {c}. Walk with the arrows; R to take off; Z to look at the sky.",
 "Pouso final": "Final landing",
@@ -1646,5 +1646,17 @@
 "{c} no NASA Exoplanet Archive": "{c} in the NASA Exoplanet Archive",
 "{c} no NED (NASA/IPAC)": "{c} in NED (NASA/IPAC)",
 "Copiar ficha (com as fontes)": "Copy card (with sources)",
-"sim": "yes"
+"sim": "yes",
+"Pular": "Jump",
+"Decolar": "Take off",
+"No chão {de:c}": "On the ground on {o:c}",
+"Sobre as nuvens {de:c}": "Above the clouds of {o:c}",
+"Sobre as nuvens {de:c}. Setas para voar, R para subir.": "Above the clouds of {o:c}. Arrows to fly, R to climb.",
+"gravidade {g} m/s² ({p}% da da Terra): quem pesa 60 kg sente como {k}": "gravity {g} m/s² ({p}% of Earth's): someone weighing 60 kg feels like {k}",
+"Pulo {em:c}: cerca de {h} de altura e {t} no ar (o mesmo pulo na Terra: {hT} e {tT}).": "Jump on {o:c}: about {h} high and {t} in the air (the same jump on Earth: {hT} and {tT}).",
+"{c} não tem chão: abaixo das nuvens, o gás fica cada vez mais denso e quente, até virar líquido. Você flutua no topo das nuvens, onde a pressão é parecida com a do nível do mar na Terra.": "{c} has no ground: below the clouds, the gas gets denser and hotter until it becomes liquid. You are floating at the cloud tops, where the pressure is similar to sea level on Earth.",
+"↑↓ andar · ←→ virar · arraste para olhar · Espaço pula · R decola · Z olha o céu": "↑↓ walk · ←→ turn · drag to look · Space jumps · R takes off · Z looks at the sky",
+"↑↓ voar · ←→ virar · arraste para olhar · R sobe": "↑↓ fly · ←→ turn · drag to look · R climbs",
+"▲▼ andar · arraste para olhar · ⤒ pular · ⇡ decolar": "▲▼ walk · drag to look · ⤒ jump · ⇡ take off",
+"▲▼ voar · arraste para olhar · ⇡ subir": "▲▼ fly · drag to look · ⇡ climb"
 }

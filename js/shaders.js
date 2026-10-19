@@ -149,7 +149,8 @@ export const PLANETA_F = LOGF + RUIDO + ECLIPSE + ALT16 + /* glsl */ `
   uniform sampler2D mapa, noite, relevo, detalheMapa, detalheMapa2;
   uniform vec4 detalheJanela, detalheJanela2; uniform float detalheAtivo, detalheAtivo2;
   uniform float temMapa, temNoite, emissivo, temRelevo, hMin, hMax, exagero, raio, detalhe, kmPorUnidade, usarTextura, usarPiso, pisoMar, exposicao, crateraForca;
-  uniform vec3 corBase, luz, polo;
+  uniform float veuKm, difusa, nuvemDet; // nuvemDet: gigantes gasosos (detalhe de nuvens, esticado na direção dos ventos) // abaixo das nuvens (Vênus, Titã): visibilidade no ar espesso e parte da luz que vem do céu todo
+  uniform vec3 corBase, luz, polo, corVeu, corLuz;
   uniform vec2 texel;
   uniform vec3 camOct[16]; uniform mat3 paraCorpo;
   varying vec3 vN, vP, vMundo; varying vec2 vUv;
@@ -243,9 +244,11 @@ export const PLANETA_F = LOGF + RUIDO + ECLIPSE + ALT16 + /* glsl */ `
         float tamKm = 1.0 / k;
         float vis = clamp(tamKm / (pixKm * 6.0) - 1.0, 0.0, 1.0);
         if (vis <= 0.0) break;
-        vec3 q = camOct[i] + rel * k; // coordenada desta oitava (a câmera vem reduzida da CPU)
+        // coordenada desta oitava (a câmera vem reduzida da CPU). Nas nuvens dos gasosos, o ruído é esticado no plano do
+        // equador (os ventos correm ao longo dos paralelos) e não gira entre as oitavas, para as faixas ficarem alinhadas
+        vec3 q = camOct[i] + (nuvemDet > 0.5 ? rel * vec3(0.25, 1.0, 0.25) : rel) * k;
         float r = ruido(q);
-        rel = GIRO * rel;
+        if (nuvemDet < 0.5) rel = GIRO * rel;
         // oitavas muito maiores que o pixel quase não mudam o sombreamento, mas somariam alturas enormes
         // e a derivada de tela perderia precisão (aparecia uma grade); por isso saem suavemente
         float baixa = clamp(1.0 - log2(tamKm / (pixKm * 300.0)), 0.0, 1.0);
@@ -254,8 +257,8 @@ export const PLANETA_F = LOGF + RUIDO + ECLIPSE + ALT16 + /* glsl */ `
         // (ruído "dobrado"), que lembram rochas e sulcos em vez de ondulações moles.
         // as cristas têm detalhe mais fino que a oitava: somem antes, para não serrilhar em visada rasante
         float visC = clamp(tamKm / (pixKm * 14.0) - 1.0, 0.0, 1.0);
-        float forma = i >= 3 ? mix(r, 1.0 - abs(2.0 * r - 1.0), visC) : r;
-        h += (forma - 0.5) * vis * baixa * tamKm * 0.22 * pow(0.88, float(i));
+        float forma = i >= 3 && nuvemDet < 0.5 ? mix(r, 1.0 - abs(2.0 * r - 1.0), visC) : r;
+        h += (forma - 0.5) * vis * baixa * tamKm * 0.22 * pow(0.88, float(i)) * (nuvemDet > 0.5 ? 0.3 : 1.0); // nuvens: relevo macio
         // crateras em várias escalas (nos corpos sem atmosfera; menos em Marte), das oitavas de ~2,5 km às de metros
         if (crateraForca > 0.0 && i >= 4 && mod(float(i), 2.0) < 0.5) h += crateras(q) * tamKm * crateraForca * visC * baixa;
         alb += (r - 0.5) * vis * (i < 6 ? 0.5 : 0.35);
@@ -271,14 +274,20 @@ export const PLANETA_F = LOGF + RUIDO + ECLIPSE + ALT16 + /* glsl */ `
     #else
     n = normalize(mix(n, n0, 0.85 * pesoDet));
     #endif
-    float l = dot(n, luz);
+    float l = max(dot(n, luz), 0.0);
     float lg = dot(n0, luz);
+    float dia = smoothstep(-0.05, 0.05, lg);
+    if (difusa > 0.0) { // sob nuvens grossas, a luz vem espalhada do céu todo: sombras fracas, e o dia acaba devagar
+      l = mix(l, 0.5 + 0.4 * dot(n, n0), difusa);
+      dia = mix(dia, smoothstep(-0.12, 0.25, lg), difusa);
+    }
     float umbra;
     float ecl = luzEclipse(n0 * raio, luz, umbra);
-    vec3 c = base * (max(l, 0.0) * smoothstep(-0.05, 0.05, lg) * ecl + 0.012);
+    vec3 c = base * corLuz * (l * dia * ecl + 0.012);
     // na umbra da Terra, a Lua recebe só a luz avermelhada que atravessa a nossa atmosfera (todos os pores do sol ao mesmo tempo)
     c += base * vec3(0.55, 0.2, 0.07) * 0.22 * umbra * eclVermelho * smoothstep(-0.05, 0.05, lg);
     if (temNoite > 0.5) c += texture2D(noite, vUv).rgb * (1.0 - smoothstep(-0.12, 0.08, lg)) * 0.8;
+    if (veuKm > 0.0) c = mix(c, corVeu * dia, 1.0 - exp(-length(vMundo) * kmPorUnidade / veuKm)); // o longe some no ar
     gl_FragColor = vec4(c * exposicao, 1.0);
     #include <colorspace_fragment>
   }`;

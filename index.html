@@ -81,7 +81,7 @@
   #ajuda td { padding: 3px 6px; vertical-align: top; }
   #ajuda td:first-child { color: var(--acento); white-space: nowrap; font-weight: 600; }
   kbd { font: inherit; border: 1px solid var(--borda); border-radius: 4px; padding: 0 4px; }
-  #aviso { position: fixed; top: 22%; left: 50%; transform: translateX(-50%); color: var(--quente); font-size: 15px; text-shadow: 0 0 6px #000; pointer-events: none; text-align: center; }
+  #aviso { position: fixed; top: 22%; left: 50%; transform: translateX(-50%); color: var(--quente); font-size: 15px; text-shadow: 0 0 6px #000; pointer-events: none; text-align: center; width: max-content; max-width: min(560px, calc(100vw - 32px)); }
   #creditos { position: fixed; bottom: 4px; left: 50%; transform: translateX(-50%); font-size: 10px; color: rgba(220,228,245,.6); text-shadow: 0 0 3px #000; pointer-events: none; text-align: center; width: calc(100vw - 700px); min-width: 220px; }
   @media (max-width: 1000px) { #creditos { width: 90vw; } }
   #pTerra { top: 12px; left: 50%; transform: translateX(-50%); max-width: calc(100vw - 700px); max-height: calc(100vh - 24px); overflow-y: auto; }
@@ -121,6 +121,9 @@
   #toque { position: fixed; right: 12px; bottom: 20px; display: none; flex-direction: column; gap: 8px; z-index: 6; }
   #toque button { width: 56px; height: 56px; font-size: 22px; border-radius: 50%; background: var(--painel); touch-action: none; }
   @media (pointer: coarse) { #toque { display: flex; } }
+  #toque .soChao { display: none; } body.noChao #toque .soChao { display: block; } body.noGas #toque [data-acao=pular] { display: none; }
+  #noChao { position: fixed; bottom: 42px; left: 50%; transform: translateX(-50%); display: none; white-space: pre-line; text-align: center; font-size: 12.5px; line-height: 1.5; color: rgba(230,236,250,.92); background: rgba(8,12,24,.55); padding: 6px 12px; border-radius: 8px; pointer-events: none; width: max-content; max-width: min(560px, calc(100vw - 32px)); }
+  body.noChao #noChao { display: block; } body.foto #noChao { display: none; }
   /* modo foco (☰ ou a tecla .): só a vista; em tela pequena, os painéis começam recolhidos */
   body.semPaineis .painel { display: none !important; }
   body.semPaineis #btPaineis { display: block; opacity: .55; }
@@ -157,6 +160,7 @@
   body.celular #ficha { top: auto; bottom: 10px; left: 8px; right: 84px; width: auto; transform: none; max-height: 42vh; animation: none; }
   #refFrame { cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
   #menuAbas { position: fixed; top: 50px; right: 8px; z-index: 13; display: flex; flex-direction: column; gap: 6px; min-width: 200px; padding: 8px; background: var(--painel); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; }
+  #menuAbas[hidden] { display: none; }
   #menuAbas button { text-align: left; padding: 10px 12px; font-size: 15px; }
   #menuAbas button.ativo { border-color: var(--acento); }
   #mira { position: fixed; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; pointer-events: none; opacity: .35; }
@@ -243,7 +247,10 @@
   <button data-tecla="KeyS" aria-label="Ré">▼</button>
   <button data-acao="mais" aria-label="Mais rápido">+</button>
   <button data-acao="menos" aria-label="Mais devagar">−</button>
+  <button data-acao="pular" class="soChao" aria-label="Pular">⤒</button>
+  <button data-tecla="KeyR" class="soChao" aria-label="Decolar">⇡</button>
 </div>
+<div id="noChao"></div>
 <div id="clarao"></div>
 <div id="creditos"></div>
 <button id="btSalvar">Salvar imagem (Enter) · Tab volta</button>
@@ -515,7 +522,7 @@
     <tr><td><kbd>Espaço</kbd></td><td>parar tudo</td></tr>
     <tr><td>Clique num nome</td><td>escolher como destino · duplo clique: ir</td></tr>
     <tr><td><kbd>G</kbd></td><td>ir até o destino escolhido</td></tr>
-    <tr><td><kbd>P</kbd></td><td>pousar no planeta ou lua mais próximo · no chão, setas andam e <kbd>R</kbd> decola</td></tr>
+    <tr><td><kbd>P</kbd></td><td>pousar no planeta ou lua mais próximo · no chão, setas andam, <kbd>Espaço</kbd> pula e <kbd>R</kbd> decola (nos gasosos, flutua sobre as nuvens)</td></tr>
     <tr><td><kbd>X</kbd> · <kbd>V</kbd></td><td>relevo real/exagerado · aparência fotos/procedural</td></tr>
     <tr><td><kbd>N</kbd> · <kbd>J</kbd></td><td>nivelar com o horizonte · girar junto com o planeta</td></tr>
     <tr><td><kbd>B</kbd> · <kbd>M</kbd></td><td>efeito da velocidade: dobra (cinema) / relatividade (real) / nenhum · som ligado/desligado</td></tr>

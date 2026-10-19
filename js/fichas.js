@@ -14,6 +14,15 @@ export async function carregarFichas() {
     fetch('dados/fichas_dados.json').then((r) => r.json()).then((d) => (tecnicos = d)).catch(() => {}),
   ]);
 }
+// Gravidade na superfície (m/s²): a da tabela da NASA/JPL; sem ela (exoplanetas rochosos), pela massa ou, sem massa,
+// com a densidade da Terra
+export function gravidadeDe(c) {
+  const g = tecnicos.corpos?.[c.id]?.gravidade;
+  if (g) return g;
+  const R = c.raio * 1000;
+  if (c.massaTerra) return (G * c.massaTerra * MASSA_TERRA) / (R * R);
+  return (4 / 3) * Math.PI * G * 5514 * R;
+}
 // Dados de catálogo das estrelas e das descobertas dos exoplanetas: só baixados na primeira ficha que os usa
 export const precisaExtras = (c) => (c.exo && !exoInfo) || (c.tipo === 'estrela' && c.id !== 'sol' && (!estrelasInfo || (c.exoSistema && !exoInfo)));
 export async function carregarExtras() {

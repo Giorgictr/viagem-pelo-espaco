@@ -995,7 +995,7 @@
 "Pousar": "Aterrizar",
 "Pousar lá": "Aterrizar allá",
 "Pousar na sua cidade": "Aterrizar en tu ciudad",
-"pousar no planeta ou lua mais próximo · no chão, setas andam e <kbd>R</kbd> decola": "aterrizar en el planeta o luna más cercano · en el suelo, las flechas caminan y <kbd>R</kbd> despega",
+"pousar no planeta ou lua mais próximo · no chão, setas andam, <kbd>Espaço</kbd> pula e <kbd>R</kbd> decola (nos gasosos, flutua sobre as nuvens)": "aterrizar en el planeta o luna más cercano · en el suelo, las flechas caminan, <kbd>Espacio</kbd> salta y <kbd>R</kbd> despega (en los gaseosos, flotas sobre las nubes)",
 "Pousar numa cidade": "Aterrizar en una ciudad",
 "Pouso em {c}. Ande com as setas; R para decolar; Z para olhar o céu.": "Aterrizaje en {c}. Camina con las flechas; R para despegar; Z para mirar el cielo.",
 "Pouso final": "Aterrizaje final",
@@ -1646,5 +1646,17 @@
 "{c} no NASA Exoplanet Archive": "{c} en el NASA Exoplanet Archive",
 "{c} no NED (NASA/IPAC)": "{c} en NED (NASA/IPAC)",
 "Copiar ficha (com as fontes)": "Copiar ficha (con las fuentes)",
-"sim": "sí"
+"sim": "sí",
+"Pular": "Saltar",
+"Decolar": "Despegar",
+"No chão {de:c}": "En el suelo {de:c}",
+"Sobre as nuvens {de:c}": "Sobre las nubes {de:c}",
+"Sobre as nuvens {de:c}. Setas para voar, R para subir.": "Sobre las nubes {de:c}. Flechas para volar, R para subir.",
+"gravidade {g} m/s² ({p}% da da Terra): quem pesa 60 kg sente como {k}": "gravedad {g} m/s² ({p}% de la de la Tierra): quien pesa 60 kg se siente como {k}",
+"Pulo {em:c}: cerca de {h} de altura e {t} no ar (o mesmo pulo na Terra: {hT} e {tT}).": "Salto {en:c}: unos {h} de altura y {t} en el aire (el mismo salto en la Tierra: {hT} y {tT}).",
+"{c} não tem chão: abaixo das nuvens, o gás fica cada vez mais denso e quente, até virar líquido. Você flutua no topo das nuvens, onde a pressão é parecida com a do nível do mar na Terra.": "{c} no tiene suelo: bajo las nubes, el gas es cada vez más denso y caliente, hasta volverse líquido. Flotas en la cima de las nubes, donde la presión es parecida a la del nivel del mar en la Tierra.",
+"↑↓ andar · ←→ virar · arraste para olhar · Espaço pula · R decola · Z olha o céu": "↑↓ caminar · ←→ girar · arrastra para mirar · Espacio salta · R despega · Z mira el cielo",
+"↑↓ voar · ←→ virar · arraste para olhar · R sobe": "↑↓ volar · ←→ girar · arrastra para mirar · R sube",
+"▲▼ andar · arraste para olhar · ⤒ pular · ⇡ decolar": "▲▼ caminar · arrastra para mirar · ⤒ saltar · ⇡ despegar",
+"▲▼ voar · arraste para olhar · ⇡ subir": "▲▼ volar · arrastra para mirar · ⇡ subir"
 }

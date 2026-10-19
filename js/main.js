@@ -14,7 +14,7 @@ import { criarSatelites, criarFrota } from './satelites.js';
 import { criarPredios } from './predios.js';
 import { criarDetalhe, CAMADAS } from './detalhe.js';
 import { criarSolo, lerManifesto } from './solo.js';
-import { carregarFichas, montarFicha, precisaExtras, carregarExtras, textoFicha } from './fichas.js';
+import { carregarFichas, montarFicha, precisaExtras, carregarExtras, textoFicha, gravidadeDe } from './fichas.js';
 import { exo, carregarExoplanetas, corpoPlaneta, posicaoOrbita, pontoOrbita, resumoPlaneta } from './exoplanetas.js';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
 import { DRACOLoader } from '../vendor/DRACOLoader.js';
@@ -32,6 +32,7 @@ import { carregarGaia, cat, carregarEstrelas, estrelaObj, maisProximas, criarCeu
 const R0 = 1e8;
 const comprimir = (d) => (d <= R0 ? 1 : (R0 * (1 + Math.log(d / R0))) / d);
 const ALTURA_OLHO = 0.0018; // km
+const TOPO_NUVENS = 50; // km acima do nível de 1 bar: onde se "pousa" (flutuando) num gigante gasoso
 const GASOSOS = ['jupiter', 'saturno', 'urano', 'netuno'];
 
 const tela = document.getElementById('tela');
@@ -203,11 +204,18 @@ function raioSuperficie(c, dirCena) {
     }
     if (!c.relevo) return c.raio; // Terra antiga: segue pelo caminho do relevo, abaixo
   }
-  if (c.nevoa && estado.nevoaTita) return c.raio; // Titã com a névoa: a esfera lisa que se vê
+  if (c.nevoa && nevoaPorCima(c)) return c.raio; // Titã com a névoa, vista de fora: a esfera lisa que se vê
   if (c.solo && c.solo.ativo) {
     const h = c.solo.altura(_dl.copy(dirCena).normalize().applyQuaternion(_qi.copy(c.qOri).invert()));
     if (h !== null) return c.raio + h * estado.exagero;
   }
+  return raioGlobal(c, dirCena);
+}
+// Vênus e Titã: de fora, só as nuvens (ou a névoa); abaixo delas, o chão de verdade, no ar espesso e alaranjado
+const abaixoDasNuvens = (c) => !!c.nuvensAlt && estado.ref === c && altRef < c.nuvensAlt[1];
+const nevoaPorCima = (c) => estado.nevoaTita && !abaixoDasNuvens(c);
+// Só o mapa global (sem os ladrilhos): o mesmo chão da esfera desenhada de longe
+function raioGlobal(c, dirCena) {
   if (!c.relevo || !c.alturas) return c.raio;
   const dl = _dl.copy(dirCena).normalize().applyQuaternion(_qi.copy(c.qOri).invert());
   const th = Math.acos(Math.min(Math.max(dl.y, -1), 1));
@@ -219,6 +227,22 @@ function raioSuperficie(c, dirCena) {
   const t = raioTriangulo(dl, _a, _b, _d) ?? raioTriangulo(dl, _b, _c, _d);
   if (t) return t * c.raio;
   return Math.max(c.raio + amostraAltura(c, phi / (2 * Math.PI), 1 - th / Math.PI) * estado.exagero, c.raio * 0.3);
+}
+
+// "Para cima" de quem está perto do chão: a perpendicular à forma do corpo numa escala larga (5% do raio). Nos corpos
+// pequenos e irregulares (Vesta, Fobos), o centro não fica bem embaixo: a gravidade acompanha a forma, e um horizonte
+// nivelado pela direção do centro sai torto. Nos corpos redondos, dá o mesmo que a direção do centro.
+const _cU = new THREE.Vector3(), _cE = new THREE.Vector3(), _cN = new THREE.Vector3(), _cP = new THREE.Vector3();
+function cimaChao(c, local, out) {
+  out.copy(local).normalize();
+  if (!c || !c.relevo || !c.alturas || c.id === 'terra' || (c.nevoa && nevoaPorCima(c))) return out;
+  const a = 0.05, R2 = 2 * a * c.raio;
+  _cE.crossVectors(out, Math.abs(out.y) < 0.9 ? eixoY : eixoX).normalize();
+  _cN.crossVectors(_cE, out);
+  _cU.copy(out);
+  const r = (t, k) => raioGlobal(c, _cP.copy(_cU).addScaledVector(t, k));
+  const dE = (r(_cE, a) - r(_cE, -a)) / R2, dN = (r(_cN, a) - r(_cN, -a)) / R2;
+  return out.addScaledVector(_cE, -dE).addScaledVector(_cN, -dN).normalize();
 }
 
 // Latitude e longitude (graus) do ponto abaixo da câmera
@@ -263,6 +287,7 @@ for (const c of CORPOS) {
       luz: { value: new THREE.Vector3(1, 0, 0) },
       polo: { value: new THREE.Vector3(0, 1, 0) },
       usarPiso: { value: 0 }, pisoMar: { value: 0 }, exposicao: { value: 1 },
+      veuKm: { value: 0 }, difusa: { value: 0 }, nuvemDet: { value: GASOSOS.includes(c.id) ? 1 : 0 }, corVeu: { value: new THREE.Color() }, corLuz: { value: new THREE.Color(1, 1, 1) },
       detalheMapa: { value: null }, detalheJanela: { value: new THREE.Vector4() }, detalheAtivo: { value: 0 },
       detalheMapa2: { value: null }, detalheJanela2: { value: new THREE.Vector4() }, detalheAtivo2: { value: 0 },
       eclOcl: { value: new THREE.Vector3() }, eclRaio: { value: 1 }, eclSolAng: { value: 0.00465 }, eclAtivo: { value: 0 }, eclVermelho: { value: 0 },
@@ -625,17 +650,62 @@ function pousar() {
   const c = r && ['planeta', 'lua', 'anao'].includes(r.tipo) ? r : proximo;
   const altC = c === proximo ? altProx : camAbs().distanceTo(c.abs) - raioSuperficie(c, camAbs().sub(c.abs));
   if (!c || !['planeta', 'lua', 'anao'].includes(c.tipo)) return aviso(tr('Chegue perto de um planeta ou lua para pousar.'));
-  if (GASOSOS.includes(c.id)) return aviso(tr('{c} é um gigante gasoso: não tem chão para pousar.', { c }));
   if (c.gasoso) return aviso(tr('{c} não é rochoso ({tipo}): não tem chão para pousar.', { c, tipo: tr(c.tipoExo) }));
   if (altC > c.raio * 30) return aviso(tr('Chegue mais perto {de:c} para pousar (menos de {d}).', { c, d: distancia(c.raio * 30) }));
   mudarRef(c);
   estado.cruzeiro = false;
   const dirCena = estado.local.clone().normalize();
-  const alt0 = Math.max(altC, ALTURA_OLHO * 2);
+  const olho = alturaOlho(c), alt0 = Math.max(altC, olho * 2);
   estado.piloto = {
-    modo: 'pouso', alvo: c, t: 0, dur: 4 + Math.log10(alt0 / ALTURA_OLHO) * 1.1, alt0,
+    modo: 'pouso', alvo: c, t: 0, dur: 4 + Math.log10(alt0 / olho) * 1.1, alt0,
     dirCorpo: dirCena.applyQuaternion(c.qOri.clone().invert()),
   };
+}
+
+// Gigantes gasosos não têm chão: o "pouso" fica flutuando no topo das nuvens
+const alturaOlho = (c) => (GASOSOS.includes(c.id) ? TOPO_NUVENS : ALTURA_OLHO);
+
+// Pouso numa encosta ou dentro de uma cratera: se a frente dá num barranco, vira para o lado mais aberto (perto do rumo)
+const _cimaP = new THREE.Vector3(), _abP = new THREE.Vector3(), _abD = new THREE.Vector3();
+function virarParaOAberto(c) {
+  const cima = cimaChao(c, estado.local, new THREE.Vector3());
+  const fr = new THREE.Vector3(0, 0, -1).applyQuaternion(estado.q).projectOnPlane(cima).normalize();
+  const lado = new THREE.Vector3().crossVectors(cima, fr);
+  const olho = estado.local, alcance = Math.min(4, c.raio * 0.2);
+  const barranco = (az) => { // maior elevação do chão (rad) nessa direção, até alguns km
+    _abD.copy(fr).multiplyScalar(Math.cos(az)).addScaledVector(lado, Math.sin(az));
+    let max = -1;
+    for (let d = 0.01; d < alcance; d *= 1.5) {
+      _abP.copy(olho).addScaledVector(_abD, d);
+      _abP.setLength(raioSuperficie(c, _abP)).sub(olho);
+      max = Math.max(max, Math.asin(Math.min(Math.max(_abP.normalize().dot(cima), -1), 1)));
+    }
+    return max;
+  };
+  if (barranco(0) < 0.1) return; // a frente já está aberta (menos de ~6° de subida)
+  let melhor = 0, custo = Infinity;
+  for (let i = 1; i < 24; i++) {
+    const az = (i / 24) * 2 * Math.PI, giro = Math.min(az, 2 * Math.PI - az);
+    const k = barranco(az) + 0.12 * giro;
+    if (k < custo) { custo = k; melhor = az; }
+  }
+  const dir = fr.multiplyScalar(Math.cos(melhor)).addScaledVector(lado, Math.sin(melhor)).addScaledVector(cima, -0.03);
+  estado.virar = quatOlhando(dir, new THREE.Quaternion(), cima);
+}
+
+// Pulo com a gravidade do lugar: o mesmo impulso (3 m/s, um bom pulo na Terra, de ~45 cm) leva meio segundo aqui,
+// uns 3 m e 4 s na Lua e quase 800 m e um quarto de hora em Fobos. A gravidade cai com a distância ao centro.
+const IMPULSO = 0.003; // km/s
+function pular() {
+  const c = estado.pousado;
+  if (!c || estado.pulo) return;
+  if (GASOSOS.includes(c.id)) return pararTudo();
+  estado.cruzeiro = false;
+  const g = gravidadeDe(c);
+  estado.pulo = { c, v: IMPULSO, h: 0, gR2: (g / 1000) * c.raio * c.raio };
+  const vm = IMPULSO * 1000, hT = (vm * vm) / (2 * 9.81);
+  const h = (vm * vm) / (2 * g), t = (2 * vm) / g;
+  aviso(tr('Pulo {em:c}: cerca de {h} de altura e {t} no ar (o mesmo pulo na Terra: {hT} e {tT}).', { c, h: distancia(h / 1000), t: duracao(t), hT: distancia(hT / 1000), tT: duracao((2 * vm) / 9.81) }), Math.min(Math.max(t * 1000, 4500), 12000));
 }
 
 function pararTudo() {
@@ -1012,7 +1082,8 @@ for (const b of document.querySelectorAll('#toque button')) {
   b.addEventListener('pointerdown', (e) => {
     e.preventDefault();
     if (tecla) teclas.add(tecla);
-    if (acao) definirV(estado.v * (acao === 'mais' ? 4 : 0.25));
+    if (acao === 'pular') pular();
+    else if (acao) definirV(estado.v * (acao === 'mais' ? 4 : 0.25));
   });
   const soltar = () => tecla && teclas.delete(tecla);
   b.addEventListener('pointerup', soltar);
@@ -2162,7 +2233,7 @@ const ajuda = () => $('ajuda').classList.toggle('aberta');
 $('btAjuda').onclick = ajuda;
 $('btFecharAjuda').onclick = ajuda;
 
-aoTeclar('Space', pararTudo);
+aoTeclar('Space', () => (estado.pousado ? pular() : pararTudo()));
 aoTeclar('KeyC', () => { estado.cruzeiro = !estado.cruzeiro; estado.piloto = null; });
 aoTeclar('KeyG', () => (estado.alvo?.soCeu ? apontar(estado.alvo) : iniciarViagem(estado.alvo ?? obterCorpo($('selDestino').value))));
 aoTeclar('KeyP', pousar);
@@ -2717,6 +2788,7 @@ function passo() {
     estado.q.multiply(tmpQ.setFromAxisAngle(eixoX, -mouse.dy * k));
     mouse.dx = mouse.dy = 0;
     if (estado.piloto) estado.piloto.olharLivre = true;
+    estado.virar = null;
   }
   if (ex.guinada) estado.q.multiply(tmpQ.setFromAxisAngle(eixoY, ex.guinada * giro));
   if (ex.arfagem) estado.q.multiply(tmpQ.setFromAxisAngle(eixoX, ex.arfagem * giro));
@@ -2767,21 +2839,25 @@ function passo() {
     p.t += dt;
     const u = Math.min(p.t / p.dur, 1);
     const e = u * u * (3 - 2 * u);
-    const alt = p.alt0 * (ALTURA_OLHO / p.alt0) ** e;
+    const alt = p.alt0 * (alturaOlho(p.alvo) / p.alt0) ** e;
     const dir = p.dirCorpo.clone().applyQuaternion(p.alvo.qOri);
     estado.local.copy(dir).multiplyScalar(raioSuperficie(p.alvo, dir) + alt);
-    // Termina olhando o horizonte
+    // Termina olhando o horizonte (o de quem está de pé: em Vesta ou Fobos, não é o da direção do centro)
+    const cima = cimaChao(p.alvo, estado.local, _cimaP);
     const fr = new THREE.Vector3(0, 0, -1).applyQuaternion(estado.q);
-    let tang = fr.clone().addScaledVector(dir, -fr.dot(dir));
+    let tang = fr.clone().addScaledVector(cima, -fr.dot(cima));
     if (tang.lengthSq() < 1e-8) {
-      const cima = new THREE.Vector3(0, 1, 0).applyQuaternion(estado.q);
-      tang = cima.addScaledVector(dir, -cima.dot(dir));
+      const cy = new THREE.Vector3(0, 1, 0).applyQuaternion(estado.q);
+      tang = cy.addScaledVector(cima, -cy.dot(cima));
     }
-    const olhar = tang.normalize().addScaledVector(dir, -0.03);
-    if (!p.olharLivre) estado.q.slerp(quatOlhando(olhar, tmpQ, dir), 1 - Math.exp(-dt * 2.2));
+    const olhar = tang.normalize().addScaledVector(cima, -0.03);
+    if (!p.olharLivre) estado.q.slerp(quatOlhando(olhar, tmpQ, cima), 1 - Math.exp(-dt * 2.2));
     if (u >= 1) {
-      estado.piloto = null; estado.pousado = p.alvo; if (estado.vAntes === undefined) estado.vAntes = estado.v; definirV(5 / 3600);
-      aviso(p.lugar ? tr('Pouso em {c}. Ande com as setas; R para decolar; Z para olhar o céu.', { c: p.lugar.nome }) : tr('Pouso {em:c}. Ande com as setas; R para decolar.', { c: p.alvo }));
+      if (!p.olharLivre) virarParaOAberto(p.alvo);
+      const gas = GASOSOS.includes(p.alvo.id);
+      estado.piloto = null; estado.pousado = p.alvo; if (estado.vAntes === undefined) estado.vAntes = estado.v; definirV(gas ? 900 / 3600 : 5 / 3600);
+      if (gas) aviso(tr('{c} não tem chão: abaixo das nuvens, o gás fica cada vez mais denso e quente, até virar líquido. Você flutua no topo das nuvens, onde a pressão é parecida com a do nível do mar na Terra.', { c: p.alvo }), 10000);
+      else aviso(p.lugar ? tr('Pouso em {c}. Ande com as setas; R para decolar; Z para olhar o céu.', { c: p.lugar.nome }) : tr('Pouso {em:c}. Ande com as setas; R para decolar.', { c: p.alvo }));
       if (p.depois === 'ceu') olharCeu();
     }
   } else if (p && p.modo === 'lugar') {
@@ -2819,9 +2895,13 @@ function passo() {
   } else if (estado.pousado) {
     // Caminhada: anda no plano do chão e acompanha o relevo
     const c = estado.pousado;
-    if (ex.vertical > 0 || estado.ref !== c) { estado.pousado = null; restaurarV(); }
+    if (ex.vertical > 0 || estado.ref !== c) { estado.pousado = null; estado.pulo = null; restaurarV(); }
     else {
-      const up = estado.local.clone().normalize();
+      const up = cimaChao(c, estado.local, new THREE.Vector3());
+      if (estado.virar) { // depois do pouso, vira devagar para o lado aberto (qualquer comando cancela)
+        if (ex.frente || ex.lado || ex.guinada || ex.arfagem || estado.cruzeiro) estado.virar = null;
+        else { estado.q.slerp(estado.virar, 1 - Math.exp(-dt * 1.6)); if (estado.q.angleTo(estado.virar) < 0.01) estado.virar = null; }
+      }
       const frente = estado.cruzeiro ? 1 : ex.frente;
       if (frente || ex.lado) {
         const v = estado.freio ? Math.min(estado.v, 0.05) : estado.v;
@@ -2833,10 +2913,20 @@ function passo() {
         estado.local.addScaledVector(fr, frente * v * dt).addScaledVector(di, ex.lado * v * dt);
       }
       const d = estado.local.clone().normalize();
+      const pulo = estado.pulo?.c === c ? estado.pulo : (estado.pulo = null);
+      if (pulo) { // no ar: sobe e desce com a gravidade do lugar (que cai com o quadrado da distância ao centro)
+        const r = estado.local.length();
+        pulo.v -= (pulo.gR2 / (r * r)) * dt;
+        pulo.h += pulo.v * dt;
+        const chao = raioSuperficie(c, d) + alturaOlho(c);
+        if (pulo.h <= 0 && pulo.v < 0) { estado.pulo = null; estado.local.copy(d).multiplyScalar(chao); }
+        else estado.local.copy(d).multiplyScalar(chao + Math.max(pulo.h, 0));
+      } else {
       // quando chega um ladrilho mais detalhado, a altura do chão muda: acompanha suavemente (sobe rápido, desce devagar)
-      const alvoR = raioSuperficie(c, d) + ALTURA_OLHO, rAt = estado.local.length();
+      const alvoR = raioSuperficie(c, d) + alturaOlho(c), rAt = estado.local.length();
       const novoR = rAt + (alvoR - rAt) * (1 - Math.exp(-dt * (alvoR > rAt ? 12 : 2.5)));
       estado.local.copy(d).multiplyScalar(Math.max(novoR, alvoR - 0.01));
+      }
     }
   } else {
     const frente = estado.cruzeiro ? 1 : ex.frente;
@@ -2851,7 +2941,7 @@ function passo() {
   // Não atravessar superfícies
   if (proximo && !(p && p.modo === 'pouso')) {
     const rel = camAbs().sub(proximo.abs);
-    const minimo = raioSuperficie(proximo, rel) + (proximo.tipo === 'estrela' ? 2000 : GASOSOS.includes(proximo.id) ? 50 : ALTURA_OLHO);
+    const minimo = raioSuperficie(proximo, rel) + (proximo.tipo === 'estrela' ? 2000 : GASOSOS.includes(proximo.id) ? TOPO_NUVENS : ALTURA_OLHO);
     if (rel.length() < minimo) {
       rel.setLength(minimo);
       camAbs(tmpV);
@@ -2861,7 +2951,7 @@ function passo() {
 
   // Nivelar com o horizonte perto de um corpo
   if (estado.nivelar && estado.ref && estado.ref.tipo !== 'estrela' && altRef < estado.ref.raio * 2 && !(p && p.modo !== 'pouso')) {
-    const up = estado.local.clone().normalize();
+    const up = altRef < estado.ref.raio * 0.2 ? cimaChao(estado.ref, estado.local, new THREE.Vector3()) : estado.local.clone().normalize();
     const fr = new THREE.Vector3(0, 0, -1).applyQuaternion(estado.q);
     if (Math.abs(fr.dot(up)) < 0.98) {
       const desejado = up.clone().addScaledVector(fr, -fr.dot(up)).normalize();
@@ -2923,6 +3013,8 @@ function desenhar() {
   const pxPorRad = vr.ativo ? vr.pxPorRad() / renderer.getPixelRatio() : innerHeight / (camera.fov * GRAU);
   const sol = PORID.sol;
   const rotulosPostos = [];
+  const atrasDoRelevo = caixasDoRelevo(); // os nomes do céu não entram abaixo do horizonte de verdade
+  rotulosPostos.push(...atrasDoRelevo);
   atualizarSolAparente();
   luzSolLua = luzEclipseJS(pontoGeocentrico(abs.clone()), PORID.lua, PORID.lua.raio);
   luzSolAqui = Math.min(luzSolLua, estado.ref?.id === 'lua' ? luzEclipseJS(abs, PORID.terra, PORID.terra.raio * 1.02) : 1);
@@ -2952,6 +3044,8 @@ function desenhar() {
       }
     }
   }
+
+  if (ra && abaixoDasNuvens(ra)) diaNoCeu = 1; // abaixo das nuvens de Vênus ou da névoa de Titã, nunca se veem estrelas
 
   // Ofuscamento: com o Sol no campo de visão (ou perto dele), a "câmera" fecha, como em qualquer foto: as estrelas e a
   // Via Láctea somem em volta dele. Mais forte quanto mais perto do Sol; com "Céu realçado", desligado.
@@ -2996,7 +3090,7 @@ function desenhar() {
       uniformsEclipse(c, u, luz);
       // relevo em ladrilhos: carrega abaixo de 1,5 raio de altitude e assume abaixo de 1 raio, com a esfera afundada por baixo
       if (c.solo) {
-        const altC = d - c.raio, quer = altC < c.raio * 1.5 && !vr.ativo && !(c.nevoa && estado.nevoaTita);
+        const altC = d - c.raio, quer = altC < c.raio * 1.5 && !vr.ativo && !(c.nevoa && nevoaPorCima(c));
         if (quer) {
           const inv = tmpQ.copy(c.qOri).invert();
           c.solo.ativo = altC < c.raio && (c.solo.ativo || c.solo.completo());
@@ -3016,21 +3110,37 @@ function desenhar() {
       u.exagero.value = estado.exagero;
       u.usarTextura.value = estado.texturas ? 1 : 0;
       if (c.nevoa) { // Titã: a névoa por cima ou a superfície
-        u.temMapa.value = estado.nevoaTita || !c.mapaPronto ? 0 : 1;
-        u.temRelevo.value = estado.nevoaTita || !c.relevoPronto ? 0 : 1;
+        u.temMapa.value = nevoaPorCima(c) || !c.mapaPronto ? 0 : 1;
+        u.temRelevo.value = nevoaPorCima(c) || !c.relevoPronto ? 0 : 1;
       }
-      u.detalhe.value = c.rochoso && estado.inventado ? 1 : 0;
+      const sobNuvens = abaixoDasNuvens(c);
+      if (c.nuvensAlt) { // Vênus, Titã: abaixo das nuvens, o chão some na distância e a luz vem do céu todo
+        const [base, topo] = c.nuvensAlt, t = Math.min(Math.max((d - c.raio - base) / (topo - base), 0), 1);
+        u.veuKm.value = sobNuvens ? c.veu.km * ((topo * 0.12) / c.veu.km) ** t : 0; // dentro das nuvens, quase nada se vê
+        u.difusa.value = sobNuvens ? 0.85 : 0;
+        u.corVeu.value.setRGB(...c.veu.cor).convertSRGBToLinear();
+        if (sobNuvens) u.corLuz.value.setRGB(...c.veu.luz); else u.corLuz.value.setRGB(1, 1, 1);
+        if (c.texturaChao) { // Vênus: o mapa do chão no lugar do das nuvens
+          if (sobNuvens && !c.mapaChao) c.mapaChao = textura(c.texturaChao, true, () => (c.mapaChaoPronto = true));
+          if (sobNuvens && c.mapaChaoPronto && u.mapa.value !== c.mapaChao) { c.mapaCima = u.mapa.value; u.mapa.value = c.mapaChao; u.temMapa.value = 1; }
+          else if (!sobNuvens && c.mapaCima) { u.mapa.value = c.mapaCima; c.mapaCima = null; u.temMapa.value = c.mapaPronto ? 1 : 0; }
+        }
+      }
+      const gasoso = GASOSOS.includes(c.id);
+      u.detalhe.value = (c.rochoso || sobNuvens || gasoso) && estado.inventado ? 1 : 0;
+      if (c.nuvensAlt) u.crateraForca.value = sobNuvens ? 0.15 : c.rochoso ? 0.15 : 0;
       u.exposicao.value = c.id === 'lua' && diaNoCeu < 1 && ra && ra.id === 'terra' && d > c.raio * 20 ? 3.2 : 1; // vista do chão à noite, a Lua brilha como de verdade
       u.polo.value.copy(polo.set(0, 1, 0).applyQuaternion(c.qOri));
-      if (c.rochoso && d - c.raio < 3000) {
+      if ((c.rochoso || sobNuvens || gasoso) && d - c.raio < 3000) {
         // Posição da câmera no corpo, reduzida ao período do ruído em cada oitava (precisão dupla)
         const inv = tmpQ.copy(c.qOri).invert();
         u.paraCorpo.value.setFromMatrix4(_m4.makeRotationFromQuaternion(inv));
         const cb = _cb.copy(abs).sub(c.abs).applyQuaternion(inv);
         let k = 1 / 40;
         for (const o of u.camOct.value) {
-          o.set(((cb.x * k) % 289 + 289) % 289, ((cb.y * k) % 289 + 289) % 289, ((cb.z * k) % 289 + 289) % 289);
-          cb.applyMatrix3(GIRO);
+          const ke = gasoso ? k * 0.25 : k; // como no shader: nuvens esticadas no plano do equador, sem giro
+          o.set(((cb.x * ke) % 289 + 289) % 289, ((cb.y * k) % 289 + 289) % 289, ((cb.z * ke) % 289 + 289) % 289);
+          if (!gasoso) cb.applyMatrix3(GIRO);
           k *= 2;
         }
       }
@@ -3196,10 +3306,13 @@ function desenhar() {
   if (terra.ativo) terra.atualizar(camLocal, relT, T.qOri, _luzT.copy(solAparente).sub(T.abs).normalize(), estado.exagero, estado.atmFisica ? 0 : Math.min(Math.max(1.2 - altT / 300, 0), 1), estado.nivelMar / 1000, estado.gelo ? 1 : 0, camera, estado.ceuModo, estado.ceuModo);
   else terra.esconder();
   if (camadas) {
-    camadas.atualizar(camLocal, relT, T.qOri, sT, camera, rotulosPostos,
+    // os nomes da Terra (cidades, picos) ficam no chão: o horizonte não os esconde
+    const postosChao = rotulosPostos.filter((b) => !atrasDoRelevo.includes(b)), n0 = postosChao.length;
+    camadas.atualizar(camLocal, relT, T.qOri, sT, camera, postosChao,
       estado.epocaMa || estado.gelo || estado.ceuModo ? { cidades: 'nenhuma', fronteiras: false, nomes: false, picos: false } // camadas de hoje não valem no passado nem no céu
         : { cidades: estado.nomes ? estado.cidades : 'nenhuma', fronteiras: estado.fronteiras, nomes: estado.nomes && estado.nomesTerra, picos: estado.nomes && estado.picos },
       (dir) => (terra.ativo ? terra.altura(dir, estado.nivelMar / 1000) * estado.exagero : 0));
+    rotulosPostos.push(...postosChao.slice(n0)); // o que as camadas puseram
   }
   desenharCeu(abs, rotulosPostos);
   desenharHaloSol(abs);
@@ -3392,6 +3505,57 @@ function quandoSaiu(seg) {
 }
 
 // Nomes das constelações (perto do Sol), bússola e informações do céu no modo "olhar para o céu"
+// Morros e bordas de cratera escondem o céu atrás deles. Perto do chão, mede o horizonte de verdade em volta (a cada
+// poucos quadros) e devolve, coluna a coluna da tela, a área abaixo dele, onde os nomes do céu não entram.
+const HZ_N = 48, horiz = { elev: new Float32Array(HZ_N), e1: new THREE.Vector3(), e2: new THREE.Vector3(), up: new THREE.Vector3(), pos: new THREE.Vector3(), c: null, quadro: -99 };
+const _hzP = new THREE.Vector3(), _hzD = new THREE.Vector3();
+function caixasDoRelevo() {
+  const c = estado.ref;
+  if (!c || !c.malha || c.tipo === 'estrela' || GASOSOS.includes(c.id) || estado.telescopio || vr.ativo) return [];
+  if (!(altRef < Math.max(3, c.raio * 0.003)) || (c.nevoa && nevoaPorCima(c))) return [];
+  const olho = estado.local, H = horiz;
+  if (H.c !== c || quadro - H.quadro > 10 || H.pos.distanceTo(olho) > 0.01 + altRef * 0.05) {
+    H.c = c; H.quadro = quadro; H.pos.copy(olho);
+    H.up.copy(olho).normalize();
+    H.e1.crossVectors(H.up, Math.abs(H.up.y) < 0.9 ? eixoY : eixoX).normalize();
+    H.e2.crossVectors(H.up, H.e1);
+    const faixa = c.relevo ? c.relevo[2] - c.relevo[1] : 10;
+    const dMax = Math.min(c.raio * 0.5, Math.sqrt(2 * c.raio * (Math.max(altRef, 0) + faixa)) * 1.5);
+    for (let i = 0; i < HZ_N; i++) {
+      const az = (i / HZ_N) * 2 * Math.PI;
+      _hzD.copy(H.e1).multiplyScalar(Math.cos(az)).addScaledVector(H.e2, Math.sin(az));
+      let max = -Math.PI / 2;
+      for (let d = 0.005; d < dMax; d *= 1.35) {
+        _hzP.copy(olho).addScaledVector(_hzD, d);
+        _hzP.setLength(raioSuperficie(c, _hzP)).sub(olho);
+        max = Math.max(max, Math.asin(Math.min(Math.max(_hzP.normalize().dot(H.up), -1), 1)));
+      }
+      H.elev[i] = max;
+    }
+  }
+  // o perfil projetado na tela
+  const pts = [];
+  for (let i = 0; i <= HZ_N; i++) {
+    const az = (i / HZ_N) * 2 * Math.PI, el = H.elev[i % HZ_N];
+    _hzP.copy(H.e1).multiplyScalar(Math.cos(az) * Math.cos(el)).addScaledVector(H.e2, Math.sin(az) * Math.cos(el)).addScaledVector(H.up, Math.sin(el));
+    _hzP.applyMatrix4(camera.matrixWorldInverse);
+    if (_hzP.z >= -1e-9) { pts.push(null); continue; }
+    _hzP.applyMatrix4(camera.projectionMatrix);
+    pts.push([(_hzP.x * 0.5 + 0.5) * innerWidth, (-_hzP.y * 0.5 + 0.5) * innerHeight]);
+  }
+  const caixas = [], L = 16;
+  for (let x = L / 2; x < innerWidth + L; x += L) {
+    let y = Infinity;
+    for (let i = 0; i < HZ_N; i++) {
+      const a = pts[i], b = pts[i + 1];
+      if (!a || !b || (a[0] - x) * (b[0] - x) > 0 || a[0] === b[0]) continue;
+      y = Math.min(y, a[1] + ((b[1] - a[1]) * (x - a[0])) / (b[0] - a[0]));
+    }
+    if (y < innerHeight) caixas.push([x - L / 2, y, x + L / 2, innerHeight + 100]);
+  }
+  return caixas;
+}
+
 function desenharCeu(abs, postos) {
   if (linhasConst) {
     const dSolAl = abs.distanceTo(PORID.sol.abs) / AL;
@@ -3546,7 +3710,7 @@ function painel() {
   else if (p && p.modo === 'pouso') st = tr('Pousando {em:c}: altitude {d}', { c: p.alvo, d: distancia(Math.max(altProx, 0)) });
   else if (p && p.modo === 'lugar') st = tr('Voando para {c}: {d} de altitude', { c: p.lugar.nome, d: distancia(Math.max(altProx, 0)) });
   else if (estado.aviao) st = tr('Modo avião: {d} sobre o chão · ↑↓ sobe/desce · ←→ vira · Y desliga', { d: distancia(estado.altAviao) });
-  else if (estado.pousado) st = tr('No chão {de:c}. Setas para andar, R para decolar.', { c: estado.pousado });
+  else if (estado.pousado) st = GASOSOS.includes(estado.pousado.id) ? tr('Sobre as nuvens {de:c}. Setas para voar, R para subir.', { c: estado.pousado }) : tr('No chão {de:c}. Setas para andar, R para decolar.', { c: estado.pousado });
   else if (estado.alvo?.soCeu) st = tr('{c} · {tipo}: um objeto do céu, para ver com o telescópio no modo céu', { c: estado.alvo.nome, tipo: tr(estado.alvo.tipo.trim()) });
   else if (estado.alvo) {
     const dc = distChegada(estado.alvo);
@@ -3557,7 +3721,25 @@ function painel() {
   }
   if (estado.cruzeiro) st = st ? `${tr('Cruzeiro ligado (C para desligar)')} · ${st}` : tr('Cruzeiro ligado (C para desligar)');
   $('statusViagem').textContent = st;
+  atualizarNoChao();
   if (performance.now() > avisoAte) $('aviso').textContent = '';
+}
+
+// Quadro "no chão": onde se está, a gravidade (comparada à da Terra) e os comandos, enquanto se está pousado
+let noChaoTxt = '';
+function atualizarNoChao() {
+  const c = estado.pousado;
+  document.body.classList.toggle('noChao', !!c);
+  document.body.classList.toggle('noGas', !!c && GASOSOS.includes(c.id));
+  if (!c) { noChaoTxt = ''; return; }
+  const g = gravidadeDe(c), pct = (g / 9.81) * 100;
+  const kg = (60 * g) / 9.81, s2 = (n) => n.toLocaleString(LOCALE, { maximumSignificantDigits: 2 }); // as tabelas dão 2 ou 3 algarismos
+  const gTxt = tr('gravidade {g} m/s² ({p}% da da Terra): quem pesa 60 kg sente como {k}', { g: s2(g), p: s2(pct), k: kg < 1 ? `${s2(kg * 1000)} g` : `${s2(kg)} kg` });
+  const gas = GASOSOS.includes(c.id);
+  const cmd = gas ? (ehCelular() ? tr('▲▼ voar · arraste para olhar · ⇡ subir') : tr('↑↓ voar · ←→ virar · arraste para olhar · R sobe'))
+    : ehCelular() ? tr('▲▼ andar · arraste para olhar · ⤒ pular · ⇡ decolar') : tr('↑↓ andar · ←→ virar · arraste para olhar · Espaço pula · R decola · Z olha o céu');
+  const txt = `${gas ? tr('Sobre as nuvens {de:c}', { c }) : tr('No chão {de:c}', { c })} · ${gTxt}\n${cmd}`;
+  if (txt !== noChaoTxt) { noChaoTxt = txt; $('noChao').textContent = txt; }
 }
 
 renderer.setAnimationLoop(passo); // (e não requestAnimationFrame: nos óculos quem dá o ritmo é a sessão WebXR)
@@ -3953,4 +4135,4 @@ function sobrevoar(id, lat, lon, alt, inclinacao = 20) {
   frente.multiplyScalar(Math.cos(inclinacao * GRAU)).addScaledVector(d, -Math.sin(inclinacao * GRAU));
   quatOlhando(frente, estado.q, d);
 }
-window.__sim = { mostrarFicha, teleportar, sobrevoar, subsolar, exo, vagasExo, zonaHab, planetaPorNome, pequenos, maximoDaqui, modelos, testeMeteoros: (n) => { const up = estado.local.clone().normalize(); const c = CHUVAS.find((x) => x.nome === "Oriônidas"); for (let i = 0; i < n; i++) { novoMeteoro(c.dir, c.v, up); if (meteoros.length) meteoros[meteoros.length - 1].t = 0.45; } }, quadros: (n = 1) => { for (let i = 0; i < n; i++) { tAnterior = performance.now() - 16; passo(); } }, luzEclipseJS, coroa, verEclipse, ficarEm, abrirEclipses, predios, vr, alvoNaDirecao, textoPainelVR, satelites, embarcar: (o) => embarcar(o), estado, PORID, camAbs, cat, estrelaObj, vagas, THREE, terra, buscar, indiceBusca, missoes, atualizarPosicoes };
+window.__sim = { mostrarFicha, teleportar, sobrevoar, raioSuperficie, pousar, subsolar, exo, vagasExo, zonaHab, planetaPorNome, pequenos, maximoDaqui, modelos, testeMeteoros: (n) => { const up = estado.local.clone().normalize(); const c = CHUVAS.find((x) => x.nome === "Oriônidas"); for (let i = 0; i < n; i++) { novoMeteoro(c.dir, c.v, up); if (meteoros.length) meteoros[meteoros.length - 1].t = 0.45; } }, quadros: (n = 1) => { for (let i = 0; i < n; i++) { tAnterior = performance.now() - 16; passo(); } }, luzEclipseJS, coroa, verEclipse, ficarEm, abrirEclipses, predios, vr, alvoNaDirecao, textoPainelVR, satelites, embarcar: (o) => embarcar(o), estado, PORID, camAbs, cat, estrelaObj, vagas, THREE, terra, buscar, indiceBusca, missoes, atualizarPosicoes };

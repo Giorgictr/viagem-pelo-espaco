@@ -137,7 +137,9 @@ export function equatorialParaCena(x, y, z, out = new THREE.Vector3()) {
 export const CORPOS = [
   { id: 'sol', nome: 'Sol', tipo: 'estrela', raio: 695700, cor: 0xfff1d8, textura: '2k_sun.jpg', lum: 1, soi: 1.5 * AL, polo: [286.13, 63.87], W: [84.176, 14.1844] },
   { id: 'mercurio', nome: 'Mercúrio', tipo: 'planeta', pai: 'sol', raio: 2439.7, cor: 0xa9a29a, textura: '2k_mercury.jpg', textura4k: '4k_mercury.jpg', soi: 1.12e5, polo: [281.0103, 61.4155], W: [329.5469, 6.1385025], relevo: ['relevo/mercurio_2048.png', -5.36, 4.37], rochoso: true },
-  { id: 'venus', nome: 'Vênus', tipo: 'planeta', pai: 'sol', raio: 6051.8, cor: 0xe8cf9a, textura: '2k_venus_atmosphere.jpg', textura4k: '4k_venus_atmosphere.jpg', soi: 6.16e5, polo: [272.76, 67.16], W: [160.2, -1.4813688], atm: [1.0, 0.85, 0.55, 0.03] },
+  { id: 'venus', nome: 'Vênus', tipo: 'planeta', pai: 'sol', raio: 6051.8, cor: 0xe8cf9a, textura: '2k_venus_atmosphere.jpg', textura4k: '4k_venus_atmosphere.jpg', soi: 6.16e5, polo: [272.76, 67.16], W: [160.2, -1.4813688], atm: [1.0, 0.85, 0.55, 0.03],
+    // abaixo das nuvens (base ~48 km, topo ~70 km), o chão: mapa de radar da Magellan (cores ilustrativas), num ar amarelado
+    nuvensAlt: [48, 70], texturaChao: '2k_venus_surface.jpg', veu: { km: 20, cor: [0.93, 0.68, 0.36], luz: [1.0, 0.8, 0.52] } },
   { id: 'terra', nome: 'Terra', tipo: 'planeta', pai: 'sol', raio: 6371, cor: 0x5d8fd6, textura: '2k_earth_daymap.jpg', noite: '2k_earth_nightmap.jpg', nuvens: '2k_earth_clouds.jpg', soi: 9.25e5, polo: [0, 90], poloT: [-0.641, -0.557], W: [190.147, 360.9856235], atm: [0.32, 0.58, 1.0, 0.025] },
   { id: 'marte', nome: 'Marte', tipo: 'planeta', pai: 'sol', raio: 3389.5, cor: 0xd0704a, textura: '2k_mars.jpg', textura4k: '4k_mars.jpg', soi: 5.77e5, polo: [317.269, 54.432], W: [176.63, 350.89198226], relevo: ['relevo/marte_mola_4096.jpg', -8.2, 21.24], atm: [0.95, 0.6, 0.42, 0.012], rochoso: true },
   { id: 'jupiter', nome: 'Júpiter', tipo: 'planeta', pai: 'sol', raio: 69911, cor: 0xd9b58c, textura: '2k_jupiter.jpg', textura4k: '4k_jupiter.jpg', soi: 4.82e7, polo: [268.057, 64.495], W: [284.95, 870.536], atm: [0.85, 0.8, 0.7, 0.012] },
@@ -165,7 +167,9 @@ export const CORPOS = [
   { id: 'reia', nome: 'Reia', tipo: 'lua', pai: 'saturno', raio: 763.8, cor: 0xcac6bf, orbita: [527108, 4.518212], textura: '2k_reia.jpg', rochoso: true },
   // Titã: de fora, a névoa laranja (como se vê); com a névoa desligada, a superfície por baixo dela: imagem da Cassini
   // no infravermelho próximo (ISS) e relevo do radar (Corlies et al. 2017)
-  { id: 'tita', nome: 'Titã', tipo: 'lua', pai: 'saturno', raio: 2574.7, cor: 0xd9a246, orbita: [1221870, 15.945], atm: [0.95, 0.65, 0.3, 0.12], textura: '2k_titan_surface.jpg', relevo: ['relevo/tita_2048.png', -1.66, 1.14], nevoa: true },
+  { id: 'tita', nome: 'Titã', tipo: 'lua', pai: 'saturno', raio: 2574.7, cor: 0xd9a246, orbita: [1221870, 15.945], atm: [0.95, 0.65, 0.3, 0.12], textura: '2k_titan_surface.jpg', relevo: ['relevo/tita_2048.png', -1.66, 1.14], nevoa: true,
+    // a névoa vai até centenas de km; a Huygens viu o chão abaixo de ~50 km, alaranjado e embaçado
+    nuvensAlt: [50, 200], veu: { km: 25, cor: [0.78, 0.5, 0.22], luz: [1.0, 0.74, 0.44] } },
   { id: 'japeto', nome: 'Jápeto', tipo: 'lua', pai: 'saturno', raio: 734.5, cor: 0x9a8f80, orbita: [3560820, 79.3215], textura: '2k_japeto.jpg', rochoso: true },
   { id: 'miranda', nome: 'Miranda', tipo: 'lua', pai: 'urano', raio: 235.8, cor: 0xb8b8b8, orbita: [129390, 1.413479], textura: '2k_miranda.jpg', rochoso: true },
   { id: 'ariel', nome: 'Ariel', tipo: 'lua', pai: 'urano', raio: 578.9, cor: 0xc4c2be, orbita: [191020, 2.520379], textura: '2k_ariel.jpg', rochoso: true },

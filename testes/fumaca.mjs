@@ -131,6 +131,30 @@ if (await esperar(p, () => !!window.__sim.PORID.tita.solo?.ativo, null, 40000)) 
 else falha('Titã sem névoa: o relevo em ladrilhos não entrou');
 await p.evaluate(() => document.getElementById('btNevoaTita').click());
 
+// pouso: a Lua (e o pulo), Vesta (irregular), Vênus (abaixo das nuvens) e Júpiter (flutua no topo das nuvens)
+const pousarEm = (id, alt) => p.evaluate(async ([id, alt]) => {
+  const s = window.__sim, ss = s.subsolar(id), c = s.PORID[id];
+  s.sobrevoar(id, ss[0] - 20, ss[1] + 25, alt, 25); s.quadros(30); s.pousar();
+  for (let n = 0; s.estado.piloto && n < 4000; n += 50) { s.quadros(50); await new Promise((r) => setTimeout(r, 20)); }
+  s.quadros(30);
+  return { pousado: s.estado.pousado?.id ?? null, alt: s.estado.local.length() - s.raioSuperficie(c, s.estado.local), quadro: document.getElementById('noChao').textContent, mapa: c.malha.material.uniforms.mapa.value?.image?.src ?? '' };
+}, [id, alt]);
+for (const [id, alt, teste] of [
+  ['lua', 300, (r) => r.alt < 0.01],
+  ['vesta', 100, (r) => r.alt < 0.01],
+  ['venus', 500, (r) => r.alt < 0.01 && r.mapa.includes('venus_surface')],
+  ['jupiter', 3000, (r) => r.alt > 45 && r.alt < 55],
+]) {
+  const r = await pousarEm(id, alt);
+  if (r.pousado === id && teste(r) && /gravidade/.test(r.quadro)) ok(`pouso em ${id} (altitude ${(r.alt * 1000).toFixed(1)} m)`);
+  else falha(`pouso em ${id}: ${JSON.stringify(r)}`);
+  if (id === 'lua') {
+    const h = await p.evaluate(() => { const s = window.__sim; dispatchEvent(new KeyboardEvent('keydown', { code: 'Space' })); dispatchEvent(new KeyboardEvent('keyup', { code: 'Space' })); s.quadros(40); return s.estado.pulo?.h ?? 0; });
+    if (h > 0.0005) ok(`pulo na Lua: ${(h * 1000).toFixed(1)} m depois de 0,6 s`); else falha(`o pulo na Lua não subiu (${h})`);
+  }
+}
+await captura(p, 'pt-jupiter-nuvens');
+
 // fichas
 const ficha = await p.evaluate(() => { const s = window.__sim; s.mostrarFicha(s.PORID.marte); const f = document.getElementById('ficha'); return !f.hidden && f.innerText; });
 if (ficha && /Diâmetro/.test(ficha) && /Gravidade/.test(ficha)) ok('ficha de Marte'); else falha('a ficha de Marte não abriu direito');

@@ -170,7 +170,7 @@
 "Clique num nome",
 "escolher como destino · duplo clique: ir",
 "ir até o destino escolhido",
-"pousar no planeta ou lua mais próximo · no chão, setas andam e <kbd>R</kbd> decola",
+"pousar no planeta ou lua mais próximo · no chão, setas andam, <kbd>Espaço</kbd> pula e <kbd>R</kbd> decola (nos gasosos, flutua sobre as nuvens)",
 "relevo real/exagerado · aparência fotos/procedural",
 "nivelar com o horizonte · girar junto com o planeta",
 "efeito da velocidade: dobra (cinema) / relatividade (real) / nenhum · som ligado/desligado",
@@ -228,5 +228,7 @@
 "Clique num nome para escolher o alvo; arraste para mover.",
 "Arrastar sobre um planeta",
 "girar o planeta (dar a volta nele)",
-"Copiar ficha (com as fontes)"
+"Copiar ficha (com as fontes)",
+"Pular",
+"Decolar"
 ]
