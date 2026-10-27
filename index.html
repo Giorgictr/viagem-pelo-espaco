@@ -102,7 +102,8 @@
   input[type=date], input[type=time] { font: inherit; color: var(--texto); background: rgba(255,255,255,.06); border: 1px solid var(--borda); border-radius: 6px; padding: 3px 7px; color-scheme: dark; }
   .messier { position: absolute; transform: translate(6px, -50%); white-space: nowrap; font-size: 11px; color: rgba(200, 225, 190, .8); text-shadow: 0 0 3px #000; cursor: pointer; }
   .messier.alvo { color: #ffd27a; }
-  .constelacao { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(140, 180, 255, .55); text-shadow: 0 0 3px #000; pointer-events: none; }
+  .constelacao { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(140, 180, 255, .55); text-shadow: 0 0 3px #000; pointer-events: auto; cursor: pointer; }
+  .constelacao:hover { color: rgba(190, 215, 255, .95); }
   .bussola { position: absolute; transform: translate(-50%, -100%); font-size: 15px; font-weight: 700; color: rgba(255, 220, 160, .9); text-shadow: 0 0 4px #000; pointer-events: none; }
   @media (max-width: 1000px) { #pTerra { max-width: calc(100vw - 680px); min-width: 200px; } }
   @media (max-width: 760px) { #pTerra { top: 8px; left: 12px; right: 60px; transform: none; max-width: none; min-width: 0; } #pVel { top: 56px !important; } body.semPaineis #pTerra { display: none !important; } }
@@ -148,6 +149,9 @@
   #fichaTipo { text-transform: uppercase; letter-spacing: .1em; font-size: 11px; color: var(--acento); margin-right: 32px; }
   #fichaNome { margin: 2px 0 10px; font-size: 22px; }
   #fichaDados { font-size: 13px; }
+  #fichaDesenho { display: block; width: 100%; height: 280px; border-radius: 8px; margin: 0 0 10px; }
+  #fichaDesenho[hidden] { display: none; }
+  #fichaDados .kv p.txt { grid-column: 1 / -1; margin: 0 0 6px; line-height: 1.5; }
   #fichaDados h4 { margin: 10px 0 4px; font-size: 10.5px; text-transform: uppercase; letter-spacing: .12em; color: var(--acento); font-weight: 600; }
   #fichaDados h4:first-child { margin-top: 0; }
   #fichaFontes { margin-top: 8px; font-size: 11.5px; line-height: 1.5; color: #aab6c6; border-top: 1px solid rgba(255,255,255,.1); padding-top: 6px; }
@@ -241,7 +245,7 @@
 <button id="btPaineis" aria-label="Mostrar ou esconder os painéis">☰</button>
 <div id="menuAbas" hidden></div>
 <div id="novaVersao" hidden><span>Há uma versão nova da Viagem.</span> <button id="btAtualizar">Atualizar</button></div>
-<div id="ficha" hidden><button id="fichaFechar" aria-label="Fechar a ficha">✕</button><div id="fichaTipo"></div><h3 id="fichaNome"></h3><div id="fichaDados"></div><p id="fichaCur"></p><div id="fichaFontes"></div><button id="fichaCopiar">Copiar ficha (com as fontes)</button></div>
+<div id="ficha" hidden><button id="fichaFechar" aria-label="Fechar a ficha">✕</button><div id="fichaTipo"></div><h3 id="fichaNome"></h3><canvas id="fichaDesenho" hidden></canvas><div id="fichaDados"></div><p id="fichaCur"></p><div id="fichaFontes"></div><button id="fichaCopiar">Copiar ficha (com as fontes)</button></div>
 <div id="toque">
   <button data-tecla="KeyW" aria-label="Frente">▲</button>
   <button data-tecla="KeyS" aria-label="Ré">▼</button>

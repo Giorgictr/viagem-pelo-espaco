@@ -2,12 +2,14 @@
 // servir de pesquisa: cada número vem com a fonte (link e data de consulta) e a ficha pode ser copiada como texto.
 // Dados: dados/fichas_dados.json (NASA, JPL; gerado por dados/gerar_fichas.py), dados/fichas.json (textos curados),
 // e, só quando uma ficha precisa, dados/estrelas_info.json (HYG) e dados/exoplanetas_fichas.json (NASA Exoplanet
-// Archive). Os textos passam pela tradução como os do resto da interface.
-import { t, LOCALE } from './idioma.js';
+// Archive); para as constelações, dados/constelacoes_fichas.json (gerado por dados/gerar_constelacoes.py) e
+// dados/constelacoes_textos.json (textos escritos para o projeto, nos três idiomas). Os textos passam pela tradução
+// como os do resto da interface.
+import { t, LOCALE, idioma } from './idioma.js';
 
 const G = 6.674e-11, MASSA_TERRA = 5.972e24, RAIO_SOL = 695700, RAIO_TERRA = 6371, G_TERRA = 9.81, UA = 149597870.7;
 let dados = { corpos: {}, estrelas: {} }, tecnicos = { corpos: {}, galaxias: {}, fontes: {} };
-let estrelasInfo = null, exoInfo = null;
+let estrelasInfo = null, exoInfo = null, constDados = null, constTextos = null;
 export async function carregarFichas() {
   await Promise.all([
     fetch('dados/fichas.json').then((r) => r.json()).then((d) => (dados = d)).catch(() => {}),
@@ -24,8 +26,16 @@ export function gravidadeDe(c) {
   return (4 / 3) * Math.PI * G * 5514 * R;
 }
 // Dados de catálogo das estrelas e das descobertas dos exoplanetas: só baixados na primeira ficha que os usa
-export const precisaExtras = (c) => (c.exo && !exoInfo) || (c.tipo === 'estrela' && c.id !== 'sol' && (!estrelasInfo || (c.exoSistema && !exoInfo)));
-export async function carregarExtras() {
+export const precisaExtras = (c) => (c.exo && !exoInfo) || (c.tipo === 'estrela' && c.id !== 'sol' && (!estrelasInfo || (c.exoSistema && !exoInfo)))
+  || (c.tipo === 'constelacao' && !constDados);
+export async function carregarExtras(c) {
+  if (c?.tipo === 'constelacao') {
+    await Promise.all([
+      fetch('dados/constelacoes_fichas.json').then((r) => r.json()).then((d) => (constDados = d)).catch(() => (constDados = { lista: {} })),
+      fetch('dados/constelacoes_textos.json').then((r) => r.json()).then((d) => (constTextos = d)).catch(() => (constTextos = { textos: {} })),
+    ]);
+    return;
+  }
   await Promise.all([
     estrelasInfo ? null : fetch('dados/estrelas_info.json').then((r) => r.json()).then((d) => (estrelasInfo = d.estrelas)).catch(() => (estrelasInfo = {})),
     exoInfo ? null : fetch('dados/exoplanetas_fichas.json').then((r) => r.json()).then((d) => (exoInfo = d)).catch(() => (exoInfo = {})),
@@ -68,14 +78,61 @@ export function montarFicha(c, h) {
   const f = { nome: c.nome, tipo: '', secoes: [], curiosidade: '', fontes: [], consultado: tecnicos.consultado };
   let secao = null;
   const abrir = (titulo) => { secao = [t(titulo), []]; f.secoes.push(secao); };
-  const add = (rotulo, valor) => { if (valor !== undefined && valor !== null && valor !== '') secao[1].push([t(rotulo), valor]); };
+  const add = (rotulo, valor) => { if (valor !== undefined && valor !== null && valor !== '') secao[1].push([rotulo === null ? null : t(rotulo), valor]); };
   const fonte = (chave) => { const x = tecnicos.fontes[chave]; if (x && !f.fontes.some((y) => y[1] === x[1])) f.fontes.push([t(x[0]), x[1]]); };
-  if (c.exo) fichaExoplaneta(c, f, abrir, add, h);
+  if (c.tipo === 'constelacao') fichaConstelacao(c, f, abrir, add, h);
+  else if (c.exo) fichaExoplaneta(c, f, abrir, add, h);
   else if (c.tipo === 'estrela' && c.id !== 'sol') fichaEstrela(c, f, abrir, add, fonte, h);
   else if (c.tipo === 'galaxia' || c.tipo === 'marco') fichaGalaxia(c, f, abrir, add, h);
   else fichaSistemaSolar(c, f, abrir, add, fonte, h);
   f.secoes = f.secoes.filter((s) => s[1].length);
   return f;
+}
+
+// Constelação: o desenho (f.desenho), os textos da primeira leva (história, como achar, destaque, outros povos) e os
+// dados de todas as 88 (UAI, HYG, OpenNGC). Linhas com rótulo null são parágrafos.
+const MESES = (m) => new Date(Date.UTC(2026, m - 1, 15)).toLocaleDateString(LOCALE, { month: 'long', timeZone: 'UTC' });
+const DIA_MES = (mmdd) => { const [m, d] = mmdd.split('-').map(Number); return new Date(Date.UTC(2026, m - 1, d)).toLocaleDateString(LOCALE, { day: 'numeric', month: 'long', timeZone: 'UTC' }); };
+function fichaConstelacao(c, f, abrir, add, h) {
+  f.tipo = t('Constelação');
+  if (!constDados) return;
+  const [ab, d] = Object.entries(constDados.lista).find(([, v]) => v.pt === c.nomePt) ?? [];
+  if (!d) return;
+  f.consultado = constDados.consultado;
+  const tx = constTextos?.textos?.[ab]?.[idioma] ?? constTextos?.textos?.[ab]?.pt;
+  f.desenho = { d, rotulos: d.principais.filter((e) => e[3] < 3.6).map((e) => [e[0] || grego(e[1]) || e[2], e[5], e[6]]) };
+  if (tx) { abrir('A figura e a história'); add(null, tx.historia); }
+  abrir('Como achar');
+  if (tx) add(null, tx.achar);
+  add('Melhor época', t('Às 21 h, passa mais alto no céu em {m}', { m: MESES(d.mes21h) }));
+  const altBsb = 90 - Math.abs(-15.8 - d.centro[1]), altPoa = 90 - Math.abs(-30 - d.centro[1]), altFor = 90 - Math.abs(-3.7 - d.centro[1]);
+  add('Do Brasil', altFor < 5 ? t('fica abaixo do horizonte: só se vê do hemisfério norte')
+    : altPoa < 5 ? t('aparece baixa no horizonte norte, mais no Norte e no Nordeste; do Sul, não se vê')
+      : d.centro[1] < -60 ? t('do Sul e do Sudeste, nunca se põe: gira em volta do polo sul celeste')
+        : t('passa a {a}° de altura em Brasília', { a: num(Math.min(altBsb, 90)) }) + (d.centro[1] > -15.8 ? ` (${t('ao norte')})` : ` (${t('ao sul')})`));
+  if (d.sol) {
+    add('O Sol passa por ela', t('de {a} a {b}', { a: DIA_MES(d.sol[0]), b: DIA_MES(d.sol[1]) }));
+    add(null, t('As datas dos signos da astrologia são outras: foram fixadas há uns 2 mil anos, e desde então o eixo da Terra mudou de direção (a precessão). As constelações também não têm o mesmo tamanho, e o Sol passa ainda pelo Serpentário.'));
+  }
+  if (tx?.destaque) { abrir('Destaque'); add(null, tx.destaque); }
+  if (tx?.povos) { abrir('Outros povos'); add(null, tx.povos); }
+  abrir('Estrelas mais brilhantes');
+  for (const [nome, bayer, flam, mag, ly] of d.principais.slice(0, 5)) {
+    const desig = bayer ? `${grego(bayer)} ${d.gen}` : flam ? `${flam} ${d.gen}` : '';
+    add(nome ? `${nome}${desig ? ` (${desig})` : ''}` : desig || '—', t('magnitude {m}', { m: num(mag, 2) }) + (ly ? ` · ${t('{n} anos-luz', { n: num(ly) })}` : ''));
+  }
+  if (d.messier.length) {
+    abrir('Para o binóculo e o telescópio');
+    for (const [m, nome, tipo, mag] of d.messier) add(`M${m}${nome ? ` · ${t(nome)}` : ''}`, t(tipo) + (mag ? ` · ${t('magnitude {m}', { m: num(mag, 1) })}` : ''));
+  }
+  abrir('A constelação');
+  add('Nome oficial', `${d.la} (${t('genitivo')} ${d.gen}, ${t('abreviação')} ${ab})`);
+  add('Área', t('{a} graus quadrados, a {n}.ª maior das 88', { a: num(d.area), n: d.posArea }));
+  f.fontes.push([t('Limites, nomes e linhas: UAI, via d3-celestial (Olaf Frohn, BSD)'), 'https://github.com/ofrohn/d3-celestial']);
+  if (d.figura) f.fontes.push([t('Ilustração: Johan Meuris, Stellarium (Free Art License)'), 'https://github.com/Stellarium/stellarium-skycultures/tree/master/western']);
+  f.fontes.push([t('Estrelas: HYG v4.1 (CC BY-SA 4.0)'), 'https://github.com/astronexus/HYG-Database']);
+  if (d.messier.length) f.fontes.push([t('Objetos de Messier: OpenNGC (CC BY-SA 4.0)'), 'https://github.com/mattiaverga/OpenNGC']);
+  if (tx?.povos) f.fontes.push([constTextos.fonte_povos, '']);
 }
 
 function fichaSistemaSolar(c, f, abrir, add, fonte, h) {
@@ -209,13 +266,13 @@ export function textoFicha(f) {
   const l = [f.nome, f.tipo, ''];
   for (const [titulo, linhas] of f.secoes) {
     l.push(titulo.toUpperCase());
-    for (const [k, v] of linhas) l.push(`${k}: ${v}`);
+    for (const [k, v] of linhas) l.push(k === null ? v : `${k}: ${v}`);
     l.push('');
   }
   if (f.curiosidade) l.push(f.curiosidade, '');
   if (f.fontes.length) {
     l.push(t('Fontes') + (f.consultado ? ` (${t('consultadas em {d}', { d: new Date(f.consultado).toLocaleDateString(LOCALE, { timeZone: 'UTC' }) })})` : '') + ':');
-    for (const [n, u] of f.fontes) l.push(`- ${n}: ${u}`);
+    for (const [n, u] of f.fontes) l.push(u ? `- ${n}: ${u}` : `- ${n}`);
     l.push('');
   }
   l.push(`${t('Viagem pelo Espaço')}: https://giorgictr.github.io/viagem-pelo-espaco/`);

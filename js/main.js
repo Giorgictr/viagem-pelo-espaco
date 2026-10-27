@@ -15,6 +15,7 @@ import { criarPredios } from './predios.js';
 import { criarDetalhe, CAMADAS } from './detalhe.js';
 import { criarSolo, lerManifesto } from './solo.js';
 import { criarBrilho } from './brilho.js';
+import { desenharConstelacao } from './desenhoConstelacao.js';
 import { carregarFichas, montarFicha, precisaExtras, carregarExtras, textoFicha, gravidadeDe } from './fichas.js';
 import { exo, carregarExoplanetas, corpoPlaneta, posicaoOrbita, pontoOrbita, resumoPlaneta } from './exoplanetas.js';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
@@ -998,6 +999,7 @@ function mostrarFicha(c) {
     const h4 = document.createElement('h4'), kv = document.createElement('div');
     h4.textContent = titulo; kv.className = 'kv';
     for (const [k, v] of linhas) {
+      if (k === null) { const p = document.createElement('p'); p.className = 'txt'; p.textContent = v; kv.append(p); continue; } // parágrafo
       const a = document.createElement('span'), b = document.createElement('span');
       a.textContent = k; b.textContent = v;
       kv.append(a, b);
@@ -1009,16 +1011,19 @@ function mostrarFicha(c) {
   if (f.fontes.length) {
     $('fichaFontes').append(tr('Fontes') + (f.consultado ? ` (${tr('consultadas em {d}', { d: new Date(f.consultado).toLocaleDateString(LOCALE, { timeZone: 'UTC' }) })})` : '') + ': ');
     f.fontes.forEach(([nome, url], i) => {
-      const a = document.createElement('a');
-      a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = nome;
+      const a = document.createElement(url ? 'a' : 'span');
+      if (url) { a.href = url; a.target = '_blank'; a.rel = 'noopener'; }
+      a.textContent = nome;
       $('fichaFontes').append(i ? ' · ' : '', a);
     });
   }
   fichaAtual = f;
+  $('fichaDesenho').hidden = !f.desenho;
   $('ficha').hidden = false;
+  if (f.desenho) desenharConstelacao($('fichaDesenho'), f.desenho.d, f.desenho.rotulos);
   if (ehCelular()) abrirAba(null); // no celular, uma coisa de cada vez
   // dados de catálogo (estrelas) e da descoberta (exoplanetas) chegam depois, na primeira vez
-  if (precisaExtras(c)) carregarExtras().then(() => { if (!$('ficha').hidden && $('fichaNome').textContent === f.nome) mostrarFicha(c); });
+  if (precisaExtras(c)) carregarExtras(c).then(() => { if (!$('ficha').hidden && $('fichaNome').textContent === f.nome) mostrarFicha(c); });
 }
 let fichaAtual = null;
 $('fichaCopiar').onclick = async () => {
@@ -1989,7 +1994,10 @@ fetch('dados/constelacoes.json').then((r) => r.json()).then((lista) => {
     el.textContent = nome;
     el.style.display = 'none';
     camadaRot.append(el);
-    return { nome, nomePt, dir: new THREE.Vector3(x, y, z), el };
+    const c = { tipo: 'constelacao', nome, nomePt, dir: new THREE.Vector3(x, y, z), el };
+    el.title = tr('Clique para ver a ficha da constelação');
+    el.onclick = () => mostrarFicha(c);
+    return c;
   });
   // na busca: "orion", "escorpiao"… vira a câmera para a constelação e liga o desenho e os nomes
   for (const c of constelacoes) addBusca(`${c.nome} · ${tr('constelação')}`, c.nome, 1e10, () => {
@@ -1998,6 +2006,7 @@ fetch('dados/constelacoes.json').then((r) => r.json()).then((lista) => {
     quatOlhando(c.dir.clone(), estado.q, up);
     if (estado.ceuModo && c.dir.dot(up) < 0) aviso(tr('{c} está abaixo do horizonte agora.', { c: c.nome }));
     else aviso(tr('Olhando para {c}.', { c: c.nome }));
+    mostrarFicha(c);
   });
 });
 // ------------------------------- sondas e cometas: embarcar, momentos e fotos -------------------------------

@@ -1,0 +1,11 @@
+dados/constelacoes_fichas.json (gerado por dados/gerar_constelacoes.py) junta:
+- estrelas do HYG Database v4.1 (astronexus.com), CC BY-SA 4.0;
+- estrelas de encaixe das ilustrações, do Stellarium (cultura "western"), CC BY-SA;
+- constelação de cada objeto de Messier, do OpenNGC (Mattia Verga e colaboradores), CC BY-SA 4.0;
+- nomes, genitivos, limites da UAI e linhas, de d3-celestial (© 2015 Olaf Frohn), licença BSD.
+Por isso o arquivo é distribuído sob CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/).
+Áreas e datas de passagem do Sol foram calculadas neste projeto a partir dos limites.
+
+dados/constelacoes_textos.json: textos escritos para este projeto (história, como achar, destaque, outros povos), nos
+três idiomas. As informações sobre as constelações tupi-guarani seguem Germano Bruno Afonso, "Mitos e estações no
+céu tupi-guarani", Scientific American Brasil, edição especial n.º 14 (2006).

@@ -156,6 +156,17 @@ for (const [id, alt, teste] of [
 }
 await captura(p, 'pt-jupiter-nuvens');
 
+// ficha de constelação: o desenho e os textos
+const fc = await p.evaluate(async () => {
+  window.__sim.buscar('Cruzeiro do Sul').acao();
+  for (let k = 0; k < 40 && !/Área/.test(document.getElementById('fichaDados').innerText); k++) await new Promise((r) => setTimeout(r, 100));
+  return { nome: document.getElementById('fichaNome').textContent, desenho: !document.getElementById('fichaDesenho').hidden, txt: document.getElementById('fichaDados').innerText };
+});
+if (fc.nome === 'Cruzeiro do Sul' && fc.desenho && /Área/.test(fc.txt) && /bandeira do Brasil/.test(fc.txt)) ok('ficha do Cruzeiro do Sul, com desenho e texto');
+else falha(`ficha de constelação: ${JSON.stringify(fc).slice(0, 300)}`);
+await captura(p, 'pt-ficha-cruzeiro');
+await p.evaluate(() => document.getElementById('fichaFechar')?.click());
+
 // fichas
 const ficha = await p.evaluate(() => { const s = window.__sim; s.mostrarFicha(s.PORID.marte); const f = document.getElementById('ficha'); return !f.hidden && f.innerText; });
 if (ficha && /Diâmetro/.test(ficha) && /Gravidade/.test(ficha)) ok('ficha de Marte'); else falha('a ficha de Marte não abriu direito');
@@ -177,7 +188,7 @@ for (const nome of ['orion', 'sirius', 'paris', 'trappist-1', 'andromeda']) {
 ok('busca');
 
 // arrastar sobre a Terra gira em volta dela; arrastar no céu só vira o olhar
-await p.evaluate(() => { const s = window.__sim; s.teleportar(s.PORID.terra); s.quadros(5); });
+await p.evaluate(() => { document.getElementById('fichaFechar')?.click(); const s = window.__sim; s.teleportar(s.PORID.terra); s.quadros(5); }); // a busca de constelação abre a ficha
 await p.waitForTimeout(300);
 const antes = await p.evaluate(() => window.__sim.estado.local.toArray());
 await p.mouse.move(640, 400); await p.mouse.down(); await p.mouse.move(760, 400, { steps: 6 }); await p.mouse.up();
