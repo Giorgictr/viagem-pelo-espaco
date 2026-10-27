@@ -14,6 +14,7 @@ import { criarSatelites, criarFrota } from './satelites.js';
 import { criarPredios } from './predios.js';
 import { criarDetalhe, CAMADAS } from './detalhe.js';
 import { criarSolo, lerManifesto } from './solo.js';
+import { criarBrilho } from './brilho.js';
 import { carregarFichas, montarFicha, precisaExtras, carregarExtras, textoFicha, gravidadeDe } from './fichas.js';
 import { exo, carregarExoplanetas, corpoPlaneta, posicaoOrbita, pontoOrbita, resumoPlaneta } from './exoplanetas.js';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
@@ -39,6 +40,7 @@ const tela = document.getElementById('tela');
 const renderer = new THREE.WebGLRenderer({ canvas: tela, antialias: true, logarithmicDepthBuffer: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 const cena = new THREE.Scene();
+const brilho = criarBrilho(renderer);
 const camera = new THREE.PerspectiveCamera(60, 1, 1e-7, 1e11);
 
 function redimensionar() {
@@ -104,7 +106,7 @@ const estado = {
   pousado: null,              // corpo em que se está caminhando
   nomes: true, linhas: true, freio: true, cinturoes: true,
   fichas: (() => { try { return localStorage.getItem('viagemFichas') !== '0'; } catch { return true; } })(), // fichas de chegada
-  nivelar: true, giraJunto: true, exagero: 1, texturas: true, inventado: true, ceuRealcado: false, efeito: 'dobra', bolha: true, cidades: 'grandes', fronteiras: true, nomesTerra: true, picos: true, aviao: false, altAviao: 1, epocaMa: 0, nivelMar: 0, gelo: false, ceuModo: false, vistaFora: false, nuvensReais: true, nuvensDeriva: true, meteoros: true, meteoros10: false, bortle: 0, messier: true, refracao: true, predios: true, telescopio: false, zoom: 10, rastrear: true, atmFisica: true, constelacoes: false, linhasConst: false, ilustrativas: true, viaReal: true, nevoaTita: true,
+  nivelar: true, giraJunto: true, exagero: 1, texturas: true, inventado: true, ceuRealcado: false, efeito: 'dobra', bolha: true, cidades: 'grandes', fronteiras: true, nomesTerra: true, picos: true, aviao: false, altAviao: 1, epocaMa: 0, nivelMar: 0, gelo: false, ceuModo: false, vistaFora: false, nuvensReais: true, nuvensDeriva: true, meteoros: true, meteoros10: false, bortle: 0, messier: true, refracao: true, predios: true, telescopio: false, zoom: 10, rastrear: true, atmFisica: true, constelacoes: false, linhasConst: false, ilustrativas: true, viaReal: true, nevoaTita: true, brilho: true,
 };
 
 // ------------------------------- texturas -------------------------------
@@ -287,7 +289,7 @@ for (const c of CORPOS) {
       luz: { value: new THREE.Vector3(1, 0, 0) },
       polo: { value: new THREE.Vector3(0, 1, 0) },
       usarPiso: { value: 0 }, pisoMar: { value: 0 }, exposicao: { value: 1 },
-      veuKm: { value: 0 }, difusa: { value: 0 }, nuvemDet: { value: GASOSOS.includes(c.id) ? 1 : 0 }, corVeu: { value: new THREE.Color() }, corLuz: { value: new THREE.Color(1, 1, 1) },
+      veuKm: { value: 0 }, difusa: { value: 0 }, nuvemDet: { value: GASOSOS.includes(c.id) ? 1 : 0 }, tingir: { value: c.id === 'marte' ? 0.7 : 0 }, corVeu: { value: new THREE.Color() }, corLuz: { value: new THREE.Color(1, 1, 1) },
       detalheMapa: { value: null }, detalheJanela: { value: new THREE.Vector4() }, detalheAtivo: { value: 0 },
       detalheMapa2: { value: null }, detalheJanela2: { value: new THREE.Vector4() }, detalheAtivo2: { value: 0 },
       eclOcl: { value: new THREE.Vector3() }, eclRaio: { value: 1 }, eclSolAng: { value: 0.00465 }, eclAtivo: { value: 0 }, eclVermelho: { value: 0 },
@@ -938,6 +940,7 @@ chave('btRelevo', ['Relevo exagerado ×10', 'Relevo real'], () => estado.exagero
 chave('btAparencia', ['Aparência: fotos', 'Aparência: procedural'], () => estado.texturas, () => (estado.texturas = !estado.texturas), 'KeyV');
 chave('btNivelar', ['Nivelar horizonte', 'Horizonte livre'], () => estado.nivelar, () => (estado.nivelar = !estado.nivelar), 'KeyN');
 chave('btPredios', ['Construções em 3D: ligadas', 'Construções em 3D: desligadas'], () => estado.predios, () => (estado.predios = !estado.predios));
+chave('btBrilho', ['Brilho das luzes: ligado', 'Brilho das luzes: desligado'], () => estado.brilho, () => (estado.brilho = !estado.brilho));
 chave('btNevoaTita', ['Névoa de Titã: ligada', 'Névoa de Titã: desligada (superfície)'], () => estado.nevoaTita, () => (estado.nevoaTita = !estado.nevoaTita));
 chave('btAtm', ['Atmosfera: física', 'Atmosfera: simples'], () => estado.atmFisica, () => (estado.atmFisica = !estado.atmFisica));
 chave('btFichas', ['Fichas de chegada: ligadas', 'Fichas de chegada: desligadas'], () => estado.fichas, () => { estado.fichas = !estado.fichas; guardar('viagemFichas', estado.fichas ? '1' : '0'); if (!estado.fichas) fecharFicha(); });
@@ -3013,8 +3016,10 @@ function desenhar() {
   const pxPorRad = vr.ativo ? vr.pxPorRad() / renderer.getPixelRatio() : innerHeight / (camera.fov * GRAU);
   const sol = PORID.sol;
   const rotulosPostos = [];
-  const atrasDoRelevo = caixasDoRelevo(); // os nomes do céu não entram abaixo do horizonte de verdade
-  rotulosPostos.push(...atrasDoRelevo);
+  // os nomes do céu não entram abaixo do horizonte: no chão, o dos morros (vale para tudo, até os planetas); mais alto,
+  // a borda do planeta (só para estrelas e objetos de céu profundo: uma lua na frente do disco continua com nome)
+  const atrasDoRelevo = caixasDoRelevo(), relevoPerto = horiz.perto;
+  if (relevoPerto) rotulosPostos.push(...atrasDoRelevo);
   atualizarSolAparente();
   luzSolLua = luzEclipseJS(pontoGeocentrico(abs.clone()), PORID.lua, PORID.lua.raio);
   luzSolAqui = Math.min(luzSolLua, estado.ref?.id === 'lua' ? luzEclipseJS(abs, PORID.terra, PORID.terra.raio * 1.02) : 1);
@@ -3307,16 +3312,18 @@ function desenhar() {
   else terra.esconder();
   if (camadas) {
     // os nomes da Terra (cidades, picos) ficam no chão: o horizonte não os esconde
-    const postosChao = rotulosPostos.filter((b) => !atrasDoRelevo.includes(b)), n0 = postosChao.length;
+    const postosChao = relevoPerto ? rotulosPostos.filter((b) => !atrasDoRelevo.includes(b)) : rotulosPostos, n0 = postosChao.length;
     camadas.atualizar(camLocal, relT, T.qOri, sT, camera, postosChao,
       estado.epocaMa || estado.gelo || estado.ceuModo ? { cidades: 'nenhuma', fronteiras: false, nomes: false, picos: false } // camadas de hoje não valem no passado nem no céu
         : { cidades: estado.nomes ? estado.cidades : 'nenhuma', fronteiras: estado.fronteiras, nomes: estado.nomes && estado.nomesTerra, picos: estado.nomes && estado.picos },
       (dir) => (terra.ativo ? terra.altura(dir, estado.nivelMar / 1000) * estado.exagero : 0));
-    rotulosPostos.push(...postosChao.slice(n0)); // o que as camadas puseram
+    if (relevoPerto) rotulosPostos.push(...postosChao.slice(n0)); // o que as camadas puseram
   }
+  if (!relevoPerto) rotulosPostos.push(...atrasDoRelevo);
   desenharCeu(abs, rotulosPostos);
   desenharHaloSol(abs);
   desenharMessier(rotulosPostos, pxPorRad);
+  if (!relevoPerto) for (const b of atrasDoRelevo) rotulosPostos.splice(rotulosPostos.indexOf(b), 1);
   desenharPequenos(abs, rotulosPostos);
   talvezGaia12();
   desenharMeteoros();
@@ -3456,7 +3463,7 @@ function desenhar() {
   }
 
   vr.desenhar();
-  renderer.render(cena, camera);
+  brilho.desenhar(cena, camera, estado.brilho && !estado.leve && !vr.ativo ? 0.8 : 0, 0.9); // halo em volta das luzes fortes
 }
 
 // Quando partiu da Terra a luz que chega aqui agora, e o que acontecia na Terra nessa época
@@ -3510,15 +3517,23 @@ function quandoSaiu(seg) {
 const HZ_N = 48, horiz = { elev: new Float32Array(HZ_N), e1: new THREE.Vector3(), e2: new THREE.Vector3(), up: new THREE.Vector3(), pos: new THREE.Vector3(), c: null, quadro: -99 };
 const _hzP = new THREE.Vector3(), _hzD = new THREE.Vector3();
 function caixasDoRelevo() {
-  const c = estado.ref;
-  if (!c || !c.malha || c.tipo === 'estrela' || GASOSOS.includes(c.id) || estado.telescopio || vr.ativo) return [];
-  if (!(altRef < Math.max(3, c.raio * 0.003)) || (c.nevoa && nevoaPorCima(c))) return [];
-  const olho = estado.local, H = horiz;
-  if (H.c !== c || quadro - H.quadro > 10 || H.pos.distanceTo(olho) > 0.01 + altRef * 0.05) {
-    H.c = c; H.quadro = quadro; H.pos.copy(olho);
+  const c = estado.ref, H = horiz;
+  H.perto = false;
+  if (!c || !c.malha || c.tipo === 'estrela' || estado.telescopio || vr.ativo) return [];
+  const olho = estado.local, r = olho.length();
+  if (altRef > c.raio * 30 || r <= c.raio) return []; // de longe, o disco é pequeno
+  H.perto = altRef < Math.max(3, c.raio * 0.003) && !GASOSOS.includes(c.id) && !(c.nevoa && nevoaPorCima(c));
+  const base = () => {
     H.up.copy(olho).normalize();
     H.e1.crossVectors(H.up, Math.abs(H.up.y) < 0.9 ? eixoY : eixoX).normalize();
     H.e2.crossVectors(H.up, H.e1);
+  };
+  if (!H.perto) { // mais alto: o horizonte é a borda da esfera
+    base(); H.c = null;
+    H.elev.fill(-Math.acos(Math.min(c.raio / r, 1)));
+  } else if (H.c !== c || quadro - H.quadro > 10 || H.pos.distanceTo(olho) > 0.01 + altRef * 0.05) {
+    H.c = c; H.quadro = quadro; H.pos.copy(olho);
+    base();
     const faixa = c.relevo ? c.relevo[2] - c.relevo[1] : 10;
     const dMax = Math.min(c.raio * 0.5, Math.sqrt(2 * c.raio * (Math.max(altRef, 0) + faixa)) * 1.5);
     for (let i = 0; i < HZ_N; i++) {
@@ -3533,7 +3548,16 @@ function caixasDoRelevo() {
       H.elev[i] = max;
     }
   }
-  // o perfil projetado na tela
+  // um ponto da tela está abaixo do horizonte?
+  const abaixo = (x, y) => {
+    _hzP.set((x / innerWidth) * 2 - 1, 1 - (y / innerHeight) * 2, 0.5).unproject(camera).sub(camera.position).normalize();
+    const el = Math.asin(Math.min(Math.max(_hzP.dot(H.up), -1), 1));
+    let az = Math.atan2(_hzP.dot(H.e2), _hzP.dot(H.e1)) / (2 * Math.PI) * HZ_N;
+    if (az < 0) az += HZ_N;
+    const i = Math.floor(az) % HZ_N, f = az - Math.floor(az);
+    return el < H.elev[i] * (1 - f) + H.elev[(i + 1) % HZ_N] * f;
+  };
+  // o perfil projetado na tela; em cada coluna, os trechos entre os cruzamentos que ficam abaixo dele
   const pts = [];
   for (let i = 0; i <= HZ_N; i++) {
     const az = (i / HZ_N) * 2 * Math.PI, el = H.elev[i % HZ_N];
@@ -3545,13 +3569,19 @@ function caixasDoRelevo() {
   }
   const caixas = [], L = 16;
   for (let x = L / 2; x < innerWidth + L; x += L) {
-    let y = Infinity;
+    const ys = [-100];
     for (let i = 0; i < HZ_N; i++) {
       const a = pts[i], b = pts[i + 1];
       if (!a || !b || (a[0] - x) * (b[0] - x) > 0 || a[0] === b[0]) continue;
-      y = Math.min(y, a[1] + ((b[1] - a[1]) * (x - a[0])) / (b[0] - a[0]));
+      const y = a[1] + ((b[1] - a[1]) * (x - a[0])) / (b[0] - a[0]);
+      if (y > -100 && y < innerHeight + 100) ys.push(y);
     }
-    if (y < innerHeight) caixas.push([x - L / 2, y, x + L / 2, innerHeight + 100]);
+    ys.push(innerHeight + 100);
+    ys.sort((p, q) => p - q);
+    for (let k = 0; k + 1 < ys.length; k++) {
+      if (ys[k + 1] - ys[k] < 1) continue;
+      if (abaixo(x, Math.min(Math.max((ys[k] + ys[k + 1]) / 2, 0), innerHeight))) caixas.push([x - L / 2, ys[k], x + L / 2, ys[k + 1]]);
+    }
   }
   return caixas;
 }

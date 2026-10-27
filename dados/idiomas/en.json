@@ -1658,5 +1658,7 @@
 "↑↓ andar · ←→ virar · arraste para olhar · Espaço pula · R decola · Z olha o céu": "↑↓ walk · ←→ turn · drag to look · Space jumps · R takes off · Z looks at the sky",
 "↑↓ voar · ←→ virar · arraste para olhar · R sobe": "↑↓ fly · ←→ turn · drag to look · R climbs",
 "▲▼ andar · arraste para olhar · ⤒ pular · ⇡ decolar": "▲▼ walk · drag to look · ⤒ jump · ⇡ take off",
-"▲▼ voar · arraste para olhar · ⇡ subir": "▲▼ fly · drag to look · ⇡ climb"
+"▲▼ voar · arraste para olhar · ⇡ subir": "▲▼ fly · drag to look · ⇡ climb",
+"Brilho das luzes: ligado": "Light glow: on",
+"Brilho das luzes: desligado": "Light glow: off"
 }

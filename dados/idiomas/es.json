@@ -1658,5 +1658,7 @@
 "↑↓ andar · ←→ virar · arraste para olhar · Espaço pula · R decola · Z olha o céu": "↑↓ caminar · ←→ girar · arrastra para mirar · Espacio salta · R despega · Z mira el cielo",
 "↑↓ voar · ←→ virar · arraste para olhar · R sobe": "↑↓ volar · ←→ girar · arrastra para mirar · R sube",
 "▲▼ andar · arraste para olhar · ⤒ pular · ⇡ decolar": "▲▼ caminar · arrastra para mirar · ⤒ saltar · ⇡ despegar",
-"▲▼ voar · arraste para olhar · ⇡ subir": "▲▼ volar · arrastra para mirar · ⇡ subir"
+"▲▼ voar · arraste para olhar · ⇡ subir": "▲▼ volar · arrastra para mirar · ⇡ subir",
+"Brilho das luzes: ligado": "Brillo de las luces: activado",
+"Brilho das luzes: desligado": "Brillo de las luces: desactivado"
 }

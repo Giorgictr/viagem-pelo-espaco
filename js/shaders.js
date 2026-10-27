@@ -149,7 +149,8 @@ export const PLANETA_F = LOGF + RUIDO + ECLIPSE + ALT16 + /* glsl */ `
   uniform sampler2D mapa, noite, relevo, detalheMapa, detalheMapa2;
   uniform vec4 detalheJanela, detalheJanela2; uniform float detalheAtivo, detalheAtivo2;
   uniform float temMapa, temNoite, emissivo, temRelevo, hMin, hMax, exagero, raio, detalhe, kmPorUnidade, usarTextura, usarPiso, pisoMar, exposicao, crateraForca;
-  uniform float veuKm, difusa, nuvemDet; // nuvemDet: gigantes gasosos (detalhe de nuvens, esticado na direção dos ventos) // abaixo das nuvens (Vênus, Titã): visibilidade no ar espesso e parte da luz que vem do céu todo
+  uniform float veuKm, difusa, nuvemDet;
+  uniform float tingir; // Marte: as imagens de perto (Viking, via Trek) vêm desbotadas; o claro e escuro delas, com a cor do mapa global // nuvemDet: gigantes gasosos (detalhe de nuvens, esticado na direção dos ventos) // abaixo das nuvens (Vênus, Titã): visibilidade no ar espesso e parte da luz que vem do céu todo
   uniform vec3 corBase, luz, polo, corVeu, corLuz;
   uniform vec2 texel;
   uniform vec3 camOct[16]; uniform mat3 paraCorpo;
@@ -166,6 +167,8 @@ export const PLANETA_F = LOGF + RUIDO + ECLIPSE + ALT16 + /* glsl */ `
     float pesoDet = 0.0;
     if (temMapa > 0.5 && usarTextura > 0.5) {
     base = texture2D(mapa, vUv).rgb;
+    vec3 glob = base;
+    float lumG = max(dot(glob, vec3(0.2126, 0.7152, 0.0722)), 0.01);
     #ifdef LADRILHO
     if (temImg > 0.5) { base = texture2D(imgTile, janelaImg.xy + vT * janelaImg.zw).rgb; pesoDet = 1.0; }
     #else
@@ -186,6 +189,7 @@ export const PLANETA_F = LOGF + RUIDO + ECLIPSE + ALT16 + /* glsl */ `
       }
     }
     #endif
+    if (tingir > 0.0 && pesoDet > 0.0) base = mix(base, glob * dot(base, vec3(0.2126, 0.7152, 0.0722)) / lumG, tingir * pesoDet);
     }
     else {
       // aparência procedural: cor do corpo com manchas e faixas

@@ -136,7 +136,8 @@ const pousarEm = (id, alt) => p.evaluate(async ([id, alt]) => {
   const s = window.__sim, ss = s.subsolar(id), c = s.PORID[id];
   s.sobrevoar(id, ss[0] - 20, ss[1] + 25, alt, 25); s.quadros(30); s.pousar();
   for (let n = 0; s.estado.piloto && n < 4000; n += 50) { s.quadros(50); await new Promise((r) => setTimeout(r, 20)); }
-  s.quadros(30);
+  // um ladrilho de relevo mais fino pode chegar no fim e mudar a altura do chão: a câmera assenta devagar (até ~3 s)
+  for (let n = 0; n < 12; n++) { s.quadros(15); await new Promise((r) => setTimeout(r, 50)); }
   return { pousado: s.estado.pousado?.id ?? null, alt: s.estado.local.length() - s.raioSuperficie(c, s.estado.local), quadro: document.getElementById('noChao').textContent, mapa: c.malha.material.uniforms.mapa.value?.image?.src ?? '' };
 }, [id, alt]);
 for (const [id, alt, teste] of [
@@ -161,7 +162,7 @@ if (ficha && /Diâmetro/.test(ficha) && /Gravidade/.test(ficha)) ok('ficha de Ma
 await p.evaluate(() => document.getElementById('fichaFechar')?.click());
 
 // chaves: liga e desliga de novo
-const chaves = ['btOrbitas', 'btRelevo', 'btAparencia', 'btNivelar', 'btAtm', 'btFichas', 'btInventado', 'btCeu', 'btLinhasConst', 'btNomesConst', 'btIlustr', 'btViaReal', 'btDobra'];
+const chaves = ['btOrbitas', 'btRelevo', 'btAparencia', 'btNivelar', 'btAtm', 'btFichas', 'btInventado', 'btCeu', 'btLinhasConst', 'btNomesConst', 'btIlustr', 'btViaReal', 'btDobra', 'btBrilho'];
 for (const id of chaves) {
   const existe = await p.evaluate((id) => { const b = document.getElementById(id); if (!b) return false; b.click(); window.__sim.quadros(3); b.click(); window.__sim.quadros(3); return true; }, id);
   if (!existe) falha(`botão ${id} sumiu`);
