@@ -1,0 +1,7 @@
+Nomes do relevo (dados/nomes/<corpo>.json, origens.en.json): Gazetteer of Planetary Nomenclature, da União
+Astronômica Internacional (Working Group for Planetary System Nomenclature), mantido pelo USGS Astrogeology Science
+Center (https://planetarynames.wr.usgs.gov). Dados produzidos pelo USGS: domínio público nos EUA. Gerados por
+dados/gerar_nomes.py a partir dos arquivos *_nomenclature_center_pts.zip.
+
+origens.pt.json e origens.es.json: traduções das origens dos nomes, feitas para este projeto.
+tipos.json e famosos.json: textos escritos para este projeto.

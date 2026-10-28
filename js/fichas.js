@@ -9,7 +9,7 @@ import { t, LOCALE, idioma } from './idioma.js';
 
 const G = 6.674e-11, MASSA_TERRA = 5.972e24, RAIO_SOL = 695700, RAIO_TERRA = 6371, G_TERRA = 9.81, UA = 149597870.7;
 let dados = { corpos: {}, estrelas: {} }, tecnicos = { corpos: {}, galaxias: {}, fontes: {} };
-let estrelasInfo = null, exoInfo = null, constDados = null, constTextos = null;
+let estrelasInfo = null, exoInfo = null, constDados = null, constTextos = null, relevo = null;
 export async function carregarFichas() {
   await Promise.all([
     fetch('dados/fichas.json').then((r) => r.json()).then((d) => (dados = d)).catch(() => {}),
@@ -27,8 +27,14 @@ export function gravidadeDe(c) {
 }
 // Dados de catálogo das estrelas e das descobertas dos exoplanetas: só baixados na primeira ficha que os usa
 export const precisaExtras = (c) => (c.exo && !exoInfo) || (c.tipo === 'estrela' && c.id !== 'sol' && (!estrelasInfo || (c.exoSistema && !exoInfo)))
-  || (c.tipo === 'constelacao' && !constDados);
+  || (c.tipo === 'constelacao' && !constDados) || (c.tipo === 'relevo' && !relevo);
 export async function carregarExtras(c) {
+  if (c?.tipo === 'relevo') { // tipos, textos dos lugares famosos e origens dos nomes (no idioma da página)
+    const pegar = (u) => fetch(u).then((r) => r.json()).catch(() => null);
+    const [tipos, famosos, origens] = await Promise.all([pegar('dados/nomes/tipos.json'), pegar('dados/nomes/famosos.json'), pegar(`dados/nomes/origens.${idioma}.json`)]);
+    relevo = { tipos: tipos ?? {}, famosos: famosos ?? {}, origens: origens ?? [] };
+    return;
+  }
   if (c?.tipo === 'constelacao') {
     await Promise.all([
       fetch('dados/constelacoes_fichas.json').then((r) => r.json()).then((d) => (constDados = d)).catch(() => (constDados = { lista: {} })),
@@ -81,6 +87,7 @@ export function montarFicha(c, h) {
   const add = (rotulo, valor) => { if (valor !== undefined && valor !== null && valor !== '') secao[1].push([rotulo === null ? null : t(rotulo), valor]); };
   const fonte = (chave) => { const x = tecnicos.fontes[chave]; if (x && !f.fontes.some((y) => y[1] === x[1])) f.fontes.push([t(x[0]), x[1]]); };
   if (c.tipo === 'constelacao') fichaConstelacao(c, f, abrir, add, h);
+  else if (c.tipo === 'relevo') fichaRelevo(c, f, abrir, add);
   else if (c.exo) fichaExoplaneta(c, f, abrir, add, h);
   else if (c.tipo === 'estrela' && c.id !== 'sol') fichaEstrela(c, f, abrir, add, fonte, h);
   else if (c.tipo === 'galaxia' || c.tipo === 'marco') fichaGalaxia(c, f, abrir, add, h);
@@ -133,6 +140,36 @@ function fichaConstelacao(c, f, abrir, add, h) {
   f.fontes.push([t('Estrelas: HYG v4.1 (CC BY-SA 4.0)'), 'https://github.com/astronexus/HYG-Database']);
   if (d.messier.length) f.fontes.push([t('Objetos de Messier: OpenNGC (CC BY-SA 4.0)'), 'https://github.com/mattiaverga/OpenNGC']);
   if (tx?.povos) f.fontes.push([constTextos.fonte_povos, '']);
+}
+
+// Lugar com nome no relevo de outro corpo (Gazetteer da UAI/USGS): o tipo e como se forma, a origem do nome e,
+// nos famosos, um texto escrito para o projeto. Linhas com rótulo null são parágrafos.
+const IDX = { pt: 0, en: 1, es: 2 }[idioma] ?? 0;
+const DESCRITOR = /^(Mons|Montes|Patera|Paterae|Rupes|Dorsum|Dorsa|Vallis|Valles|Fossa|Fossae|Chasma|Chasmata|Tholus|Tholi|Planitia|Corona|Coronae|Catena|Catenae|Linea|Lineae|Regio|Sulcus|Sulci|Fluctus|Facula|Faculae|Planum|Mensa|Mensae|Colles|Cavus|Cavi|Labyrinthus|Terra|Terrae|Macula|Maculae|Undae|Scopulus|Lacus|Lacuna|Mare|Sinus|Palus|Insula|Insulae|Flumen|Flumina|Fretum|Virga|Virgae|Farrum|Farra|Flexus|Arcus|Lingula|Rima|Rimae|Promontorium|Statio|Labes|Chaos|Tessera|Tesserae)$/;
+function fichaRelevo(c, f, abrir, add) {
+  const [nome, cod, diam, lat, lon, io, fid] = c.f;
+  f.nome = nome;
+  if (!relevo) { f.tipo = t('Relevo'); return; }
+  const tp = relevo.tipos[cod];
+  f.tipo = t('{tipo} {em:c}', { tipo: tp ? tp.nome[IDX] : cod, c: c.corpo });
+  f.consultado = relevo.tipos._consultado;
+  const famoso = relevo.famosos[`${c.corpo.id}:${nome}`];
+  if (famoso) { abrir('Sobre este lugar'); add(null, famoso[IDX]); }
+  if (tp) { abrir('Como se forma'); add(null, (tp.corpos?.[c.corpo.id] ?? tp.expl)[IDX]); }
+  let origem = relevo.origens[io];
+  // homenagens a pessoas: a lista dá só os prenomes ("Ira Sprague; astrônomo americano"), porque o sobrenome é o nome
+  // do lugar; junta os dois, sem a palavra do tipo ("Keller Patera" → Helen Keller)
+  const m = origem && /^([^;,()0-9"“]{2,60}); (.+)$/.exec(origem);
+  if (m) {
+    const sobrenome = nome.split(' ').filter((w) => !DESCRITOR.test(w)).join(' ');
+    if (sobrenome && !m[1].includes(sobrenome)) origem = `${m[1]} ${sobrenome}; ${m[2]}`;
+  }
+  if (origem) { abrir('Origem do nome'); add(null, origem); }
+  abrir('Dados');
+  if (diam > 0) add(cod === 'AA' ? 'Diâmetro' : 'Extensão', `${num(diam, diam < 10 ? 1 : 0)} km`);
+  const ns = lat >= 0 ? 'N' : 'S', w = lon > 180, l = w ? 360 - lon : lon;
+  add('Posição', `${num(Math.abs(lat), 2)}° ${ns}, ${num(l, 2)}° ${t(w ? 'O' : 'L')}`);
+  f.fontes.push([t('Nome: UAI, Gazetteer of Planetary Nomenclature (USGS)'), `https://planetarynames.wr.usgs.gov/Feature/${fid}`]);
 }
 
 function fichaSistemaSolar(c, f, abrir, add, fonte, h) {

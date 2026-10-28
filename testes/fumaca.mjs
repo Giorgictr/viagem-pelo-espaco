@@ -156,6 +156,22 @@ for (const [id, alt, teste] of [
 }
 await captura(p, 'pt-jupiter-nuvens');
 
+// nomes do relevo: a busca voa até Tycho e abre a ficha; os nomes aparecem no chão
+const rv = await p.evaluate(async () => {
+  const s = window.__sim;
+  for (let k = 0; k < 40 && !s.buscar('tycho')?.texto?.includes('Tycho'); k++) await new Promise((r) => setTimeout(r, 100));
+  s.buscar('tycho').acao();
+  for (let n = 0; s.estado.piloto && n < 4000; n += 40) { s.quadros(40); await new Promise((r) => setTimeout(r, 20)); }
+  for (let k = 0; k < 40 && !/Sobre este lugar/i.test(document.getElementById('fichaDados').innerText); k++) await new Promise((r) => setTimeout(r, 100));
+  s.quadros(3);
+  return { ref: s.estado.ref?.id, ficha: document.getElementById('fichaNome').textContent, txt: document.getElementById('fichaDados').innerText.slice(0, 200),
+    nomes: [...document.querySelectorAll('.lugar.relevo')].filter((e) => e.style.display !== 'none').length };
+});
+if (rv.ref === 'lua' && rv.ficha === 'Tycho' && /Sobre este lugar/i.test(rv.txt) && rv.nomes > 5) ok(`nomes do relevo: voo até Tycho, ficha e ${rv.nomes} nomes no chão`);
+else falha(`nomes do relevo: ${JSON.stringify(rv)}`);
+await captura(p, 'pt-tycho');
+await p.evaluate(() => document.getElementById('fichaFechar')?.click());
+
 // ficha de constelação: o desenho e os textos
 const fc = await p.evaluate(async () => {
   window.__sim.buscar('Cruzeiro do Sul').acao();

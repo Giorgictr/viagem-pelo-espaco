@@ -1,0 +1,741 @@
+{
+ "_fonte": "Tipos de relevo da UAI (planetarynames.wr.usgs.gov/DescriptorTerms); nomes e explicações escritos para o projeto. 'corpos' traz a explicação própria de um corpo.",
+ "AA": {
+  "nome": [
+   "Cratera",
+   "Crater",
+   "Cráter"
+  ],
+  "expl": [
+   "Buraco aberto pelo impacto de um asteroide ou cometa. Na batida, a rocha é esmagada e lançada para fora, formando a borda elevada; nas crateras grandes, o fundo ricocheteia e sobe um pico central. Quanto mais crateras uma região tem, mais velha é a superfície.",
+   "A hole opened by the impact of an asteroid or comet. On impact, rock is crushed and thrown outward, forming the raised rim; in large craters, the floor rebounds and a central peak rises. The more craters a region has, the older its surface.",
+   "Hoyo abierto por el impacto de un asteroide o cometa. En el choque, la roca se tritura y se lanza hacia afuera, formando el borde elevado; en los cráteres grandes, el fondo rebota y se eleva un pico central. Cuantos más cráteres tiene una región, más vieja es su superficie."
+  ],
+  "corpos": {
+   "io": [
+    "Em Io, os vulcões cobrem a superfície tão depressa que não sobram crateras de impacto; as poucas crateras são vulcânicas.",
+    "On Io, volcanoes resurface the ground so fast that no impact craters survive; its few craters are volcanic.",
+    "En Ío, los volcanes cubren la superficie tan rápido que no quedan cráteres de impacto; los pocos cráteres son volcánicos."
+   ]
+  }
+ },
+ "CR": {
+  "nome": [
+   "Coroa",
+   "Corona",
+   "Corona"
+  ],
+  "expl": [
+   "Estrutura oval cercada de anéis de fraturas e cristas. Em Vênus, formou-se quando uma bolha de rocha quente subiu do manto, levantou a crosta e depois afundou.",
+   "An oval structure surrounded by rings of fractures and ridges. On Venus, it formed when a plume of hot rock rose from the mantle, lifted the crust and later sank.",
+   "Estructura ovalada rodeada de anillos de fracturas y crestas. En Venus, se formó cuando una burbuja de roca caliente subió del manto, levantó la corteza y luego se hundió."
+  ],
+  "corpos": {
+   "miranda": [
+    "Em Miranda, as coroas são grandes regiões de faixas paralelas, como pistas de corrida, que podem ter surgido de gelo mais quente que subiu do interior ou de pedaços de uma lua que se partiu e se juntou de novo.",
+    "On Miranda, coronae are large regions of parallel bands, like racetracks, which may have formed from warmer ice rising from the interior or from pieces of a moon that broke apart and reassembled.",
+    "En Miranda, las coronas son grandes regiones de bandas paralelas, como pistas de carreras, que pudieron surgir de hielo más caliente que subió del interior o de trozos de una luna que se rompió y volvió a juntarse."
+   ]
+  }
+ },
+ "MO": {
+  "nome": [
+   "Monte",
+   "Mountain",
+   "Monte"
+  ],
+  "expl": [
+   "Montanha ou cadeia de montanhas. Pode ser um vulcão, a borda de uma grande bacia de impacto ou um bloco de crosta erguido.",
+   "A mountain or mountain range. It may be a volcano, the rim of a large impact basin or an uplifted block of crust.",
+   "Montaña o cordillera. Puede ser un volcán, el borde de una gran cuenca de impacto o un bloque de corteza levantado."
+  ],
+  "corpos": {
+   "lua": [
+    "As cadeias de montanhas da Lua são, em geral, restos das bordas das grandes bacias de impacto, erguidas em poucos minutos quando um asteroide enorme bateu.",
+    "The Moon's mountain ranges are mostly remnants of the rims of large impact basins, raised within minutes when a huge asteroid struck.",
+    "Las cordilleras de la Luna son, en general, restos de los bordes de las grandes cuencas de impacto, levantadas en pocos minutos cuando chocó un asteroide enorme."
+   ],
+   "io": [
+    "As montanhas de Io não são vulcões: são blocos de crosta empurrados para cima, alguns mais altos que o Everest, enquanto a lava dos vulcões pesa sobre a crosta.",
+    "Io's mountains are not volcanoes: they are blocks of crust pushed upward, some taller than Everest, as lava from the volcanoes weighs down the crust.",
+    "Las montañas de Ío no son volcanes: son bloques de corteza empujados hacia arriba, algunos más altos que el Everest, mientras la lava de los volcanes pesa sobre la corteza."
+   ]
+  }
+ },
+ "PE": {
+  "nome": [
+   "Pátera",
+   "Patera",
+   "Pátera"
+  ],
+  "expl": [
+   "Cratera de bordas irregulares ou recortadas, em geral a boca de um vulcão (caldeira): forma-se quando o magma embaixo se esvazia e o chão desaba.",
+   "A crater with irregular or scalloped edges, usually the mouth of a volcano (a caldera): it forms when the magma below drains and the ground collapses.",
+   "Cráter de bordes irregulares o festoneados, en general la boca de un volcán (caldera): se forma cuando el magma de abajo se vacía y el suelo se hunde."
+  ],
+  "corpos": {
+   "io": [
+    "Em Io, a lua com mais vulcões ativos do Sistema Solar, as páteras são caldeiras vulcânicas, muitas com lagos de lava. O calor vem da gravidade de Júpiter, que espreme e estica Io a cada volta.",
+    "On Io, the moon with the most active volcanoes in the Solar System, paterae are volcanic calderas, many holding lava lakes. The heat comes from Jupiter's gravity, which squeezes and stretches Io on every orbit.",
+    "En Ío, la luna con más volcanes activos del sistema solar, las páteras son calderas volcánicas, muchas con lagos de lava. El calor viene de la gravedad de Júpiter, que aprieta y estira a Ío en cada vuelta."
+   ]
+  }
+ },
+ "VA": {
+  "nome": [
+   "Vale",
+   "Valley",
+   "Valle"
+  ],
+  "expl": [
+   "Vale sinuoso. Em Marte, muitos foram cavados por água que correu há bilhões de anos; outros nasceram de fraturas na crosta.",
+   "A sinuous valley. On Mars, many were carved by water that flowed billions of years ago; others began as fractures in the crust.",
+   "Valle sinuoso. En Marte, muchos fueron excavados por agua que corrió hace miles de millones de años; otros nacieron de fracturas en la corteza."
+  ],
+  "corpos": {
+   "lua": [
+    "Na Lua, os vales costumam ser sulcos abertos pelo material lançado por grandes impactos, ou canais escavados por lava.",
+    "On the Moon, valleys are usually grooves cut by material thrown out by large impacts, or channels carved by lava.",
+    "En la Luna, los valles suelen ser surcos abiertos por el material lanzado por grandes impactos, o canales excavados por lava."
+   ]
+  }
+ },
+ "DO": {
+  "nome": [
+   "Dorso",
+   "Ridge",
+   "Dorso"
+  ],
+  "expl": [
+   "Crista longa e baixa. Em geral, forma-se quando a crosta é comprimida e se dobra; nos mares da Lua, as cristas surgiram quando a lava esfriou e encolheu.",
+   "A long, low ridge. It usually forms when the crust is compressed and folds; in the lunar maria, ridges appeared as the lava cooled and shrank.",
+   "Cresta larga y baja. En general, se forma cuando la corteza se comprime y se pliega; en los mares de la Luna, las crestas surgieron cuando la lava se enfrió y se contrajo."
+  ]
+ },
+ "AL": {
+  "nome": [
+   "Mancha de albedo",
+   "Albedo feature",
+   "Mancha de albedo"
+  ],
+  "expl": [
+   "Região mais clara ou mais escura que o entorno, vista de longe; o nome vem dos mapas feitos ao telescópio, antes das sondas. Muitas vezes não corresponde a uma forma de relevo, só à cor do chão.",
+   "A region brighter or darker than its surroundings, seen from afar; the name comes from maps made at the telescope, before space probes. It often matches no landform, only the color of the ground.",
+   "Región más clara o más oscura que el entorno, vista de lejos; el nombre viene de los mapas hechos con telescopio, antes de las sondas. Muchas veces no corresponde a una forma de relieve, solo al color del suelo."
+  ]
+ },
+ "FO": {
+  "nome": [
+   "Fossa",
+   "Trough",
+   "Fosa"
+  ],
+  "expl": [
+   "Vale longo e estreito, de paredes retas: um bloco de crosta que afundou entre duas falhas quando a superfície foi esticada.",
+   "A long, narrow valley with straight walls: a block of crust that dropped between two faults when the surface was stretched.",
+   "Valle largo y estrecho, de paredes rectas: un bloque de corteza que se hundió entre dos fallas cuando la superficie se estiró."
+  ]
+ },
+ "CM": {
+  "nome": [
+   "Cânion (chasma)",
+   "Canyon (chasma)",
+   "Cañón (chasma)"
+  ],
+  "expl": [
+   "Depressão alongada e profunda, de paredes íngremes, como um cânion. Em geral, foi aberta por fraturas da crosta, e não por um rio.",
+   "A deep, elongated depression with steep walls, like a canyon. It was usually opened by fractures in the crust, not by a river.",
+   "Depresión alargada y profunda, de paredes empinadas, como un cañón. En general, fue abierta por fracturas de la corteza, y no por un río."
+  ]
+ },
+ "RU": {
+  "nome": [
+   "Escarpa",
+   "Scarp",
+   "Escarpe"
+  ],
+  "expl": [
+   "Paredão longo, um degrau na superfície. Em Mercúrio, as escarpas se formaram porque o planeta encolheu ao esfriar, e a crosta se enrugou como a casca de uma maçã seca.",
+   "A long cliff, a step in the surface. On Mercury, scarps formed because the planet shrank as it cooled, and the crust wrinkled like the skin of a drying apple.",
+   "Paredón largo, un escalón en la superficie. En Mercurio, los escarpes se formaron porque el planeta se encogió al enfriarse, y la corteza se arrugó como la piel de una manzana seca."
+  ],
+  "corpos": {
+   "miranda": [
+    "Em Miranda fica Verona Rupes, o maior penhasco conhecido do Sistema Solar, com uns 20 km de altura.",
+    "Miranda has Verona Rupes, the tallest known cliff in the Solar System, about 20 km high.",
+    "En Miranda está Verona Rupes, el acantilado más alto conocido del sistema solar, con unos 20 km de altura."
+   ]
+  }
+ },
+ "LC": {
+  "nome": [
+   "Lago",
+   "Lake",
+   "Lago"
+  ],
+  "expl": [
+   "Na Lua, um 'lago' é uma pequena planície de lava escura, que os primeiros astrônomos imaginavam ser água.",
+   "On the Moon, a 'lake' is a small plain of dark lava, which early astronomers imagined to be water.",
+   "En la Luna, un 'lago' es una pequeña llanura de lava oscura, que los primeros astrónomos imaginaban que era agua."
+  ],
+  "corpos": {
+   "tita": [
+    "Em Titã, os lagos são de verdade: metano e etano líquidos, a quase 180 graus abaixo de zero. Titã é o único lugar além da Terra com líquido parado na superfície.",
+    "On Titan, lakes are real: liquid methane and ethane, at almost 180 degrees below zero. Titan is the only place besides Earth with standing liquid on its surface.",
+    "En Titán, los lagos son de verdad: metano y etano líquidos, a casi 180 grados bajo cero. Titán es el único lugar además de la Tierra con líquido quieto en la superficie."
+   ]
+  }
+ },
+ "RI": {
+  "nome": [
+   "Rima (sulco)",
+   "Rille",
+   "Rima (surco)"
+  ],
+  "expl": [
+   "Sulco estreito na Lua. Os sinuosos são canais por onde correu lava, ou tubos de lava cujo teto desabou; os retos são fraturas da crosta.",
+   "A narrow groove on the Moon. Sinuous rilles are channels where lava flowed, or lava tubes whose roofs collapsed; straight ones are fractures in the crust.",
+   "Surco estrecho en la Luna. Los sinuosos son canales por donde corrió lava, o tubos de lava cuyo techo se derrumbó; los rectos son fracturas de la corteza."
+  ]
+ },
+ "TH": {
+  "nome": [
+   "Tolo (domo)",
+   "Tholus (dome)",
+   "Tolo (domo)"
+  ],
+  "expl": [
+   "Morro arredondado, em forma de domo, quase sempre vulcânico.",
+   "A rounded, dome-shaped hill, almost always volcanic.",
+   "Colina redondeada, en forma de domo, casi siempre volcánica."
+  ],
+  "corpos": {
+   "ceres": [
+    "Em Ceres, os domos podem ser criovulcões: em vez de lava, deles saiu lama de água salgada e gelo, que congelou.",
+    "On Ceres, domes may be cryovolcanoes: instead of lava, they erupted a slurry of salty water and ice that froze.",
+    "En Ceres, los domos pueden ser criovolcanes: en lugar de lava, de ellos salió barro de agua salada y hielo, que se congeló."
+   ]
+  }
+ },
+ "PL": {
+  "nome": [
+   "Planície",
+   "Plain",
+   "Llanura"
+  ],
+  "expl": [
+   "Planície baixa e lisa, em geral coberta de lava ou de sedimentos que apagaram as crateras antigas.",
+   "A low, smooth plain, usually covered by lava or sediments that buried older craters.",
+   "Llanura baja y lisa, en general cubierta de lava o de sedimentos que borraron los cráteres antiguos."
+  ],
+  "corpos": {
+   "plutao": [
+    "Em Plutão, Sputnik Planitia é uma enorme geleira de nitrogênio congelado, que se renova devagar como uma panela de água fervendo em câmera lenta.",
+    "On Pluto, Sputnik Planitia is a huge glacier of frozen nitrogen, which slowly renews itself like a pot of boiling water in slow motion.",
+    "En Plutón, Sputnik Planitia es un enorme glaciar de nitrógeno congelado, que se renueva despacio como una olla de agua hirviendo en cámara lenta."
+   ]
+  }
+ },
+ "SU": {
+  "nome": [
+   "Sulco (sulcus)",
+   "Grooved terrain (sulcus)",
+   "Surco (sulcus)"
+  ],
+  "expl": [
+   "Faixa de sulcos e cristas paralelos, formada quando a crosta de gelo foi esticada e se partiu em blocos.",
+   "A band of parallel grooves and ridges, formed when the icy crust was stretched and broke into blocks.",
+   "Franja de surcos y crestas paralelos, formada cuando la corteza de hielo se estiró y se partió en bloques."
+  ],
+  "corpos": {
+   "encelado": [
+    "Em Encélado, os sulcos do polo sul, as listras de tigre, soltam jatos de vapor d'água e gelo de um oceano escondido sob a crosta.",
+    "On Enceladus, the south polar grooves, the tiger stripes, vent jets of water vapor and ice from an ocean hidden beneath the crust.",
+    "En Encélado, los surcos del polo sur, las rayas de tigre, expulsan chorros de vapor de agua y hielo de un océano escondido bajo la corteza."
+   ]
+  }
+ },
+ "FL": {
+  "nome": [
+   "Fluxo (fluctus)",
+   "Flow (fluctus)",
+   "Flujo (fluctus)"
+  ],
+  "expl": [
+   "Terreno coberto por um derrame de lava (ou, nas luas geladas, de material congelado) que escorreu e endureceu.",
+   "Ground covered by a flow of lava (or, on icy moons, of frozen material) that spread out and hardened.",
+   "Terreno cubierto por un derrame de lava (o, en las lunas heladas, de material congelado) que se extendió y se endureció."
+  ]
+ },
+ "LF": {
+  "nome": [
+   "Nome dado pelos astronautas",
+   "Astronaut-named feature",
+   "Nombre dado por los astronautas"
+  ],
+  "expl": [
+   "Pequena cratera, rocha ou morro perto dos pousos das Apollo, batizado pelos astronautas para se orientar durante as caminhadas; a UAI aprovou esses nomes depois.",
+   "A small crater, rock or hill near an Apollo landing site, named by the astronauts to find their way during their walks; the IAU approved these names later.",
+   "Pequeño cráter, roca o colina cerca de un alunizaje de las Apolo, bautizado por los astronautas para orientarse durante sus caminatas; la UAI aprobó estos nombres después."
+  ]
+ },
+ "LI": {
+  "nome": [
+   "Linha (linea)",
+   "Linea",
+   "Línea (linea)"
+  ],
+  "expl": [
+   "Marca longa e estreita, escura ou clara. Em Europa, são rachaduras na crosta de gelo, que se abre e fecha com a maré de Júpiter; o material escuro pode vir do oceano por baixo.",
+   "A long, narrow marking, dark or bright. On Europa, they are cracks in the ice crust, which opens and closes with Jupiter's tides; the dark material may come from the ocean beneath.",
+   "Marca larga y estrecha, oscura o clara. En Europa, son grietas en la corteza de hielo, que se abre y se cierra con la marea de Júpiter; el material oscuro puede venir del océano de abajo."
+  ]
+ },
+ "CA": {
+  "nome": [
+   "Cadeia de crateras",
+   "Crater chain",
+   "Cadena de cráteres"
+  ],
+  "expl": [
+   "Fileira de crateras. Pode ser o rastro de um cometa ou asteroide que se partiu em pedaços antes de bater, de blocos lançados por um grande impacto, ou de chão que desabou ao longo de uma fratura.",
+   "A row of craters. It may be the trail of a comet or asteroid that broke into pieces before striking, of blocks thrown out by a large impact, or of ground that collapsed along a fracture.",
+   "Fila de cráteres. Puede ser el rastro de un cometa o asteroide que se partió en trozos antes de chocar, de bloques lanzados por un gran impacto, o de suelo que se hundió a lo largo de una fractura."
+  ]
+ },
+ "RE": {
+  "nome": [
+   "Região",
+   "Region",
+   "Región"
+  ],
+  "expl": [
+   "Área grande que se distingue do entorno pela cor ou pelo tipo de terreno.",
+   "A large area set apart from its surroundings by color or type of terrain.",
+   "Área grande que se distingue del entorno por el color o el tipo de terreno."
+  ]
+ },
+ "TE": {
+  "nome": [
+   "Tessera",
+   "Tessera",
+   "Tesela"
+  ],
+  "expl": [
+   "Terreno de Vênus todo cruzado por cristas e vales em várias direções, como um piso de ladrilhos: são as regiões mais antigas e deformadas do planeta.",
+   "Venusian terrain crisscrossed by ridges and valleys in several directions, like a tiled floor: these are the oldest, most deformed regions of the planet.",
+   "Terreno de Venus cruzado por crestas y valles en varias direcciones, como un piso de baldosas: son las regiones más antiguas y deformadas del planeta."
+  ]
+ },
+ "FA": {
+  "nome": [
+   "Mancha clara (fácula)",
+   "Bright spot (facula)",
+   "Mancha clara (fácula)"
+  ],
+  "expl": [
+   "Mancha clara. Em Mercúrio, são depósitos de cinza de erupções explosivas.",
+   "A bright spot. On Mercury, they are deposits of ash from explosive eruptions.",
+   "Mancha clara. En Mercurio, son depósitos de ceniza de erupciones explosivas."
+  ],
+  "corpos": {
+   "ceres": [
+    "Em Ceres, as manchas claras, como as da cratera Occator, são sal (carbonato de sódio) deixado por água salgada que subiu do interior e evaporou.",
+    "On Ceres, the bright spots, like those in Occator crater, are salt (sodium carbonate) left by salty water that rose from the interior and evaporated.",
+    "En Ceres, las manchas claras, como las del cráter Occator, son sal (carbonato de sodio) dejada por agua salada que subió del interior y se evaporó."
+   ],
+   "tita": [
+    "Em Titã, as fáculas são manchas claras, algumas vistas como ilhas nos mares de metano.",
+    "On Titan, faculae are bright spots, some seen as islands in the methane seas.",
+    "En Titán, las fáculas son manchas claras, algunas vistas como islas en los mares de metano."
+   ]
+  }
+ },
+ "PM": {
+  "nome": [
+   "Planalto",
+   "Plateau",
+   "Meseta"
+  ],
+  "expl": [
+   "Planalto, uma área alta e plana.",
+   "A plateau, a high, flat area.",
+   "Meseta, una zona alta y plana."
+  ]
+ },
+ "MN": {
+  "nome": [
+   "Mesa",
+   "Mesa",
+   "Mesa"
+  ],
+  "expl": [
+   "Morro de topo plano e lados íngremes, que sobrou quando o terreno em volta foi desgastado.",
+   "A flat-topped hill with steep sides, left behind when the surrounding terrain was worn away.",
+   "Colina de cima plana y laderas empinadas, que quedó cuando el terreno alrededor se desgastó."
+  ]
+ },
+ "CO": {
+  "nome": [
+   "Colinas",
+   "Hills",
+   "Colinas"
+  ],
+  "expl": [
+   "Pequenos morros, em geral em grupo.",
+   "Small hills, usually in a group.",
+   "Pequeñas colinas, en general en grupo."
+  ]
+ },
+ "CB": {
+  "nome": [
+   "Cavidade",
+   "Hollow (cavus)",
+   "Cavidad"
+  ],
+  "expl": [
+   "Buraco de lados íngremes, sem a borda de uma cratera de impacto: em geral, o chão desabou quando gelo ou rocha embaixo sumiu.",
+   "A steep-sided hole without the rim of an impact crater: usually the ground collapsed when ice or rock beneath it disappeared.",
+   "Hoyo de lados empinados, sin el borde de un cráter de impacto: en general, el suelo se hundió cuando desapareció hielo o roca de abajo."
+  ]
+ },
+ "SI": {
+  "nome": [
+   "Baía",
+   "Bay",
+   "Bahía"
+  ],
+  "expl": [
+   "Na Lua, uma 'baía' é uma pequena planície de lava na beira de um mar lunar.",
+   "On the Moon, a 'bay' is a small lava plain at the edge of a lunar mare.",
+   "En la Luna, una 'bahía' es una pequeña llanura de lava en el borde de un mar lunar."
+  ],
+  "corpos": {
+   "tita": [
+    "Em Titã, as baías são reentrâncias de verdade nas margens dos mares de metano.",
+    "On Titan, bays are real inlets on the shores of the methane seas.",
+    "En Titán, las bahías son entrantes de verdad en las orillas de los mares de metano."
+   ]
+  }
+ },
+ "CH": {
+  "nome": [
+   "Caos",
+   "Chaos",
+   "Caos"
+  ],
+  "expl": [
+   "Terreno quebrado em blocos espalhados. Em Marte, pode ter desabado quando água ou gelo do subsolo escapou de repente; em Europa, os blocos de gelo parecem ter flutuado e girado sobre água ou gelo mole.",
+   "Ground broken into scattered blocks. On Mars, it may have collapsed when underground water or ice suddenly escaped; on Europa, the ice blocks seem to have floated and rotated on water or soft ice.",
+   "Terreno quebrado en bloques dispersos. En Marte, pudo hundirse cuando agua o hielo del subsuelo escapó de golpe; en Europa, los bloques de hielo parecen haber flotado y girado sobre agua o hielo blando."
+  ]
+ },
+ "LB": {
+  "nome": [
+   "Labirinto",
+   "Labyrinth",
+   "Laberinto"
+  ],
+  "expl": [
+   "Rede de vales que se cruzam, como um labirinto, aberta por fraturas e desgaste.",
+   "A network of intersecting valleys, like a maze, opened by fractures and erosion.",
+   "Red de valles que se cruzan, como un laberinto, abierta por fracturas y desgaste."
+  ]
+ },
+ "TA": {
+  "nome": [
+   "Terra (região alta)",
+   "Terra (highland)",
+   "Terra (región alta)"
+  ],
+  "expl": [
+   "Grande região alta, do tamanho de um continente.",
+   "A large highland region, the size of a continent.",
+   "Gran región alta, del tamaño de un continente."
+  ]
+ },
+ "ME": {
+  "nome": [
+   "Mar",
+   "Sea (mare)",
+   "Mar"
+  ],
+  "expl": [
+   "Na Lua, os 'mares' são grandes planícies escuras de lava basáltica. Grandes impactos abriram bacias, que a lava vinda do interior inundou há 3 a 4 bilhões de anos. Os primeiros astrônomos achavam que eram oceanos.",
+   "On the Moon, the 'seas' are large dark plains of basaltic lava. Large impacts opened basins, which lava from the interior flooded 3 to 4 billion years ago. Early astronomers thought they were oceans.",
+   "En la Luna, los 'mares' son grandes llanuras oscuras de lava basáltica. Grandes impactos abrieron cuencas, que la lava venida del interior inundó hace 3 a 4 mil millones de años. Los primeros astrónomos creían que eran océanos."
+  ],
+  "corpos": {
+   "tita": [
+    "Em Titã, os mares são de verdade: metano e etano líquidos. O maior, Kraken Mare, é maior que o Mar Cáspio.",
+    "On Titan, the seas are real: liquid methane and ethane. The largest, Kraken Mare, is larger than the Caspian Sea.",
+    "En Titán, los mares son de verdad: metano y etano líquidos. El mayor, Kraken Mare, es más grande que el mar Caspio."
+   ]
+  }
+ },
+ "MA": {
+  "nome": [
+   "Mancha escura (mácula)",
+   "Dark spot (macula)",
+   "Mancha oscura (mácula)"
+  ],
+  "expl": [
+   "Mancha escura, às vezes de forma irregular.",
+   "A dark spot, sometimes irregular in shape.",
+   "Mancha oscura, a veces de forma irregular."
+  ]
+ },
+ "ER": {
+  "nome": [
+   "Centro eruptivo",
+   "Eruptive center",
+   "Centro eruptivo"
+  ],
+  "expl": [
+   "Vulcão ativo de Io visto em erupção pelas sondas, às vezes com plumas de gás que sobem centenas de quilômetros.",
+   "An active volcano on Io seen erupting by space probes, sometimes with gas plumes rising hundreds of kilometers.",
+   "Volcán activo de Ío visto en erupción por las sondas, a veces con penachos de gas que suben cientos de kilómetros."
+  ]
+ },
+ "UN": {
+  "nome": [
+   "Dunas",
+   "Dunes (unda)",
+   "Dunas"
+  ],
+  "expl": [
+   "Campo de dunas, montes de areia empurrados pelo vento.",
+   "A dune field, mounds of sand pushed by the wind.",
+   "Campo de dunas, montículos de arena empujados por el viento."
+  ]
+ },
+ "SC": {
+  "nome": [
+   "Escarpa irregular",
+   "Scopulus",
+   "Escarpe irregular"
+  ],
+  "expl": [
+   "Escarpa de contorno irregular ou recortado.",
+   "An irregular or lobed scarp.",
+   "Escarpe de contorno irregular o recortado."
+  ]
+ },
+ "IN": {
+  "nome": [
+   "Ilha",
+   "Island",
+   "Isla"
+  ],
+  "expl": [
+   "Ilha num mar ou lago de metano de Titã.",
+   "An island in a methane sea or lake on Titan.",
+   "Isla en un mar o lago de metano de Titán."
+  ]
+ },
+ "LU": {
+  "nome": [
+   "Lago seco",
+   "Dry lake (lacuna)",
+   "Lago seco"
+  ],
+  "expl": [
+   "Depressão de forma irregular em Titã que parece ser um lago seco, onde o metano evaporou.",
+   "An irregular depression on Titan that appears to be a dry lake bed, where the methane evaporated.",
+   "Depresión irregular en Titán que parece ser un lago seco, donde el metano se evaporó."
+  ]
+ },
+ "FM": {
+  "nome": [
+   "Rio",
+   "River (flumen)",
+   "Río"
+  ],
+  "expl": [
+   "Canal em Titã por onde corre (ou correu) metano líquido, como um rio.",
+   "A channel on Titan where liquid methane flows (or flowed), like a river.",
+   "Canal en Titán por donde corre (o corrió) metano líquido, como un río."
+  ]
+ },
+ "LG": {
+  "nome": [
+   "Grande estrutura em anéis",
+   "Large ringed feature",
+   "Gran estructura de anillos"
+  ],
+  "expl": [
+   "Bacia de impacto enorme cercada por muitos anéis concêntricos de cristas e vales, como as ondas de uma pedra na água, congeladas na crosta de gelo.",
+   "A huge impact basin surrounded by many concentric rings of ridges and valleys, like the ripples from a stone in water, frozen into the icy crust.",
+   "Cuenca de impacto enorme rodeada por muchos anillos concéntricos de crestas y valles, como las ondas de una piedra en el agua, congeladas en la corteza de hielo."
+  ]
+ },
+ "LA": {
+  "nome": [
+   "Deslizamento",
+   "Landslide",
+   "Deslizamiento"
+  ],
+  "expl": [
+   "Massa de rocha e terra que desceu uma encosta num deslizamento.",
+   "A mass of rock and debris that slid down a slope.",
+   "Masa de roca y tierra que bajó por una ladera en un deslizamiento."
+  ]
+ },
+ "PA": {
+  "nome": [
+   "Pântano",
+   "Marsh (palus)",
+   "Pantano"
+  ],
+  "expl": [
+   "Na Lua, uma pequena planície de lava, que os primeiros astrônomos imaginaram ser um pântano.",
+   "On the Moon, a small lava plain that early astronomers imagined to be a marsh.",
+   "En la Luna, una pequeña llanura de lava que los primeros astrónomos imaginaron que era un pantano."
+  ]
+ },
+ "PR": {
+  "nome": [
+   "Promontório",
+   "Cape (promontorium)",
+   "Promontorio"
+  ],
+  "expl": [
+   "Cabo de terra alta que avança sobre um mar lunar: em geral, o resto da borda de uma cratera afogada pela lava.",
+   "A headland jutting into a lunar mare: usually the remains of the rim of a crater flooded by lava.",
+   "Cabo de tierra alta que avanza sobre un mar lunar: en general, el resto del borde de un cráter inundado por la lava."
+  ]
+ },
+ "FR": {
+  "nome": [
+   "Domo achatado (farrum)",
+   "Pancake dome (farrum)",
+   "Domo achatado (farrum)"
+  ],
+  "expl": [
+   "Domo vulcânico de topo achatado, como uma panqueca, feito de lava grossa que se espalhou devagar.",
+   "A flat-topped volcanic dome, like a pancake, made of thick lava that spread slowly.",
+   "Domo volcánico de cima achatada, como un panqueque, hecho de lava espesa que se extendió despacio."
+  ]
+ },
+ "VI": {
+  "nome": [
+   "Faixa (virga)",
+   "Streak (virga)",
+   "Franja (virga)"
+  ],
+  "expl": [
+   "Faixa estreita de cor diferente em Titã.",
+   "A narrow streak of different color on Titan.",
+   "Franja estrecha de color distinto en Titán."
+  ]
+ },
+ "ST": {
+  "nome": [
+   "Estação de pouso",
+   "Landing site (statio)",
+   "Estación de alunizaje"
+  ],
+  "expl": [
+   "Local de pouso de uma nave na Lua, batizado depois pela UAI.",
+   "The landing site of a spacecraft on the Moon, later named by the IAU.",
+   "Lugar de alunizaje de una nave en la Luna, bautizado después por la UAI."
+  ]
+ },
+ "FE": {
+  "nome": [
+   "Arco (flexus)",
+   "Cuspate ridge (flexus)",
+   "Arco (flexus)"
+  ],
+  "expl": [
+   "Crista baixa e curva, feita de vários arcos em sequência, como uma fileira de vírgulas: em Europa, são rachaduras na crosta de gelo que foram mudando de direção conforme a maré de Júpiter girava.",
+   "A low, curved ridge made of several arcs in a row, like a chain of commas: on Europa, they are cracks in the ice crust that changed direction as Jupiter's tide rotated.",
+   "Cresta baja y curva, hecha de varios arcos seguidos, como una fila de comas: en Europa, son grietas en la corteza de hielo que fueron cambiando de dirección según giraba la marea de Júpiter."
+  ]
+ },
+ "LN": {
+  "nome": [
+   "Língua (lingula)",
+   "Lingula",
+   "Lengua (lingula)"
+  ],
+  "expl": [
+   "Extensão de um planalto em forma de língua, com bordas arredondadas.",
+   "A tongue-shaped extension of a plateau, with rounded edges.",
+   "Extensión de una meseta en forma de lengua, con bordes redondeados."
+  ]
+ },
+ "SE": {
+  "nome": [
+   "Crista sinuosa (serpens)",
+   "Sinuous ridge (serpens)",
+   "Cresta sinuosa (serpens)"
+  ],
+  "expl": [
+   "Crista que serpenteia pelo chão, talvez o leito de um antigo rio que endureceu e ficou em relevo depois que o terreno em volta se desgastou.",
+   "A ridge that snakes across the ground, perhaps the bed of an ancient river that hardened and was left standing after the surrounding terrain eroded.",
+   "Cresta que serpentea por el suelo, tal vez el lecho de un antiguo río que se endureció y quedó en relieve después de que el terreno alrededor se desgastara."
+  ]
+ },
+ "FT": {
+  "nome": [
+   "Estreito",
+   "Strait (fretum)",
+   "Estrecho"
+  ],
+  "expl": [
+   "Canal estreito que liga dois mares de metano em Titã.",
+   "A narrow channel connecting two methane seas on Titan.",
+   "Canal estrecho que une dos mares de metano en Titán."
+  ]
+ },
+ "PU": {
+  "nome": [
+   "Pluma (gêiser)",
+   "Plume (geyser)",
+   "Penacho (géiser)"
+  ],
+  "expl": [
+   "Jato de gás e poeira escura visto saindo do chão de Tritão pela Voyager 2, em 1989, subindo uns 8 km.",
+   "A jet of gas and dark dust seen rising from Triton's surface by Voyager 2 in 1989, about 8 km high.",
+   "Chorro de gas y polvo oscuro visto saliendo del suelo de Tritón por la Voyager 2, en 1989, subiendo unos 8 km."
+  ]
+ },
+ "VS": {
+  "nome": [
+   "Vastidão",
+   "Vast plain (vastitas)",
+   "Vastedad"
+  ],
+  "expl": [
+   "Planície imensa. Em Marte, Vastitas Borealis cobre quase todo o hemisfério norte; há quem pense que já foi o fundo de um oceano.",
+   "An immense plain. On Mars, Vastitas Borealis covers most of the northern hemisphere; some think it was once the floor of an ocean.",
+   "Llanura inmensa. En Marte, Vastitas Borealis cubre casi todo el hemisferio norte; hay quien piensa que fue el fondo de un océano."
+  ]
+ },
+ "OC": {
+  "nome": [
+   "Oceano",
+   "Ocean",
+   "Océano"
+  ],
+  "expl": [
+   "O Oceano das Tempestades, o maior dos mares de lava da Lua, maior que o Mar Mediterrâneo.",
+   "The Ocean of Storms, the largest of the Moon's lava seas, larger than the Mediterranean Sea.",
+   "El Océano de las Tormentas, el mayor de los mares de lava de la Luna, más grande que el mar Mediterráneo."
+  ]
+ },
+ "AR": {
+  "nome": [
+   "Arco",
+   "Arc",
+   "Arco"
+  ],
+  "expl": [
+   "Marca em forma de arco.",
+   "An arc-shaped marking.",
+   "Marca en forma de arco."
+  ]
+ },
+ "_consultado": "2026-10-28"
+}

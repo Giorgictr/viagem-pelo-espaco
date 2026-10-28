@@ -1695,5 +1695,16 @@
 "Do Brasil": "From Brazil",
 "Figuras das constelações: ligadas": "Constellation figures: on",
 "Figuras das constelações: desligadas": "Constellation figures: off",
-"Figuras das constelações": "Constellation figures"
+"Figuras das constelações": "Constellation figures",
+"{tipo} {em:c}": "{tipo} on {o:c}",
+"Relevo": "Terrain",
+"Sobre este lugar": "About this place",
+"Como se forma": "How it forms",
+"Origem do nome": "Origin of the name",
+"Dados": "Data",
+"Extensão": "Extent",
+"Posição": "Position",
+"O": "W",
+"L": "E",
+"Nome: UAI, Gazetteer of Planetary Nomenclature (USGS)": "Name: IAU, Gazetteer of Planetary Nomenclature (USGS)"
 }

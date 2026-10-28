@@ -17,6 +17,7 @@ import { criarSolo, lerManifesto } from './solo.js';
 import { criarBrilho } from './brilho.js';
 import { desenharConstelacao } from './desenhoConstelacao.js';
 import { criarFiguras } from './figurasCeu.js';
+import { criarNomesRelevo, dirLatLon } from './nomesRelevo.js';
 import { carregarFichas, montarFicha, precisaExtras, carregarExtras, textoFicha, gravidadeDe } from './fichas.js';
 import { exo, carregarExoplanetas, corpoPlaneta, posicaoOrbita, pontoOrbita, resumoPlaneta } from './exoplanetas.js';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
@@ -887,10 +888,9 @@ $('busca').onchange = () => {
 
 // Voar até um lugar da Terra: chega um pouco ao sul dele, olhando para ele de cima
 const ALT_CHEGADA = { cidade: 18, pais: 1500, mar: 1200, pico: 7, regiao: 400 };
-function voarPara(it, depois = null) {
-  const T = PORID.terra;
+function voarPara(it, depois = null, T = PORID.terra) {
   if (estado.ceuModo) sairDoCeu();
-  const altFinal = depois ? 8 : it.tipo === 'cidade' && it.pop < 1e6 ? 6 : ALT_CHEGADA[it.tipo];
+  const altFinal = depois ? 8 : it.altChegada ?? (it.tipo === 'cidade' && it.pop < 1e6 ? 6 : ALT_CHEGADA[it.tipo]);
   const norte = new THREE.Vector3(0, 1, 0).addScaledVector(it.dir, -it.dir.y);
   const dirCam = it.dir.clone();
   if (norte.lengthSq() > 1e-6 && !depois) dirCam.addScaledVector(norte.normalize(), -(altFinal * 1.3) / T.raio).normalize(); // para pousar, chega bem em cima
@@ -2271,6 +2271,28 @@ document.addEventListener('click', (e) => { const b = e.target.closest('button')
 
 // Rótulos
 const camadaRot = $('rotulos');
+// Nomes do relevo (Lua, Marte, Mercúrio, luas...): no chão, perto do corpo; clicar abre a ficha
+const nomesRelevo = criarNomesRelevo(camadaRot, (corpo, f) => mostrarFicha({ tipo: 'relevo', corpo, f, nome: f[0] }));
+const _nrQ = new THREE.Quaternion(), _nrC = new THREE.Vector3(), _nrD = new THREE.Vector3(), _nrP = new THREE.Vector3();
+// voar até um lugar com nome de outro corpo: chega a uma altura que mostra o lugar inteiro
+function voarParaRelevo(c, f) {
+  const tam = f[2] > 0 ? f[2] : 60;
+  voarPara({ nome: f[0], dir: dirLatLon(f[3], f[4]), altChegada: Math.min(Math.max(tam * 1.3, 15), c.raio * 1.5), ficha: () => mostrarFicha({ tipo: 'relevo', corpo: c, f, nome: f[0] }) }, null, c);
+}
+// na busca: os lugares grandes, os mares e montes e os famosos de cada corpo ("tycho", "olympus", "mar da tranquilidade")
+Promise.all([fetch('dados/nomes/busca.json').then((r) => r.json()), fetch('dados/nomes/tipos.json').then((r) => r.json())]).then(([lista, tipos]) => {
+  const I = { pt: 0, en: 1, es: 2 }[idioma] ?? 0;
+  for (const [nome, corpo, lat, lon, diam, cod, io, fid, apPt, apEs] of lista) {
+    const c = PORID[corpo];
+    if (!c) continue;
+    const f = [nome, cod, diam, lat, lon, io, fid];
+    const onde = tr('{tipo} {em:c}', { tipo: tipos[cod]?.nome[I] ?? '', c });
+    const acao = () => voarParaRelevo(c, f);
+    addBusca(`${nome} · ${onde}`, nome, 1e7 + diam * 1e4, acao);
+    const ap = idioma === 'pt' ? apPt : idioma === 'es' ? apEs : null;
+    if (ap) addBusca(`${ap} (${nome}) · ${onde}`, ap, 1e7 + diam * 1e4, acao);
+  }
+}).catch(() => {});
 for (const c of CORPOS) {
   const el = document.createElement('div');
   el.className = `rot ${c.tipo}`;
@@ -2895,6 +2917,7 @@ function passo() {
     if (!p.olharLivre) estado.q.slerp(quatOlhando(pontoW.sub(estado.local), tmpQ, dir), u >= 1 ? 1 : 1 - Math.exp(-dt * (3 + 14 * u * u)));
     if (u >= 1) {
       estado.piloto = null; estado.ultimoLugar = p.lugar; aviso(`${p.lugar.nome}${p.lugar.pais ? `, ${p.lugar.pais}` : ''}`);
+      if (p.lugar.ficha) p.lugar.ficha(); // lugar com nome em outro corpo: abre a ficha ao chegar
       if (p.depois) { // desce até o chão bem no lugar
         const alt0 = estado.local.length() - raioSuperficie(T, estado.local);
         estado.piloto = { modo: 'pouso', alvo: T, t: 0, dur: 3 + Math.log10(Math.max(alt0, 0.01) / ALTURA_OLHO) * 0.8, alt0: Math.max(alt0, ALTURA_OLHO * 2), dirCorpo: p.lugar.dir.clone(), depois: p.depois, lugar: p.lugar };
@@ -3335,6 +3358,23 @@ function desenhar() {
         : { cidades: estado.nomes ? estado.cidades : 'nenhuma', fronteiras: estado.fronteiras, nomes: estado.nomes && estado.nomesTerra, picos: estado.nomes && estado.picos },
       (dir) => (terra.ativo ? terra.altura(dir, estado.nivelMar / 1000) * estado.exagero : 0));
     if (relevoPerto) rotulosPostos.push(...postosChao.slice(n0)); // o que as camadas puseram
+  }
+  { // nomes do relevo do corpo de referência (a Terra tem as camadas próprias)
+    const c = estado.ref;
+    const ok = c && c.malha && c.id !== 'terra' && ['planeta', 'lua', 'anao'].includes(c.tipo) && !GASOSOS.includes(c.id) && estado.nomes && !estado.ceuModo
+      && altRef < c.raio * 3 && !(c.nevoa && nevoaPorCima(c)) && !(c.id === 'venus' && !abaixoDasNuvens(c));
+    if (ok) {
+      _nrQ.copy(c.qOri).invert();
+      const camL = _nrC.copy(estado.local).applyQuaternion(_nrQ);
+      const paraTela = (n, r) => {
+        _nrP.copy(n).multiplyScalar(r).applyQuaternion(c.qOri).sub(estado.local);
+        aberrarJS(_nrP.multiplyScalar(comprimir(_nrP.length()))).applyMatrix4(camera.matrixWorldInverse);
+        if (_nrP.z >= 0) return null;
+        _nrP.applyMatrix4(camera.projectionMatrix);
+        return [(_nrP.x * 0.5 + 0.5) * innerWidth, (-_nrP.y * 0.5 + 0.5) * innerHeight];
+      };
+      nomesRelevo.atualizar(c, camL, paraTela, (n) => raioSuperficie(c, _nrD.copy(n).applyQuaternion(c.qOri)), pxPorRad, rotulosPostos);
+    } else nomesRelevo.esconder();
   }
   if (!relevoPerto) rotulosPostos.push(...atrasDoRelevo);
   desenharCeu(abs, rotulosPostos);
