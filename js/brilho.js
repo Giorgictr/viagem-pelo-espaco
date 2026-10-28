@@ -71,10 +71,27 @@ export function criarBrilho(renderer) {
   // tela: a cena mais o halo
   const juntar = new THREE.ShaderMaterial({
     vertexShader: QUAD_V, depthTest: false, depthWrite: false,
-    uniforms: { cena: { value: null }, halo: { value: null }, forca: { value: 0.5 } },
+    uniforms: { cena: { value: null }, halo: { value: null }, forca: { value: 0.5 }, lente: { value: new THREE.Vector4() }, aspecto: { value: 1 } },
     fragmentShader: /* glsl */ `
-      uniform sampler2D cena, halo; uniform float forca; varying vec2 vUv;
-      void main() { gl_FragColor = vec4(texture2D(cena, vUv).rgb + texture2D(halo, vUv).rgb * forca, 1.0); }`,
+      uniform sampler2D cena, halo; uniform float forca, aspecto;
+      uniform vec4 lente; // buraco negro: centro na tela (x, y), raio de Einstein e raio da sombra (em altura da tela)
+      varying vec2 vUv;
+      void main() {
+        vec2 uv = vUv;
+        float k = 1.0;
+        if (lente.z > 0.0) {
+          // lente pontual: o que se vê a um ângulo θ do centro veio de β = θ − θE²/θ (dentro do anel de Einstein, β < 0:
+          // a imagem do outro lado, invertida); dentro da sombra, nada
+          vec2 d = (vUv - lente.xy) * vec2(aspecto, 1.0);
+          float th = max(length(d), 1e-6);
+          float beta = th - lente.z * lente.z / th;
+          uv = lente.xy + d / th * beta / vec2(aspecto, 1.0);
+          vec2 fora = max(-uv, uv - 1.0);
+          k = (1.0 - clamp(max(fora.x, fora.y) * 6.0, 0.0, 1.0)) * smoothstep(lente.w, lente.w * 1.05, th);
+          uv = clamp(uv, 0.0, 1.0);
+        }
+        gl_FragColor = vec4((texture2D(cena, uv).rgb + (forca > 0.0 ? texture2D(halo, uv).rgb * forca : vec3(0.0))) * k, 1.0);
+      }`,
   });
 
   function preparar() {
@@ -94,11 +111,19 @@ export function criarBrilho(renderer) {
 
   return {
     // desenha a cena com o halo; forca 0 ou nos óculos, direto na tela
-    desenhar(cena, camera, forca = 0.5, limiar = 1) {
-      if (!(forca > 0) || renderer.xr.isPresenting) { renderer.setRenderTarget(null); renderer.render(cena, camera); return; }
+    // lente: { x, y, re, sombra } de um buraco negro (js/buracosNegros.js), ou null
+    desenhar(cena, camera, forca = 0.5, limiar = 1, lente = null) {
+      if ((!(forca > 0) && !lente) || renderer.xr.isPresenting) { renderer.setRenderTarget(null); renderer.render(cena, camera); return; }
       preparar();
       renderer.setRenderTarget(cenaRT);
       renderer.render(cena, camera);
+      juntar.uniforms.lente.value.set(lente ? lente.x : 0, lente ? lente.y : 0, lente ? lente.re : 0, lente ? lente.sombra : 0);
+      juntar.uniforms.aspecto.value = cenaRT.width / cenaRT.height;
+      if (!(forca > 0)) { // só a lente, sem o brilho
+        juntar.uniforms.cena.value = cenaRT.texture; juntar.uniforms.halo.value = cenaRT.texture; juntar.uniforms.forca.value = 0;
+        passar(juntar, null);
+        return;
+      }
       extrair.uniforms.fonte.value = cenaRT.texture;
       extrair.uniforms.limiar.value = limiar;
       extrair.uniforms.texel.value.set(0.5 / cenaRT.width, 0.5 / cenaRT.height);

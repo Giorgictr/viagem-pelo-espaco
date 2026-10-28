@@ -642,6 +642,40 @@ export const LINHA_CEU_V = LOGV + REL + /* glsl */ `
     gl_Position.xy += n * canto.y * (meia + 1.0) * 2.0 / res * ca.w;
     #include <logdepthbuf_vertex>
   }`;
+// Disco de gás em volta de um buraco negro (js/buracosNegros.js); coordenadas locais em raios de Schwarzschild, disco no plano xy
+export const DISCO_V = LOGV + /* glsl */ `
+  varying vec3 vP;
+  void main() {
+    vP = position;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    #include <logdepthbuf_vertex>
+  }`;
+export const DISCO_F = LOGF + /* glsl */ `
+  uniform float brilho; uniform vec3 olho;
+  varying vec3 vP;
+  float h(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+  void main() {
+    #include <logdepthbuf_fragment>
+    float r = length(vP.xy);
+    float rin = 3.0;
+    if (r < rin) discard;
+    // brilho de um disco fino: ∝ r⁻³ (1 − √(rin/r)), máximo perto de 1,36 rin
+    float I = pow(r / rin, -3.0) * (1.0 - sqrt(rin / r)) / 0.0453;
+    float T = pow(r / rin, -0.75); // temperatura relativa
+    vec3 cor = mix(vec3(1.0, 0.32, 0.06), vec3(1.0, 0.82, 0.55), clamp(T * 1.4 - 0.25, 0.0, 1.0));
+    cor = mix(cor, vec3(0.85, 0.92, 1.0), clamp(T * 2.2 - 1.4, 0.0, 1.0));
+    // Doppler relativístico: órbita kepleriana, β = √(rs / 2r); intensidade × δ³
+    vec3 v = normalize(vec3(-vP.y, vP.x, 0.0));
+    vec3 paraOlho = normalize(olho - vP);
+    float b = sqrt(0.5 / r), g = 1.0 / sqrt(1.0 - b * b);
+    float d = 1.0 / (g * (1.0 - b * dot(v, paraOlho)));
+    // faixas de turbulência
+    float ang = atan(vP.y, vP.x);
+    float f = 0.75 + 0.25 * sin(r * 5.0 + 3.0 * sin(ang * 2.0 + r)) + 0.15 * (h(floor(vec2(r * 6.0, ang * 30.0))) - 0.5);
+    float borda = smoothstep(22.0, 12.0, r) * smoothstep(rin, rin * 1.08, r);
+    gl_FragColor = vec4(cor * I * d * d * d * f * borda * brilho * 1.6, 1.0);
+  }`;
+
 // Figuras das constelações no céu (js/figurasCeu.js): a ilustração em cinza, somada à luz do céu, azulada e fraca
 export const FIGURA_CEU_V = LOGV + REL + /* glsl */ `
   varying vec2 vUv;

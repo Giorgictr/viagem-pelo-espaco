@@ -180,6 +180,16 @@ export const CORPOS = [
   { id: 'caronte', nome: 'Caronte', tipo: 'lua', pai: 'plutao', raio: 606, cor: 0xa8a29c, orbita: [19591, 6.3872], textura: '2k_caronte.jpg', relevo: ['relevo/caronte_2048.png', -13.91, 6.75], rochoso: true },
   // Via Láctea e além. Galáxias: raio do disco, ângulo de posição (pa) e inclinação (inc) reais, aproximados.
   // forma: espiral | barrada | eliptica | irregular. grupo: separa as listas de destino.
+  // Buracos negros: raio = raio do horizonte de eventos (raio de Schwarzschild, 2,95 km por massa solar). bn.disco: brilho
+  // do disco de gás (0: adormecido, sem disco). Massas e distâncias: GRAVITY 2019 (Sgr A*), EHT 2019 (M87*),
+  // Miller-Jones et al. 2021 (Cygnus X-1), El-Badry et al. 2023 (Gaia BH1), Gaia 2024 (Gaia BH3), Cantrell et al. 2010 (A0620-00)
+  { id: 'sgra', nome: 'Sagitário A*', tipo: 'marco', grupo: 'Buracos negros', raio: 2.953 * 4.3e6, cor: 0xffc890, lum: 1, ra: 266.41684, dec: -29.00781, dist: 8178 * PC, bn: { massa: 4.3e6, disco: 0.35 } },
+  { id: 'm87bh', nome: 'M87*', tipo: 'marco', grupo: 'Buracos negros', raio: 2.953 * 6.5e9, cor: 0xffd0a0, lum: 1, ra: 187.70593, dec: 12.39112, dist: 5.35e7 * AL, bn: { massa: 6.5e9, disco: 0.8 } },
+  { id: 'cygx1', nome: 'Cygnus X-1', tipo: 'marco', grupo: 'Buracos negros', raio: 2.953 * 21, cor: 0xc8d8ff, lum: 1, ra: 299.59032, dec: 35.20161, dist: 7200 * AL, bn: { massa: 21, disco: 1 } },
+  { id: 'gaiabh1', nome: 'Gaia BH1', tipo: 'marco', grupo: 'Buracos negros', raio: 2.953 * 9.6, cor: 0xd0d0d0, lum: 1, ra: 262.17124, dec: -0.58098, dist: 1560 * AL, bn: { massa: 9.6, disco: 0 } },
+  { id: 'gaiabh3', nome: 'Gaia BH3', tipo: 'marco', grupo: 'Buracos negros', raio: 2.953 * 33, cor: 0xd0d0d0, lum: 1, ra: 294.82796, dec: 14.93167, dist: 1930 * AL, bn: { massa: 33, disco: 0 } },
+  { id: 'v404', nome: 'V404 Cygni', tipo: 'marco', grupo: 'Buracos negros', raio: 2.953 * 9, cor: 0xffd8b0, lum: 1, ra: 306.01592, dec: 33.86722, dist: 7800 * AL, bn: { massa: 9, disco: 0.3 } },
+  { id: 'a0620', nome: 'A0620-00', tipo: 'marco', grupo: 'Buracos negros', raio: 2.953 * 6.6, cor: 0xffd8b0, lum: 1, ra: 95.68559, dec: -0.34564, dist: 3300 * AL, bn: { massa: 6.6, disco: 0.25 } },
   { id: 'centro', nome: 'Centro da Via Láctea (Sgr A*)', tipo: 'marco', grupo: 'Via Láctea', raio: 1.2e7, cor: 0xffd9a0, lum: 4e6, ra: 266.4168, dec: -29.0078, dist: 8178 * PC },
   { id: 'vialactea', nome: 'Via Láctea (vista de fora)', tipo: 'galaxia', grupo: 'Via Láctea', raio: 5e4 * AL, cor: 0xfff0d8, lum: 2e10, ra: 266.4168, dec: -29.0078, dist: 8178 * PC, forma: 'modelo' },
   { id: 'gnm', nome: 'Grande Nuvem de Magalhães', tipo: 'galaxia', grupo: 'Via Láctea', raio: 7e3 * AL, cor: 0xdfe6ff, lum: 1.5e9, ra: 80.894, dec: -69.756, dist: 1.63e5 * AL, forma: 'irregular', pa: 170, inc: 35 },

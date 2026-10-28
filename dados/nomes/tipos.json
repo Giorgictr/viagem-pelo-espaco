@@ -88,15 +88,25 @@
    "Valle"
   ],
   "expl": [
-   "Vale sinuoso. Em Marte, muitos foram cavados por água que correu há bilhões de anos; outros nasceram de fraturas na crosta.",
-   "A sinuous valley. On Mars, many were carved by water that flowed billions of years ago; others began as fractures in the crust.",
-   "Valle sinuoso. En Marte, muchos fueron excavados por agua que corrió hace miles de millones de años; otros nacieron de fracturas en la corteza."
+   "Vale sinuoso, cavado por algo que correu por ali (água, lava ou outro líquido) ou aberto por fraturas da crosta.",
+   "A sinuous valley, carved by something that flowed there (water, lava or another liquid) or opened by fractures in the crust.",
+   "Valle sinuoso, excavado por algo que corrió por allí (agua, lava u otro líquido) o abierto por fracturas de la corteza."
   ],
   "corpos": {
    "lua": [
     "Na Lua, os vales costumam ser sulcos abertos pelo material lançado por grandes impactos, ou canais escavados por lava.",
     "On the Moon, valleys are usually grooves cut by material thrown out by large impacts, or channels carved by lava.",
     "En la Luna, los valles suelen ser surcos abiertos por el material lanzado por grandes impactos, o canales excavados por lava."
+   ],
+   "marte": [
+    "Em Marte, muitos vales foram cavados por água que correu há bilhões de anos, quando o planeta era mais quente e úmido; outros nasceram de fraturas na crosta.",
+    "On Mars, many valleys were carved by water that flowed billions of years ago, when the planet was warmer and wetter; others began as fractures in the crust.",
+    "En Marte, muchos valles fueron excavados por agua que corrió hace miles de millones de años, cuando el planeta era más cálido y húmedo; otros nacieron de fracturas en la corteza."
+   ],
+   "venus": [
+    "Em Vênus, os vales são canais abertos por lava muito fluida; Baltis Vallis, com uns 7 mil km, é o canal mais longo conhecido do Sistema Solar.",
+    "On Venus, valleys are channels cut by very fluid lava; Baltis Vallis, about 7,000 km long, is the longest known channel in the Solar System.",
+    "En Venus, los valles son canales abiertos por lava muy fluida; Baltis Vallis, de unos 7.000 km, es el canal más largo conocido del sistema solar."
    ]
   }
  },
@@ -107,10 +117,17 @@
    "Dorso"
   ],
   "expl": [
-   "Crista longa e baixa. Em geral, forma-se quando a crosta é comprimida e se dobra; nos mares da Lua, as cristas surgiram quando a lava esfriou e encolheu.",
-   "A long, low ridge. It usually forms when the crust is compressed and folds; in the lunar maria, ridges appeared as the lava cooled and shrank.",
-   "Cresta larga y baja. En general, se forma cuando la corteza se comprime y se pliega; en los mares de la Luna, las crestas surgieron cuando la lava se enfrió y se contrajo."
-  ]
+   "Crista longa e baixa, formada quando a crosta foi comprimida e se dobrou.",
+   "A long, low ridge, formed when the crust was compressed and folded.",
+   "Cresta larga y baja, formada cuando la corteza se comprimió y se plegó."
+  ],
+  "corpos": {
+   "lua": [
+    "Na Lua, as cristas dos mares surgiram quando a lava, já endurecida, foi comprimida pelo próprio peso e pelo encolhimento ao esfriar.",
+    "On the Moon, the mare ridges appeared when the hardened lava was compressed by its own weight and by shrinking as it cooled.",
+    "En la Luna, las crestas de los mares surgieron cuando la lava, ya endurecida, fue comprimida por su propio peso y por la contracción al enfriarse."
+   ]
+  }
  },
  "AL": {
   "nome": [
@@ -155,15 +172,25 @@
    "Escarpe"
   ],
   "expl": [
-   "Paredão longo, um degrau na superfície. Em Mercúrio, as escarpas se formaram porque o planeta encolheu ao esfriar, e a crosta se enrugou como a casca de uma maçã seca.",
-   "A long cliff, a step in the surface. On Mercury, scarps formed because the planet shrank as it cooled, and the crust wrinkled like the skin of a drying apple.",
-   "Paredón largo, un escalón en la superficie. En Mercurio, los escarpes se formaron porque el planeta se encogió al enfriarse, y la corteza se arrugó como la piel de una manzana seca."
+   "Paredão longo, um degrau na superfície: a marca de uma falha, onde um bloco da crosta subiu ou desceu em relação ao outro.",
+   "A long cliff, a step in the surface: the trace of a fault, where one block of crust rose or dropped relative to the other.",
+   "Paredón largo, un escalón en la superficie: la marca de una falla, donde un bloque de la corteza subió o bajó respecto del otro."
   ],
   "corpos": {
    "miranda": [
     "Em Miranda fica Verona Rupes, o maior penhasco conhecido do Sistema Solar, com uns 20 km de altura.",
     "Miranda has Verona Rupes, the tallest known cliff in the Solar System, about 20 km high.",
     "En Miranda está Verona Rupes, el acantilado más alto conocido del sistema solar, con unos 20 km de altura."
+   ],
+   "mercurio": [
+    "Em Mercúrio, as escarpas se formaram porque o planeta encolheu ao esfriar, e a crosta se enrugou como a casca de uma maçã seca. Algumas têm mais de mil quilômetros.",
+    "On Mercury, scarps formed because the planet shrank as it cooled, and the crust wrinkled like the skin of a drying apple. Some are more than a thousand kilometers long.",
+    "En Mercurio, los escarpes se formaron porque el planeta se encogió al enfriarse, y la corteza se arrugó como la piel de una manzana seca. Algunos tienen más de mil kilómetros."
+   ],
+   "lua": [
+    "Na Lua, as escarpas são falhas na crosta. A mais famosa, a Parede Reta (Rupes Recta), é um degrau de uns 110 km de comprimento e 300 m de altura. A sonda LRO achou milhares de escarpas pequenas e jovens, sinal de que a Lua ainda encolhe um pouco ao esfriar.",
+    "On the Moon, scarps are faults in the crust. The most famous, the Straight Wall (Rupes Recta), is a step about 110 km long and 300 m high. The LRO probe found thousands of small, young scarps, a sign that the Moon is still shrinking slightly as it cools.",
+    "En la Luna, los escarpes son fallas en la corteza. El más famoso, el Muro Recto (Rupes Recta), es un escalón de unos 110 km de largo y 300 m de altura. La sonda LRO encontró miles de escarpes pequeños y jóvenes, señal de que la Luna todavía se encoge un poco al enfriarse."
    ]
   }
  },
@@ -183,6 +210,11 @@
     "Em Titã, os lagos são de verdade: metano e etano líquidos, a quase 180 graus abaixo de zero. Titã é o único lugar além da Terra com líquido parado na superfície.",
     "On Titan, lakes are real: liquid methane and ethane, at almost 180 degrees below zero. Titan is the only place besides Earth with standing liquid on its surface.",
     "En Titán, los lagos son de verdad: metano y etano líquidos, a casi 180 grados bajo cero. Titán es el único lugar además de la Tierra con líquido quieto en la superficie."
+   ],
+   "plutao": [
+    "Em Plutão, Alcyonia Lacus parece um lago de nitrogênio congelado, que pode ter sido líquido no passado, quando a atmosfera era mais densa.",
+    "On Pluto, Alcyonia Lacus appears to be a lake of frozen nitrogen, which may have been liquid in the past, when the atmosphere was denser.",
+    "En Plutón, Alcyonia Lacus parece un lago de nitrógeno congelado, que pudo ser líquido en el pasado, cuando la atmósfera era más densa."
    ]
   }
  },
@@ -243,15 +275,20 @@
    "Surco (sulcus)"
   ],
   "expl": [
-   "Faixa de sulcos e cristas paralelos, formada quando a crosta de gelo foi esticada e se partiu em blocos.",
-   "A band of parallel grooves and ridges, formed when the icy crust was stretched and broke into blocks.",
-   "Franja de surcos y crestas paralelos, formada cuando la corteza de hielo se estiró y se partió en bloques."
+   "Faixa de sulcos e cristas paralelos, formada quando a crosta foi esticada e se partiu em blocos.",
+   "A band of parallel grooves and ridges, formed when the crust was stretched and broke into blocks.",
+   "Franja de surcos y crestas paralelos, formada cuando la corteza se estiró y se partió en bloques."
   ],
   "corpos": {
    "encelado": [
     "Em Encélado, os sulcos do polo sul, as listras de tigre, soltam jatos de vapor d'água e gelo de um oceano escondido sob a crosta.",
     "On Enceladus, the south polar grooves, the tiger stripes, vent jets of water vapor and ice from an ocean hidden beneath the crust.",
     "En Encélado, los surcos del polo sur, las rayas de tigre, expulsan chorros de vapor de agua y hielo de un océano escondido bajo la corteza."
+   ],
+   "ganimedes": [
+    "Em Ganimedes, as faixas de sulcos cortam o terreno escuro e antigo: a crosta de gelo foi esticada e partida há bilhões de anos.",
+    "On Ganymede, the grooved bands cut across the dark, ancient terrain: the icy crust was stretched and broken billions of years ago.",
+    "En Ganímedes, las franjas de surcos cortan el terreno oscuro y antiguo: la corteza de hielo se estiró y se partió hace miles de millones de años."
    ]
   }
  },
@@ -286,10 +323,17 @@
    "Línea (linea)"
   ],
   "expl": [
-   "Marca longa e estreita, escura ou clara. Em Europa, são rachaduras na crosta de gelo, que se abre e fecha com a maré de Júpiter; o material escuro pode vir do oceano por baixo.",
-   "A long, narrow marking, dark or bright. On Europa, they are cracks in the ice crust, which opens and closes with Jupiter's tides; the dark material may come from the ocean beneath.",
-   "Marca larga y estrecha, oscura o clara. En Europa, son grietas en la corteza de hielo, que se abre y se cierra con la marea de Júpiter; el material oscuro puede venir del océano de abajo."
-  ]
+   "Marca longa e estreita, escura ou clara, em geral uma fratura ou uma faixa de material diferente.",
+   "A long, narrow marking, dark or bright, usually a fracture or a band of different material.",
+   "Marca larga y estrecha, oscura o clara, en general una fractura o una franja de material distinto."
+  ],
+  "corpos": {
+   "europa": [
+    "Em Europa, as linhas são rachaduras na crosta de gelo, que se abre e fecha com a maré de Júpiter; o material escuro pode vir do oceano por baixo.",
+    "On Europa, lineae are cracks in the ice crust, which opens and closes with Jupiter's tides; the dark material may come from the ocean beneath.",
+    "En Europa, las líneas son grietas en la corteza de hielo, que se abre y se cierra con la marea de Júpiter; el material oscuro puede venir del océano de abajo."
+   ]
+  }
  },
  "CA": {
   "nome": [
@@ -334,9 +378,9 @@
    "Mancha clara (fácula)"
   ],
   "expl": [
-   "Mancha clara. Em Mercúrio, são depósitos de cinza de erupções explosivas.",
-   "A bright spot. On Mercury, they are deposits of ash from explosive eruptions.",
-   "Mancha clara. En Mercurio, son depósitos de ceniza de erupciones explosivas."
+   "Mancha clara, que se destaca do terreno em volta.",
+   "A bright spot that stands out from the surrounding terrain.",
+   "Mancha clara, que se destaca del terreno alrededor."
   ],
   "corpos": {
    "ceres": [
@@ -348,6 +392,11 @@
     "Em Titã, as fáculas são manchas claras, algumas vistas como ilhas nos mares de metano.",
     "On Titan, faculae are bright spots, some seen as islands in the methane seas.",
     "En Titán, las fáculas son manchas claras, algunas vistas como islas en los mares de metano."
+   ],
+   "mercurio": [
+    "Em Mercúrio, as manchas claras são depósitos de cinza de erupções vulcânicas explosivas.",
+    "On Mercury, bright spots are ash deposits from explosive volcanic eruptions.",
+    "En Mercurio, las manchas claras son depósitos de ceniza de erupciones volcánicas explosivas."
    ]
   }
  },
@@ -591,7 +640,19 @@
    "Na Lua, uma pequena planície de lava, que os primeiros astrônomos imaginaram ser um pântano.",
    "On the Moon, a small lava plain that early astronomers imagined to be a marsh.",
    "En la Luna, una pequeña llanura de lava que los primeros astrónomos imaginaron que era un pantano."
-  ]
+  ],
+  "corpos": {
+   "marte": [
+    "Área pequena e plana, de cor ou textura diferente do entorno; o nome 'pântano' vem da tradição dos primeiros mapas, não quer dizer que haja água.",
+    "A small, flat area of different color or texture from its surroundings; the name 'marsh' comes from the tradition of early maps and does not mean there is water.",
+    "Área pequeña y plana, de color o textura distintos del entorno; el nombre 'pantano' viene de la tradición de los primeros mapas y no significa que haya agua."
+   ],
+   "plutao": [
+    "Área pequena e plana, de cor ou textura diferente do entorno; o nome 'pântano' vem da tradição dos primeiros mapas, não quer dizer que haja água.",
+    "A small, flat area of different color or texture from its surroundings; the name 'marsh' comes from the tradition of early maps and does not mean there is water.",
+    "Área pequeña y plana, de color o textura distintos del entorno; el nombre 'pantano' viene de la tradición de los primeros mapas y no significa que haya agua."
+   ]
+  }
  },
  "PR": {
   "nome": [

@@ -1706,5 +1706,20 @@
 "Posição": "Posición",
 "O": "O",
 "L": "E",
-"Nome: UAI, Gazetteer of Planetary Nomenclature (USGS)": "Nombre: UAI, Gazetteer of Planetary Nomenclature (USGS)"
+"Nome: UAI, Gazetteer of Planetary Nomenclature (USGS)": "Nombre: UAI, Gazetteer of Planetary Nomenclature (USGS)",
+"Buracos negros": "Agujeros negros",
+"buraco negro": "agujero negro",
+"Buraco negro": "Agujero negro",
+"Como foi descoberto": "Cómo fue descubierto",
+"O buraco negro": "El agujero negro",
+"{n} bilhões de vezes a massa do Sol": "{n} mil millones de veces la masa del Sol",
+"{n} milhões de vezes a massa do Sol": "{n} millones de veces la masa del Sol",
+"{n} vezes a massa do Sol": "{n} veces la masa del Sol",
+"Horizonte de eventos": "Horizonte de sucesos",
+"{d} de diâmetro": "{d} de diámetro",
+"Distância da Terra": "Distancia a la Tierra",
+"Tamanho da sombra vista da Terra": "Tamaño de la sombra vista desde la Tierra",
+"{n} microssegundos de arco": "{n} microsegundos de arco",
+"Nada que cruza o horizonte de eventos volta, nem a luz. A sombra que se vê é maior que o horizonte, uns 2,6 vezes o raio dele: ali a luz que passa perto cai no buraco.": "Nada que cruza el horizonte de sucesos vuelve, ni siquiera la luz. La sombra que se ve es mayor que el horizonte, unas 2,6 veces su radio: allí la luz que pasa cerca cae en el agujero.",
+"Mais perto não dá: o horizonte de eventos {de:c} fica a {d}. Lá dentro, nem a luz consegue sair.": "No se puede acercar más: el horizonte de sucesos {de:c} está a {d}. Allí dentro, ni la luz puede salir."
 }

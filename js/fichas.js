@@ -9,7 +9,7 @@ import { t, LOCALE, idioma } from './idioma.js';
 
 const G = 6.674e-11, MASSA_TERRA = 5.972e24, RAIO_SOL = 695700, RAIO_TERRA = 6371, G_TERRA = 9.81, UA = 149597870.7;
 let dados = { corpos: {}, estrelas: {} }, tecnicos = { corpos: {}, galaxias: {}, fontes: {} };
-let estrelasInfo = null, exoInfo = null, constDados = null, constTextos = null, relevo = null;
+let estrelasInfo = null, exoInfo = null, constDados = null, constTextos = null, relevo = null, buracos = null;
 export async function carregarFichas() {
   await Promise.all([
     fetch('dados/fichas.json').then((r) => r.json()).then((d) => (dados = d)).catch(() => {}),
@@ -27,8 +27,9 @@ export function gravidadeDe(c) {
 }
 // Dados de catálogo das estrelas e das descobertas dos exoplanetas: só baixados na primeira ficha que os usa
 export const precisaExtras = (c) => (c.exo && !exoInfo) || (c.tipo === 'estrela' && c.id !== 'sol' && (!estrelasInfo || (c.exoSistema && !exoInfo)))
-  || (c.tipo === 'constelacao' && !constDados) || (c.tipo === 'relevo' && !relevo);
+  || (c.tipo === 'constelacao' && !constDados) || (c.tipo === 'relevo' && !relevo) || (!!c.bn && !buracos);
 export async function carregarExtras(c) {
+  if (c?.bn) { buracos = await fetch('dados/buracos_negros.json').then((r) => r.json()).catch(() => ({})); return; }
   if (c?.tipo === 'relevo') { // tipos, textos dos lugares famosos e origens dos nomes (no idioma da página)
     const pegar = (u) => fetch(u).then((r) => r.json()).catch(() => null);
     const [tipos, famosos, origens] = await Promise.all([pegar('dados/nomes/tipos.json'), pegar('dados/nomes/famosos.json'), pegar(`dados/nomes/origens.${idioma}.json`)]);
@@ -86,7 +87,8 @@ export function montarFicha(c, h) {
   const abrir = (titulo) => { secao = [t(titulo), []]; f.secoes.push(secao); };
   const add = (rotulo, valor) => { if (valor !== undefined && valor !== null && valor !== '') secao[1].push([rotulo === null ? null : t(rotulo), valor]); };
   const fonte = (chave) => { const x = tecnicos.fontes[chave]; if (x && !f.fontes.some((y) => y[1] === x[1])) f.fontes.push([t(x[0]), x[1]]); };
-  if (c.tipo === 'constelacao') fichaConstelacao(c, f, abrir, add, h);
+  if (c.bn) fichaBuracoNegro(c, f, abrir, add, h);
+  else if (c.tipo === 'constelacao') fichaConstelacao(c, f, abrir, add, h);
   else if (c.tipo === 'relevo') fichaRelevo(c, f, abrir, add);
   else if (c.exo) fichaExoplaneta(c, f, abrir, add, h);
   else if (c.tipo === 'estrela' && c.id !== 'sol') fichaEstrela(c, f, abrir, add, fonte, h);
@@ -140,6 +142,24 @@ function fichaConstelacao(c, f, abrir, add, h) {
   f.fontes.push([t('Estrelas: HYG v4.1 (CC BY-SA 4.0)'), 'https://github.com/astronexus/HYG-Database']);
   if (d.messier.length) f.fontes.push([t('Objetos de Messier: OpenNGC (CC BY-SA 4.0)'), 'https://github.com/mattiaverga/OpenNGC']);
   if (tx?.povos) f.fontes.push([constTextos.fonte_povos, '']);
+}
+
+// Buraco negro: massa, horizonte de eventos (raio de Schwarzschild, rs = 2GM/c²), distância e o tamanho da sombra vista
+// da Terra; textos da descoberta e um destaque (dados/buracos_negros.json)
+function fichaBuracoNegro(c, f, abrir, add, h) {
+  f.tipo = t('Buraco negro');
+  const tx = buracos?.[c.id], txt = tx?.[idioma] ?? tx?.pt;
+  if (txt) { abrir('Como foi descoberto'); add(null, txt.historia); abrir('Destaque'); add(null, txt.destaque); }
+  abrir('O buraco negro');
+  const m = c.bn.massa;
+  add('Massa', m >= 1e9 ? t('{n} bilhões de vezes a massa do Sol', { n: h.sig(m / 1e9) }) : m >= 1e6 ? t('{n} milhões de vezes a massa do Sol', { n: h.sig(m / 1e6) }) : t('{n} vezes a massa do Sol', { n: h.sig(m) }));
+  add('Horizonte de eventos', t('{d} de diâmetro', { d: h.distancia(c.raio * 2) }));
+  const dT = h.dTerra(c);
+  add('Distância da Terra', h.distancia(dT));
+  const uas = ((2 * 2.598 * c.raio) / dT) * 206264.806e6; // diâmetro da sombra, em microssegundos de arco
+  if (uas > 1) add('Tamanho da sombra vista da Terra', t('{n} microssegundos de arco', { n: h.sig(uas) }));
+  add(null, t('Nada que cruza o horizonte de eventos volta, nem a luz. A sombra que se vê é maior que o horizonte, uns 2,6 vezes o raio dele: ali a luz que passa perto cai no buraco.'));
+  for (const [nome, url] of tx?.fontes ?? []) f.fontes.push([nome, url]);
 }
 
 // Lugar com nome no relevo de outro corpo (Gazetteer da UAI/USGS): o tipo e como se forma, a origem do nome e,

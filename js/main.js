@@ -18,6 +18,7 @@ import { criarBrilho } from './brilho.js';
 import { desenharConstelacao } from './desenhoConstelacao.js';
 import { criarFiguras } from './figurasCeu.js';
 import { criarNomesRelevo, dirLatLon } from './nomesRelevo.js';
+import { criarBuracosNegros } from './buracosNegros.js';
 import { carregarFichas, montarFicha, precisaExtras, carregarExtras, textoFicha, gravidadeDe } from './fichas.js';
 import { exo, carregarExoplanetas, corpoPlaneta, posicaoOrbita, pontoOrbita, resumoPlaneta } from './exoplanetas.js';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
@@ -578,7 +579,7 @@ function escolherRef() {
 }
 
 const distChegada = (c) =>
-  c.tipo === 'sonda' ? 0.05 : c.tipo === 'cometa' ? c.raio * 60 : c.tipo === 'galaxia' ? c.raio * 2.6 : c.tipo === 'marco' ? (c.id === 'centro' ? 40 * AL : c.id === 'borda' ? 3e9 * AL : c.raio * 2) : c.tipo === 'estrela' ? Math.max(c.raio * 8, 2e5, c.distExo ?? 0) : c.aneis ? c.raio * 6 : Math.max(c.raio * 4, 30);
+  c.tipo === 'sonda' ? 0.05 : c.tipo === 'cometa' ? c.raio * 60 : c.tipo === 'galaxia' ? c.raio * 2.6 : c.tipo === 'marco' ? (c.bn ? c.raio * 40 : c.id === 'centro' ? 40 * AL : c.id === 'borda' ? 3e9 * AL : c.raio * 2) : c.tipo === 'estrela' ? Math.max(c.raio * 8, 2e5, c.distExo ?? 0) : c.aneis ? c.raio * 6 : Math.max(c.raio * 4, 30);
 
 // Direção de chegada: do lado iluminado, um pouco acima do plano
 function direcaoBonita(c) {
@@ -757,6 +758,7 @@ const GRUPOS = [
   ['Via Láctea', (c) => c.grupo === 'Via Láctea'],
   ['Grupo Local', (c) => c.grupo === 'Grupo Local'],
   ['Galáxias próximas', (c) => c.grupo === 'Galáxias próximas'],
+  ['Buracos negros', (c) => !!c.bn],
   ['Além', (c) => c.grupo === 'Além'],
 ];
 for (const sel of [$('selDestino'), $('selPartida')]) {
@@ -857,7 +859,7 @@ function refratar(p) {
   return p.multiplyScalar(Math.cos(r)).addScaledVector(_rt, (Math.sin(r) * L) / tl);
 }
 const TIPO_CORPO = { estrela: 'estrela', planeta: 'planeta', anao: 'planeta anão', galaxia: 'galáxia', marco: 'lugar do universo' };
-for (const c of CORPOS) addBusca(`${c.nome} · ${c.tipo === 'lua' ? tr('lua {de:p}', { p: c.paiObj }) : tr(TIPO_CORPO[c.tipo])}`, c.nome, 1e13, () => irPara(c));
+for (const c of CORPOS) addBusca(`${c.nome} · ${c.tipo === 'lua' ? tr('lua {de:p}', { p: c.paiObj }) : c.bn ? tr('buraco negro') : tr(TIPO_CORPO[c.tipo])}`, c.nome, 1e13, () => irPara(c));
 const TIPO_LUGAR = { cidade: 'cidade', pais: 'país', mar: 'mar', pico: 'pico', regiao: 'região' };
 const PESO_LUGAR = { mar: 3e6, pico: 2e6, regiao: 1e5 }; // países: pelo tamanho (abaixo); metrópoles vencem mares
 function preencherLugares(itens) {
@@ -1434,6 +1436,9 @@ fetch('dados/constelacoes_linhas.bin').then((r) => r.arrayBuffer()).then((buf) =
 });
 // Figuras das constelações no céu (ilustrações do Stellarium), atrás do traçado; montadas na primeira vez que se ligam
 const figurasConst = criarFiguras(cena);
+const BURACOS = CORPOS.filter((c) => c.bn);
+const buracosNegros = criarBuracosNegros(cena, BURACOS);
+let lenteAtual = null;
 // ------------------------------- céu profundo: Messier e NGC/IC (OpenNGC, CC BY-SA 4.0) -------------------------------
 // manchas suaves com o tamanho aparente real; aparecem conforme o limite de magnitude (olho, poluição, telescópio)
 const TIPO_FORMA = { 'galáxia': 0, 'aglomerado globular': 1, 'aglomerado aberto': 2, 'nuvem de estrelas': 2, 'asterismo': 2, 'estrela dupla': 2, 'nebulosa planetária': 4 };
@@ -2992,6 +2997,18 @@ function passo() {
     }
   }
 
+  // Buraco negro: mais perto que 3 vezes o raio do horizonte não dá (a 1 raio, nem a luz escapa)
+  for (const c of BURACOS) {
+    const rel = camAbs().sub(c.abs), lim = c.raio * 3;
+    if (rel.length() < lim) {
+      rel.setLength(lim);
+      camAbs(tmpV);
+      estado.local.add(c.abs.clone().add(rel).sub(tmpV));
+      estado.piloto = null;
+      aviso(tr('Mais perto não dá: o horizonte de eventos {de:c} fica a {d}. Lá dentro, nem a luz consegue sair.', { c, d: distancia(c.raio * 2) }), 6000);
+    }
+  }
+
   // Nivelar com o horizonte perto de um corpo
   if (estado.nivelar && estado.ref && estado.ref.tipo !== 'estrela' && altRef < estado.ref.raio * 2 && !(p && p.modo !== 'pouso')) {
     const up = altRef < estado.ref.raio * 0.2 ? cimaChao(estado.ref, estado.local, new THREE.Vector3()) : estado.local.clone().normalize();
@@ -3256,6 +3273,7 @@ function desenhar() {
       alfa = Math.min(Math.max(brilho, 0.08), 1);
       if (c.tipo === 'galaxia') { tam = diamPx < 8 ? Math.max(3, diamPx) : 0; alfa = 0.7 * (1 - diamPx / 8); }
       else if (c.tipo === 'marco') { tam = Math.min(Math.max(tam, 3), 10); alfa = Math.max(alfa, 0.6); }
+      if (c.bn && d < c.raio * 1e6) { tam = 0; alfa = 0; } // perto, o marcador viraria um anel falso na lente
       else {
         tam = Math.max(tam, diamPx * 2.6);
         // estrela já vista como disco: o brilho de ponto encolhe e esmaece, para não lavar o disco (o Sol tem o halo próprio)
@@ -3275,6 +3293,7 @@ function desenhar() {
     let mostrar = (estado.nomes && visivel && nomeFazSentido(c, abs)) || c === estado.alvo;
     if (mostrar && c === estado.ref && d < c.raio * (c.id === 'terra' ? 5 : 1.2)) mostrar = false; // perto, sem o nome do próprio corpo (na Terra, os nomes são dos lugares)
     if (mostrar && c.tipo === 'galaxia' && d < c.raio * 1.5 && c !== estado.alvo) mostrar = false; // dentro da galáxia
+    if (mostrar && c.bn && d < c.raio * 300) mostrar = false; // perto de um buraco negro, o nome ficaria no meio da sombra
     if (mostrar && diaNoCeu > 0.5 && c !== sol && c.id !== 'lua' && c.tipo !== 'planeta' && c !== estado.alvo && c !== estado.ref) mostrar = false; // de dia, só o que se vê de dia
     if (mostrar && oclusor && c !== oclusor) {
       // escondido atrás do corpo em que estamos?
@@ -3520,7 +3539,8 @@ function desenhar() {
   }
 
   vr.desenhar();
-  brilho.desenhar(cena, camera, estado.brilho && !estado.leve && !vr.ativo ? 0.8 : 0, 0.9); // halo em volta das luzes fortes
+  lenteAtual = vr.ativo ? null : buracosNegros.atualizar(abs, camera, comprimir, aberrarJS, innerHeight);
+  brilho.desenhar(cena, camera, estado.brilho && !estado.leve && !vr.ativo ? 0.8 : 0, 0.9, lenteAtual); // halo em volta das luzes fortes; lente de buraco negro
 }
 
 // Quando partiu da Terra a luz que chega aqui agora, e o que acontecia na Terra nessa época

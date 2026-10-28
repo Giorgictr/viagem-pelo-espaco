@@ -137,7 +137,7 @@ const pousarEm = (id, alt) => p.evaluate(async ([id, alt]) => {
   s.sobrevoar(id, ss[0] - 20, ss[1] + 25, alt, 25); s.quadros(30); s.pousar();
   for (let n = 0; s.estado.piloto && n < 4000; n += 50) { s.quadros(50); await new Promise((r) => setTimeout(r, 20)); }
   // um ladrilho de relevo mais fino pode chegar no fim e mudar a altura do chão: a câmera assenta devagar (até ~3 s)
-  for (let n = 0; n < 12; n++) { s.quadros(15); await new Promise((r) => setTimeout(r, 50)); }
+  for (let n = 0; n < 30; n++) { s.quadros(15); await new Promise((r) => setTimeout(r, 60)); }
   return { pousado: s.estado.pousado?.id ?? null, alt: s.estado.local.length() - s.raioSuperficie(c, s.estado.local), quadro: document.getElementById('noChao').textContent, mapa: c.malha.material.uniforms.mapa.value?.image?.src ?? '' };
 }, [id, alt]);
 for (const [id, alt, teste] of [
@@ -170,6 +170,19 @@ const rv = await p.evaluate(async () => {
 if (rv.ref === 'lua' && rv.ficha === 'Tycho' && /Sobre este lugar/i.test(rv.txt) && rv.nomes > 5) ok(`nomes do relevo: voo até Tycho, ficha e ${rv.nomes} nomes no chão`);
 else falha(`nomes do relevo: ${JSON.stringify(rv)}`);
 await captura(p, 'pt-tycho');
+await p.evaluate(() => document.getElementById('fichaFechar')?.click());
+
+// buraco negro: a lente liga perto dele e a ficha abre
+const bn = await p.evaluate(async () => {
+  const s = window.__sim;
+  s.teleportar(s.PORID.cygx1); s.quadros(5);
+  s.mostrarFicha(s.PORID.cygx1);
+  for (let k = 0; k < 60 && !/descoberto/i.test(document.getElementById('fichaDados').innerText); k++) await new Promise((r) => setTimeout(r, 100));
+  return { ficha: document.getElementById('fichaNome').textContent, txt: document.getElementById('fichaDados').innerText.slice(0, 120), d: s.camAbs().distanceTo(s.PORID.cygx1.abs) / s.PORID.cygx1.raio };
+});
+if (bn.ficha === 'Cygnus X-1' && /descoberto/i.test(bn.txt) && bn.d > 3) ok(`buraco negro Cygnus X-1: ficha e chegada a ${bn.d.toFixed(0)} raios do horizonte`);
+else falha(`buraco negro: ${JSON.stringify(bn)}`);
+await captura(p, 'pt-cygnus-x1');
 await p.evaluate(() => document.getElementById('fichaFechar')?.click());
 
 // ficha de constelação: o desenho e os textos

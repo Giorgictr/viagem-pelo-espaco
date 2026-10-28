@@ -1,0 +1,146 @@
+{
+ "sgra": {
+  "pt": {
+   "historia": "O buraco negro supermassivo no centro da Via Láctea. A prova veio de décadas observando as estrelas que giram em volta dele: uma delas, S2, dá uma volta a cada 16 anos e passa a menos de 20 bilhões de km do centro, a quase 3% da velocidade da luz. Só um objeto de 4 milhões de sóis, num espaço tão pequeno, explica essas órbitas. Por isso, Reinhard Genzel e Andrea Ghez ganharam o Nobel de Física de 2020.",
+   "destaque": "Em 2022, o Event Horizon Telescope, uma rede de radiotelescópios do tamanho da Terra, divulgou a primeira imagem da sombra de Sagitário A*. Ele está quieto: engole pouquíssimo gás, e por isso o disco em volta é fraco."
+  },
+  "fontes": [
+   [
+    "GRAVITY Collaboration (2019), A&A 625, L10",
+    "https://doi.org/10.1051/0004-6361/201935656"
+   ],
+   [
+    "Event Horizon Telescope (2022), ApJL 930, L12",
+    "https://doi.org/10.3847/2041-8213/ac6674"
+   ]
+  ],
+  "en": {
+   "historia": "The supermassive black hole at the center of the Milky Way. The proof came from decades of watching the stars that orbit it: one of them, S2, goes around once every 16 years and passes less than 20 billion km from the center, at almost 3% of the speed of light. Only an object of 4 million Suns, in such a small space, explains these orbits. For this, Reinhard Genzel and Andrea Ghez won the 2020 Nobel Prize in Physics.",
+   "destaque": "In 2022, the Event Horizon Telescope, a network of radio telescopes the size of the Earth, released the first image of the shadow of Sagittarius A*. It is quiet: it swallows very little gas, so the disk around it is faint."
+  },
+  "es": {
+   "historia": "El agujero negro supermasivo en el centro de la Vía Láctea. La prueba llegó tras décadas de observar las estrellas que giran a su alrededor: una de ellas, S2, da una vuelta cada 16 años y pasa a menos de 20.000 millones de km del centro, a casi el 3% de la velocidad de la luz. Solo un objeto de 4 millones de soles, en un espacio tan pequeño, explica esas órbitas. Por eso, Reinhard Genzel y Andrea Ghez ganaron el Nobel de Física de 2020.",
+   "destaque": "En 2022, el Event Horizon Telescope, una red de radiotelescopios del tamaño de la Tierra, publicó la primera imagen de la sombra de Sagitario A*. Está tranquilo: se traga muy poco gas, y por eso el disco a su alrededor es débil."
+  }
+ },
+ "m87bh": {
+  "pt": {
+   "historia": "O buraco negro no centro da galáxia gigante M87, no Aglomerado de Virgem: 6,5 bilhões de vezes a massa do Sol. Em 10 de abril de 2019, foi o primeiro buraco negro fotografado, pelo Event Horizon Telescope: um anel de luz em volta de uma sombra escura, do tamanho previsto pela relatividade geral.",
+   "destaque": "Ele lança um jato de partículas a quase a velocidade da luz que se estende por uns 5 mil anos-luz, visível até em fotos de telescópios comuns. O horizonte de eventos é maior que a órbita de Plutão."
+  },
+  "fontes": [
+   [
+    "Event Horizon Telescope (2019), ApJL 875, L1",
+    "https://doi.org/10.3847/2041-8213/ab0ec7"
+   ]
+  ],
+  "en": {
+   "historia": "The black hole at the center of the giant galaxy M87, in the Virgo Cluster: 6.5 billion times the mass of the Sun. On April 10, 2019, it became the first black hole to be photographed, by the Event Horizon Telescope: a ring of light around a dark shadow, the size predicted by general relativity.",
+   "destaque": "It launches a jet of particles at almost the speed of light that stretches for about 5,000 light-years, visible even in photos from ordinary telescopes. The event horizon is larger than the orbit of Pluto."
+  },
+  "es": {
+   "historia": "El agujero negro en el centro de la galaxia gigante M87, en el Cúmulo de Virgo: 6.500 millones de veces la masa del Sol. El 10 de abril de 2019 fue el primer agujero negro fotografiado, por el Event Horizon Telescope: un anillo de luz alrededor de una sombra oscura, del tamaño previsto por la relatividad general.",
+   "destaque": "Lanza un chorro de partículas a casi la velocidad de la luz que se extiende por unos 5.000 años luz, visible incluso en fotos de telescopios comunes. El horizonte de sucesos es mayor que la órbita de Plutón."
+  }
+ },
+ "cygx1": {
+  "pt": {
+   "historia": "Uma fonte de raios X descoberta em 1964 por detectores levados num foguete. Em 1971 e 1972, astrônomos viram que uma estrela supergigante azul, HDE 226868, gira em volta de algo invisível, a cada 5,6 dias, pesado demais para ser uma estrela de nêutrons. Foi o primeiro objeto que a maioria dos astrônomos aceitou como buraco negro.",
+   "destaque": "O buraco negro puxa gás do vento da estrela companheira, que forma um disco quente e brilha em raios X. Stephen Hawking apostou com o físico Kip Thorne que Cygnus X-1 não era um buraco negro, e admitiu a derrota em 1990. Ele gira quase na velocidade máxima possível."
+  },
+  "fontes": [
+   [
+    "Miller-Jones et al. (2021), Science 371, 1046",
+    "https://doi.org/10.1126/science.abb3363"
+   ]
+  ],
+  "en": {
+   "historia": "An X-ray source discovered in 1964 by detectors carried on a rocket. In 1971 and 1972, astronomers saw that a blue supergiant star, HDE 226868, orbits something invisible, every 5.6 days, too heavy to be a neutron star. It was the first object that most astronomers accepted as a black hole.",
+   "destaque": "The black hole pulls gas from the wind of its companion star, which forms a hot disk and shines in X-rays. Stephen Hawking bet physicist Kip Thorne that Cygnus X-1 was not a black hole, and he admitted defeat in 1990. It spins almost at the maximum possible speed."
+  },
+  "es": {
+   "historia": "Una fuente de rayos X descubierta en 1964 por detectores llevados en un cohete. En 1971 y 1972, los astrónomos vieron que una estrella supergigante azul, HDE 226868, gira alrededor de algo invisible, cada 5,6 días, demasiado pesado para ser una estrella de neutrones. Fue el primer objeto que la mayoría de los astrónomos aceptó como agujero negro.",
+   "destaque": "El agujero negro atrae gas del viento de la estrella compañera, que forma un disco caliente y brilla en rayos X. Stephen Hawking apostó con el físico Kip Thorne que Cygnus X-1 no era un agujero negro, y admitió la derrota en 1990. Gira casi a la velocidad máxima posible."
+  }
+ },
+ "gaiabh1": {
+  "pt": {
+   "historia": "O buraco negro mais perto da Terra que se conhece, a 1.560 anos-luz, na direção do Serpentário. Foi achado em 2022 pelo satélite Gaia, que mede a posição das estrelas com precisão enorme: uma estrela parecida com o Sol balança, a cada 186 dias, em volta de um companheiro invisível de quase 10 massas solares.",
+   "destaque": "Ele está adormecido: a estrela fica longe demais para ele puxar o gás dela, então não há disco nem raios X. Buracos negros assim só aparecem pelo efeito que causam nas estrelas em volta, e a Via Láctea deve ter milhões deles."
+  },
+  "fontes": [
+   [
+    "El-Badry et al. (2023), MNRAS 518, 1057",
+    "https://doi.org/10.1093/mnras/stac3140"
+   ]
+  ],
+  "en": {
+   "historia": "The closest known black hole to Earth, 1,560 light-years away, in the direction of Ophiuchus. It was found in 2022 by the Gaia satellite, which measures the positions of stars with huge precision: a Sun-like star wobbles, every 186 days, around an invisible companion of almost 10 solar masses.",
+   "destaque": "It is dormant: the star is too far away for it to pull the star's gas, so there is no disk and no X-rays. Black holes like this only show up through the effect they have on nearby stars, and the Milky Way should have millions of them."
+  },
+  "es": {
+   "historia": "El agujero negro más cercano a la Tierra que se conoce, a 1.560 años luz, en dirección a Ofiuco. Fue encontrado en 2022 por el satélite Gaia, que mide la posición de las estrellas con enorme precisión: una estrella parecida al Sol se balancea, cada 186 días, alrededor de un compañero invisible de casi 10 masas solares.",
+   "destaque": "Está dormido: la estrella queda demasiado lejos para que él atraiga su gas, así que no hay disco ni rayos X. Los agujeros negros así solo se ven por el efecto que causan en las estrellas cercanas, y la Vía Láctea debe tener millones de ellos."
+  }
+ },
+ "gaiabh3": {
+  "pt": {
+   "historia": "Achado em 2024 nos dados do satélite Gaia, a uns 1.930 anos-luz, na direção da Águia. Com 33 massas solares, é o buraco negro de origem estelar mais pesado conhecido na Via Láctea.",
+   "destaque": "A estrela companheira, uma gigante muito velha e pobre em metais, leva quase 12 anos para dar uma volta. Isso sugere que o buraco negro nasceu de uma estrela também pobre em metais, que perde menos massa no fim da vida e deixa um buraco negro maior."
+  },
+  "fontes": [
+   [
+    "Gaia Collaboration, Panuzzo et al. (2024), A&A 686, L2",
+    "https://doi.org/10.1051/0004-6361/202449763"
+   ]
+  ],
+  "en": {
+   "historia": "Found in 2024 in data from the Gaia satellite, about 1,930 light-years away, in the direction of Aquila. With 33 solar masses, it is the heaviest stellar-origin black hole known in the Milky Way.",
+   "destaque": "The companion star, a very old giant poor in metals, takes almost 12 years to go around once. This suggests that the black hole was born from a star that was also poor in metals, which loses less mass at the end of its life and leaves a bigger black hole."
+  },
+  "es": {
+   "historia": "Encontrado en 2024 en los datos del satélite Gaia, a unos 1.930 años luz, en dirección al Águila. Con 33 masas solares, es el agujero negro de origen estelar más pesado conocido en la Vía Láctea.",
+   "destaque": "La estrella compañera, una gigante muy vieja y pobre en metales, tarda casi 12 años en dar una vuelta. Esto sugiere que el agujero negro nació de una estrella también pobre en metales, que pierde menos masa al final de su vida y deja un agujero negro mayor."
+  }
+ },
+ "v404": {
+  "pt": {
+   "historia": "Conhecido primeiro como uma estrela nova, que brilhou em 1938. Em 1989, voltou a explodir, agora em raios X, e as medidas da estrela companheira mostraram um buraco negro de umas 9 massas solares.",
+   "destaque": "De tempos em tempos, o gás acumulado no disco cai de uma vez, e o sistema brilha milhões de vezes mais em raios X, como na explosão de 2015. O disco desse buraco negro balança como um pião, inclinado em relação à órbita."
+  },
+  "fontes": [
+   [
+    "Miller-Jones et al. (2019), Nature 569, 374",
+    "https://doi.org/10.1038/s41586-019-1152-0"
+   ]
+  ],
+  "en": {
+   "historia": "First known as a nova, which shone in 1938. In 1989, it erupted again, this time in X-rays, and measurements of the companion star showed a black hole of about 9 solar masses.",
+   "destaque": "From time to time, the gas stored in the disk falls in all at once, and the system shines millions of times brighter in X-rays, as in the 2015 outburst. The disk of this black hole wobbles like a spinning top, tilted relative to the orbit."
+  },
+  "es": {
+   "historia": "Se conoció primero como una nova, que brilló en 1938. En 1989 volvió a estallar, ahora en rayos X, y las medidas de la estrella compañera mostraron un agujero negro de unas 9 masas solares.",
+   "destaque": "De vez en cuando, el gas acumulado en el disco cae de una vez, y el sistema brilla millones de veces más en rayos X, como en la explosión de 2015. El disco de este agujero negro se balancea como una peonza, inclinado respecto a la órbita."
+  }
+ },
+ "a0620": {
+  "pt": {
+   "historia": "Uma explosão em raios X vista em 1975 pelo satélite Ariel 5 revelou este sistema na direção do Unicórnio: uma estrela anã laranja que gira, a cada 7 horas e 45 minutos, em volta de um buraco negro de umas 6,6 massas solares.",
+   "destaque": "É um dos buracos negros de origem estelar mais próximos da Terra, a cerca de 3.300 anos-luz. Hoje está quieto, com um disco fraco."
+  },
+  "fontes": [
+   [
+    "Cantrell et al. (2010), ApJ 710, 1127",
+    "https://doi.org/10.1088/0004-637X/710/2/1127"
+   ]
+  ],
+  "en": {
+   "historia": "An X-ray outburst seen in 1975 by the Ariel 5 satellite revealed this system in the direction of Monoceros: an orange dwarf star that goes around, every 7 hours and 45 minutes, a black hole of about 6.6 solar masses.",
+   "destaque": "It is one of the closest stellar-origin black holes to Earth, about 3,300 light-years away. Today it is quiet, with a faint disk."
+  },
+  "es": {
+   "historia": "Una explosión de rayos X vista en 1975 por el satélite Ariel 5 reveló este sistema en dirección al Unicornio: una estrella enana naranja que gira, cada 7 horas y 45 minutos, alrededor de un agujero negro de unas 6,6 masas solares.",
+   "destaque": "Es uno de los agujeros negros de origen estelar más cercanos a la Tierra, a unos 3.300 años luz. Hoy está tranquilo, con un disco débil."
+  }
+ }
+}
