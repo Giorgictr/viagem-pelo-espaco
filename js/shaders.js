@@ -642,6 +642,23 @@ export const LINHA_CEU_V = LOGV + REL + /* glsl */ `
     gl_Position.xy += n * canto.y * (meia + 1.0) * 2.0 / res * ca.w;
     #include <logdepthbuf_vertex>
   }`;
+// Figuras das constelações no céu (js/figurasCeu.js): a ilustração em cinza, somada à luz do céu, azulada e fraca
+export const FIGURA_CEU_V = LOGV + REL + /* glsl */ `
+  varying vec2 vUv;
+  void main() {
+    float D;
+    vUv = uv;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(aberrar(refratar(position), D), 1.0);
+    #include <logdepthbuf_vertex>
+  }`;
+export const FIGURA_CEU_F = LOGF + /* glsl */ `
+  uniform sampler2D atlas; uniform float opac;
+  varying vec2 vUv;
+  void main() {
+    #include <logdepthbuf_fragment>
+    float a = texture2D(atlas, vUv).r;
+    gl_FragColor = vec4(vec3(0.62, 0.76, 1.0) * a * opac, 1.0);
+  }`;
 export const LINHA_CEU_F = LOGF + /* glsl */ `
   uniform float opac, meia;
   varying float vLado;

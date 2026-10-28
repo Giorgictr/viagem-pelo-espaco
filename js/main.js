@@ -16,6 +16,7 @@ import { criarDetalhe, CAMADAS } from './detalhe.js';
 import { criarSolo, lerManifesto } from './solo.js';
 import { criarBrilho } from './brilho.js';
 import { desenharConstelacao } from './desenhoConstelacao.js';
+import { criarFiguras } from './figurasCeu.js';
 import { carregarFichas, montarFicha, precisaExtras, carregarExtras, textoFicha, gravidadeDe } from './fichas.js';
 import { exo, carregarExoplanetas, corpoPlaneta, posicaoOrbita, pontoOrbita, resumoPlaneta } from './exoplanetas.js';
 import { GLTFLoader } from '../vendor/GLTFLoader.js';
@@ -107,7 +108,7 @@ const estado = {
   pousado: null,              // corpo em que se está caminhando
   nomes: true, linhas: true, freio: true, cinturoes: true,
   fichas: (() => { try { return localStorage.getItem('viagemFichas') !== '0'; } catch { return true; } })(), // fichas de chegada
-  nivelar: true, giraJunto: true, exagero: 1, texturas: true, inventado: true, ceuRealcado: false, efeito: 'dobra', bolha: true, cidades: 'grandes', fronteiras: true, nomesTerra: true, picos: true, aviao: false, altAviao: 1, epocaMa: 0, nivelMar: 0, gelo: false, ceuModo: false, vistaFora: false, nuvensReais: true, nuvensDeriva: true, meteoros: true, meteoros10: false, bortle: 0, messier: true, refracao: true, predios: true, telescopio: false, zoom: 10, rastrear: true, atmFisica: true, constelacoes: false, linhasConst: false, ilustrativas: true, viaReal: true, nevoaTita: true, brilho: true,
+  nivelar: true, giraJunto: true, exagero: 1, texturas: true, inventado: true, ceuRealcado: false, efeito: 'dobra', bolha: true, cidades: 'grandes', fronteiras: true, nomesTerra: true, picos: true, aviao: false, altAviao: 1, epocaMa: 0, nivelMar: 0, gelo: false, ceuModo: false, vistaFora: false, nuvensReais: true, nuvensDeriva: true, meteoros: true, meteoros10: false, bortle: 0, messier: true, refracao: true, predios: true, telescopio: false, zoom: 10, rastrear: true, atmFisica: true, constelacoes: false, linhasConst: false, ilustrativas: true, viaReal: true, nevoaTita: true, brilho: true, figurasConst: false,
 };
 
 // ------------------------------- texturas -------------------------------
@@ -1431,6 +1432,8 @@ fetch('dados/constelacoes_linhas.bin').then((r) => r.arrayBuffer()).then((buf) =
   linhasConst.visible = false;
   cena.add(linhasConst);
 });
+// Figuras das constelações no céu (ilustrações do Stellarium), atrás do traçado; montadas na primeira vez que se ligam
+const figurasConst = criarFiguras(cena);
 // ------------------------------- céu profundo: Messier e NGC/IC (OpenNGC, CC BY-SA 4.0) -------------------------------
 // manchas suaves com o tamanho aparente real; aparecem conforme o limite de magnitude (olho, poluição, telescópio)
 const TIPO_FORMA = { 'galáxia': 0, 'aglomerado globular': 1, 'aglomerado aberto': 2, 'nuvem de estrelas': 2, 'asterismo': 2, 'estrela dupla': 2, 'nebulosa planetária': 4 };
@@ -1974,12 +1977,17 @@ function desenharPequenos(abs, postos) {
 function pintarCeuBotoes() {
   $('btLinhasConst').textContent = tr(estado.linhasConst ? 'Desenho das constelações: ligado' : 'Desenho das constelações: desligado');
   $('btLinhasConst').classList.toggle('ativo', estado.linhasConst);
+  $('btFigConst').textContent = tr(estado.figurasConst ? 'Figuras das constelações: ligadas' : 'Figuras das constelações: desligadas');
+  $('btFigConst').classList.toggle('ativo', estado.figurasConst);
+  $('ckFigConst').checked = estado.figurasConst;
   $('btNomesConst').textContent = tr(estado.constelacoes ? 'Nomes das constelações: ligados' : 'Nomes das constelações: desligados');
   $('btNomesConst').classList.toggle('ativo', estado.constelacoes);
   $('ckLinhasConst').checked = estado.linhasConst;
   $('ckConst').checked = estado.constelacoes;
 }
 $('btLinhasConst').onclick = () => { estado.linhasConst = !estado.linhasConst; pintarCeuBotoes(); };
+$('btFigConst').onclick = () => { estado.figurasConst = !estado.figurasConst; pintarCeuBotoes(); };
+$('ckFigConst').onchange = (e) => { estado.figurasConst = e.target.checked; pintarCeuBotoes(); };
 $('btNomesConst').onclick = () => { estado.constelacoes = !estado.constelacoes; pintarCeuBotoes(); };
 $('ckLinhasConst').onchange = (e) => { estado.linhasConst = e.target.checked; pintarCeuBotoes(); };
 pintarCeuBotoes();
@@ -3605,6 +3613,11 @@ function desenharCeu(abs, postos) {
     linhasConst.material.uniforms.beta.value.copy(betaVec);
     renderer.getDrawingBufferSize(linhasConst.material.uniforms.res.value);
     linhasConst.material.uniforms.meia.value = 0.6 * renderer.getPixelRatio(); // ~1,2 pixel de tela de largura
+  }
+  {
+    const dSolAl = abs.distanceTo(PORID.sol.abs) / AL;
+    const op = 0.26 * (1 - Math.min(Math.max((dSolAl - 50) / 150, 0), 1)) * (1 - Math.min(diaNoCeu * 1.6, 1));
+    figurasConst.atualizar(estado.figurasConst, op, betaVec, zenRefr, refrAtiva ? 1 : 0);
   }
   const verConst = estado.constelacoes && estado.nomes && abs.distanceTo(PORID.sol.abs) < 100 * AL && diaNoCeu < 0.6;
   const up = estado.ceuModo ? estado.local.clone().normalize() : null;

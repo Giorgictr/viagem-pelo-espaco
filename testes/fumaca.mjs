@@ -173,7 +173,7 @@ if (ficha && /Diâmetro/.test(ficha) && /Gravidade/.test(ficha)) ok('ficha de Ma
 await p.evaluate(() => document.getElementById('fichaFechar')?.click());
 
 // chaves: liga e desliga de novo
-const chaves = ['btOrbitas', 'btRelevo', 'btAparencia', 'btNivelar', 'btAtm', 'btFichas', 'btInventado', 'btCeu', 'btLinhasConst', 'btNomesConst', 'btIlustr', 'btViaReal', 'btDobra', 'btBrilho'];
+const chaves = ['btOrbitas', 'btRelevo', 'btAparencia', 'btNivelar', 'btAtm', 'btFichas', 'btInventado', 'btCeu', 'btLinhasConst', 'btNomesConst', 'btIlustr', 'btViaReal', 'btDobra', 'btBrilho', 'btFigConst'];
 for (const id of chaves) {
   const existe = await p.evaluate((id) => { const b = document.getElementById(id); if (!b) return false; b.click(); window.__sim.quadros(3); b.click(); window.__sim.quadros(3); return true; }, id);
   if (!existe) falha(`botão ${id} sumiu`);
