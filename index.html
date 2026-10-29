@@ -104,6 +104,7 @@
   .messier.alvo { color: #ffd27a; }
   .constelacao { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: rgba(140, 180, 255, .55); text-shadow: 0 0 3px #000; pointer-events: auto; cursor: pointer; }
   .constelacao:hover { color: rgba(190, 215, 255, .95); }
+  .constelacao.indigena { color: rgba(255, 205, 150, .7); } .constelacao.indigena:hover { color: rgba(255, 225, 190, 1); }
   .bussola { position: absolute; transform: translate(-50%, -100%); font-size: 15px; font-weight: 700; color: rgba(255, 220, 160, .9); text-shadow: 0 0 4px #000; pointer-events: none; }
   @media (max-width: 1000px) { #pTerra { max-width: calc(100vw - 680px); min-width: 200px; } }
   @media (max-width: 760px) { #pTerra { top: 8px; left: 12px; right: 60px; transform: none; max-width: none; min-width: 0; } #pVel { top: 56px !important; } body.semPaineis #pTerra { display: none !important; } }
@@ -383,7 +384,7 @@
   <div class="linha"><input type="date" id="ceuData" aria-label="Data"><input type="time" id="ceuHora" value="22:00" aria-label="Hora local">
     <select id="ceuModoHora" aria-label="Tipo de hora"><option value="oficial" selected>hora oficial</option><option value="solar">hora solar</option></select></div>
   <div class="linha"><button id="btLinhasConst"></button><button id="btNomesConst"></button></div>
-  <div class="linha"><button id="btFigConst"></button></div>
+  <div class="linha"><button id="btFigConst"></button><select id="selCultura" aria-label="Constelações de qual povo"><option value="ocidental">Céu ocidental (UAI)</option><option value="tupi">Céu tupi-guarani</option><option value="tukano">Céu tukano</option></select></div>
   <div class="kv" style="margin-top:8px">
     <span>Olhando para</span><span id="ceuOlhando">—</span>
     <span>No céu agora</span><span id="ceuVisiveis" style="white-space:normal">—</span>
@@ -508,6 +509,7 @@
     <label><input type="checkbox" id="ckConst"> Nomes das constelações</label>
     <label><input type="checkbox" id="ckLinhasConst"> Desenho das constelações</label>
     <label><input type="checkbox" id="ckFigConst"> Figuras das constelações</label>
+    <label><select id="selCultura2" aria-label="Constelações de qual povo"><option value="ocidental">Céu ocidental (UAI)</option><option value="tupi">Céu tupi-guarani</option><option value="tukano">Céu tukano</option></select></label>
     <label title="Até onde chegaram as transmissões de rádio humanas"><input type="checkbox" id="ckBolha" checked> Bolha do rádio</label>
     <label title="Reduz a velocidade perto de planetas e estrelas, para não atravessá-los"><input type="checkbox" id="ckFreio" checked> Freio de proximidade</label>
   </div>

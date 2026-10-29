@@ -110,7 +110,7 @@ const estado = {
   pousado: null,              // corpo em que se está caminhando
   nomes: true, linhas: true, freio: true, cinturoes: true,
   fichas: (() => { try { return localStorage.getItem('viagemFichas') !== '0'; } catch { return true; } })(), // fichas de chegada
-  nivelar: true, giraJunto: true, exagero: 1, texturas: true, inventado: true, ceuRealcado: false, efeito: 'dobra', bolha: true, cidades: 'grandes', fronteiras: true, nomesTerra: true, picos: true, aviao: false, altAviao: 1, epocaMa: 0, nivelMar: 0, gelo: false, ceuModo: false, vistaFora: false, nuvensReais: true, nuvensDeriva: true, meteoros: true, meteoros10: false, bortle: 0, messier: true, refracao: true, predios: true, telescopio: false, zoom: 10, rastrear: true, atmFisica: true, constelacoes: false, linhasConst: false, ilustrativas: true, viaReal: true, nevoaTita: true, brilho: true, figurasConst: false,
+  nivelar: true, giraJunto: true, exagero: 1, texturas: true, inventado: true, ceuRealcado: false, efeito: 'dobra', bolha: true, cidades: 'grandes', fronteiras: true, nomesTerra: true, picos: true, aviao: false, altAviao: 1, epocaMa: 0, nivelMar: 0, gelo: false, ceuModo: false, vistaFora: false, nuvensReais: true, nuvensDeriva: true, meteoros: true, meteoros10: false, bortle: 0, messier: true, refracao: true, predios: true, telescopio: false, zoom: 10, rastrear: true, atmFisica: true, constelacoes: false, linhasConst: false, ilustrativas: true, viaReal: true, nevoaTita: true, brilho: true, figurasConst: false, ceuCultura: 'ocidental',
 };
 
 // ------------------------------- texturas -------------------------------
@@ -1406,9 +1406,8 @@ $('ceuData').onchange = $('ceuHora').onchange = () => {
 
 // Linhas das constelações (d3-celestial, © 2015 Olaf Frohn, licença BSD): ligar para se orientar, desligar para só apreciar
 let linhasConst = null;
-fetch('dados/constelacoes_linhas.bin').then((r) => r.arrayBuffer()).then((buf) => {
-  const p = new Float32Array(buf).map((v) => v * 1e9); // "no infinito", além de qualquer objeto
-  // cada segmento vira uma faixa de 4 vértices (2 em cada ponta), com largura fixa na tela
+// p: pontas dos segmentos (x, y, z, x, y, z...), já "no infinito"; cada segmento vira uma faixa de largura fixa na tela
+function malhaLinhasCeu(p, cor = [0.55, 0.72, 1.0]) {
   const nSeg = p.length / 6;
   const pos = new Float32Array(nSeg * 12), outra = new Float32Array(nSeg * 12), canto = new Float32Array(nSeg * 8), idx = new Uint32Array(nSeg * 6);
   for (let s = 0; s < nSeg; s++) {
@@ -1424,15 +1423,19 @@ fetch('dados/constelacoes_linhas.bin').then((r) => r.arrayBuffer()).then((buf) =
   geo.setAttribute('outra', new THREE.BufferAttribute(outra, 3));
   geo.setAttribute('canto', new THREE.BufferAttribute(canto, 2));
   geo.setIndex(new THREE.BufferAttribute(idx, 1));
-  linhasConst = new THREE.Mesh(geo, new THREE.ShaderMaterial({
+  const m = new THREE.Mesh(geo, new THREE.ShaderMaterial({
     vertexShader: S.LINHA_CEU_V, fragmentShader: S.LINHA_CEU_F,
-    uniforms: { opac: { value: 0.35 }, beta: { value: new THREE.Vector3() }, zenite: { value: new THREE.Vector3(0, 1, 0) }, refr: { value: 0 }, res: { value: new THREE.Vector2(1, 1) }, meia: { value: 0.6 } },
+    uniforms: { opac: { value: 0.35 }, beta: { value: new THREE.Vector3() }, zenite: { value: new THREE.Vector3(0, 1, 0) }, refr: { value: 0 }, res: { value: new THREE.Vector2(1, 1) }, meia: { value: 0.6 }, cor: { value: new THREE.Vector3(...cor) } },
     transparent: true, depthWrite: false, side: THREE.DoubleSide,
   }));
-  linhasConst.frustumCulled = false;
-  linhasConst.renderOrder = 4;
-  linhasConst.visible = false;
-  cena.add(linhasConst);
+  m.frustumCulled = false;
+  m.renderOrder = 4;
+  m.visible = false;
+  cena.add(m);
+  return m;
+}
+fetch('dados/constelacoes_linhas.bin').then((r) => r.arrayBuffer()).then((buf) => {
+  linhasConst = malhaLinhasCeu(new Float32Array(buf).map((v) => v * 1e9)); // "no infinito", além de qualquer objeto
 });
 // Figuras das constelações no céu (ilustrações do Stellarium), atrás do traçado; montadas na primeira vez que se ligam
 const figurasConst = criarFiguras(cena);
@@ -2014,6 +2017,7 @@ fetch('dados/constelacoes.json').then((r) => r.json()).then((lista) => {
   });
   // na busca: "orion", "escorpiao"… vira a câmera para a constelação e liga o desenho e os nomes
   for (const c of constelacoes) addBusca(`${c.nome} · ${tr('constelação')}`, c.nome, 1e10, () => {
+    if (estado.ceuCultura !== 'ocidental') escolherCultura('ocidental'); // é uma constelação do céu ocidental
     estado.constelacoes = true; estado.linhasConst = true; pintarCeuBotoes();
     const up = estado.ceuModo ? estado.local.clone().normalize() : null;
     quatOlhando(c.dir.clone(), estado.q, up);
@@ -2022,6 +2026,47 @@ fetch('dados/constelacoes.json').then((r) => r.json()).then((lista) => {
     mostrarFicha(c);
   });
 });
+// Céus indígenas do Brasil (tupi-guarani e tukano, do Stellarium; dados/gerar_ceus_indigenas.py): com um deles
+// escolhido, o traçado e os nomes das constelações mostram as dele no lugar das ocidentais
+const culturas = {};
+const IDX_IDIOMA = { pt: 0, en: 1, es: 2 }[idioma] ?? 0;
+Promise.all(['tupi', 'tukano'].map((k) => fetch(`dados/ceus/${k}.json`).then((r) => r.json())).concat(fetch('dados/ceus/textos.json').then((r) => r.json())))
+  .then(([tupi, tukano, textos]) => {
+    for (const d of [tupi, tukano]) {
+      const k = d.cultura, info = textos.culturas[k];
+      const povo = info.nome[IDX_IDIOMA];
+      const lista = d.constelacoes.map((x) => {
+        const tx = textos[k]?.[x.id] ?? {};
+        const nome = tx.nome?.[IDX_IDIOMA] ?? x.nativo ?? x.en;
+        const el = document.createElement('div');
+        el.className = 'constelacao indigena';
+        el.textContent = nome;
+        el.style.display = 'none';
+        camadaRot.append(el);
+        const c = { tipo: 'constelacaoIndigena', cultura: k, povo, nome, nativo: x.nativo, texto: tx.texto?.[IDX_IDIOMA] ?? '', cons: x.cons, sobre: info.sobre[IDX_IDIOMA], fontes: info.fontes, dir: new THREE.Vector3(...x.centro), el };
+        el.title = tr('Clique para ver a ficha da constelação');
+        el.onclick = () => mostrarFicha(c);
+        addBusca(`${nome}${x.nativo && x.nativo !== nome ? ` (${x.nativo})` : ''} · ${tr('constelação {povo}', { povo })}`, nome, 1e10, () => {
+          escolherCultura(k);
+          quatOlhando(c.dir.clone(), estado.q, estado.ceuModo ? estado.local.clone().normalize() : null);
+          mostrarFicha(c);
+        });
+        return c;
+      });
+      const segs = new Float32Array(d.constelacoes.flatMap((x) => x.segs)).map((v) => v * 1e9);
+      culturas[k] = { lista, malha: malhaLinhasCeu(segs, [1.0, 0.78, 0.5]) }; // laranja-claro, para não confundir com as ocidentais
+    }
+  }).catch(() => {});
+function escolherCultura(k) {
+  estado.ceuCultura = k;
+  if (k !== 'ocidental') { estado.linhasConst = true; estado.constelacoes = true; }
+  for (const id of ['selCultura', 'selCultura2']) if ($(id)) $(id).value = k;
+  pintarCeuBotoes();
+}
+for (const id of ['selCultura', 'selCultura2']) $(id).onchange = (e) => {
+  escolherCultura(e.target.value);
+  if (e.target.value !== 'ocidental') aviso(tr('Céu {povo}: clique no nome de uma constelação para saber mais.', { povo: tr(e.target.value === 'tupi' ? 'tupi-guarani' : 'tukano') }), 6000);
+};
 // ------------------------------- sondas e cometas: embarcar, momentos e fotos -------------------------------
 const nM = 64;
 const geoM = new THREE.BufferGeometry();
@@ -3668,7 +3713,15 @@ function desenharCeu(abs, postos) {
     const dSolAl = abs.distanceTo(PORID.sol.abs) / AL;
     const longe = Math.min(Math.max((dSolAl - 50) / 150, 0), 1); // somem entre 50 e 200 anos-luz do Sol
     const op = 0.38 * (1 - longe) * (1 - Math.min(diaNoCeu * 1.6, 1));
-    linhasConst.visible = estado.linhasConst && op > 0.01;
+    const indig = estado.ceuCultura !== 'ocidental' && culturas[estado.ceuCultura];
+    linhasConst.visible = estado.linhasConst && op > 0.01 && !indig;
+    for (const [k, cu] of Object.entries(culturas)) {
+      const u = cu.malha.material.uniforms, l = linhasConst.material.uniforms;
+      cu.malha.visible = estado.linhasConst && op > 0.01 && estado.ceuCultura === k;
+      if (!cu.malha.visible) continue;
+      u.opac.value = op * 1.3; u.beta.value.copy(betaVec); u.res.value.copy(renderer.getDrawingBufferSize(u.res.value)); u.meia.value = 0.6 * renderer.getPixelRatio();
+      u.refr.value = l.refr.value; u.zenite.value.copy(l.zenite.value);
+    }
     linhasConst.material.uniforms.opac.value = op;
     linhasConst.material.uniforms.beta.value.copy(betaVec);
     renderer.getDrawingBufferSize(linhasConst.material.uniforms.res.value);
@@ -3677,12 +3730,13 @@ function desenharCeu(abs, postos) {
   {
     const dSolAl = abs.distanceTo(PORID.sol.abs) / AL;
     const op = 0.26 * (1 - Math.min(Math.max((dSolAl - 50) / 150, 0), 1)) * (1 - Math.min(diaNoCeu * 1.6, 1));
-    figurasConst.atualizar(estado.figurasConst, op, betaVec, zenRefr, refrAtiva ? 1 : 0);
+    figurasConst.atualizar(estado.figurasConst && estado.ceuCultura === 'ocidental', op, betaVec, zenRefr, refrAtiva ? 1 : 0); // as figuras são as ocidentais
   }
   const verConst = estado.constelacoes && estado.nomes && abs.distanceTo(PORID.sol.abs) < 100 * AL && diaNoCeu < 0.6;
   const up = estado.ceuModo ? estado.local.clone().normalize() : null;
-  for (const c of constelacoes) {
-    let mostrar = verConst && (!up || c.dir.dot(up) > 0.02);
+  const cultura = culturas[estado.ceuCultura];
+  for (const c of constelacoes.concat(...Object.values(culturas).map((x) => x.lista))) {
+    let mostrar = verConst && (!up || c.dir.dot(up) > 0.02) && (c.cultura ? cultura && c.cultura === estado.ceuCultura : !cultura);
     if (mostrar) {
       aberrarJS(projetado.copy(c.dir).multiplyScalar(1e9)).applyMatrix4(camera.matrixWorldInverse);
       if (projetado.z >= 0) mostrar = false;

@@ -1721,5 +1721,22 @@
 "Tamanho da sombra vista da Terra": "Tamaño de la sombra vista desde la Tierra",
 "{n} microssegundos de arco": "{n} microsegundos de arco",
 "Nada que cruza o horizonte de eventos volta, nem a luz. A sombra que se vê é maior que o horizonte, uns 2,6 vezes o raio dele: ali a luz que passa perto cai no buraco.": "Nada que cruza el horizonte de sucesos vuelve, ni siquiera la luz. La sombra que se ve es mayor que el horizonte, unas 2,6 veces su radio: allí la luz que pasa cerca cae en el agujero.",
-"Mais perto não dá: o horizonte de eventos {de:c} fica a {d}. Lá dentro, nem a luz consegue sair.": "No se puede acercar más: el horizonte de sucesos {de:c} está a {d}. Allí dentro, ni la luz puede salir."
+"Mais perto não dá: o horizonte de eventos {de:c} fica a {d}. Lá dentro, nem a luz consegue sair.": "No se puede acercar más: el horizonte de sucesos {de:c} está a {d}. Allí dentro, ni la luz puede salir.",
+"constelação {povo}": "constelación {povo}",
+"Constelação {povo}": "Constelación {povo}",
+"Céu {povo}: clique no nome de uma constelação para saber mais.": "Cielo {povo}: haz clic en el nombre de una constelación para saber más.",
+"tupi-guarani": "tupí-guaraní",
+"tukano": "tukano",
+"A figura": "La figura",
+"No céu": "En el cielo",
+"Nome na língua do povo": "Nombre en la lengua del pueblo",
+"Usa estrelas de": "Usa estrellas de",
+"O céu {povo}": "El cielo {povo}",
+"Céu ocidental (UAI)": "Cielo occidental (UAI)",
+"Céu tupi-guarani": "Cielo tupí-guaraní",
+"Céu tukano": "Cielo tukano",
+"Constelações de qual povo": "Constelaciones de qué pueblo",
+"Céu tupi-guarani do Stellarium (Paulo Marcelo Pontes, GNU GPL v2.0)": "Cielo tupí-guaraní de Stellarium (Paulo Marcelo Pontes, GNU GPL v2.0)",
+"Céu tukano do Stellarium (Walmir Thomazi Cardoso, CC BY-SA)": "Cielo tukano de Stellarium (Walmir Thomazi Cardoso, CC BY-SA)",
+"Walmir Thomazi Cardoso, tese de doutorado (PUC-SP, 2007)": "Walmir Thomazi Cardoso, tesis doctoral (PUC-SP, 2007)"
 }

@@ -1,0 +1,10 @@
+dados/ceus/tupi.json: linhas e nomes do céu tupi-guarani do Stellarium (contribuição de Paulo Marcelo Pontes),
+licença GNU GPL v2.0 (https://www.gnu.org/licenses/old-licenses/gpl-2.0.html); posições das estrelas do HYG v4.1
+(CC BY-SA 4.0). O arquivo é distribuído sob a GNU GPL v2.0.
+
+dados/ceus/tukano.json: linhas e nomes do céu tukano do Stellarium, do levantamento de Walmir Thomazi Cardoso (tese de
+doutorado, PUC-SP, 2007), licença CC BY-SA; distribuído sob CC BY-SA 4.0.
+
+dados/ceus/textos.json: textos escritos para este projeto a partir das descrições do Stellarium, de Germano Bruno Afonso
+("Mitos e estações no céu tupi-guarani", Scientific American Brasil, 2006) e de Walmir Thomazi Cardoso (2007).
+Gerado por dados/gerar_ceus_indigenas.py.

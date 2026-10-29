@@ -1721,5 +1721,22 @@
 "Tamanho da sombra vista da Terra": "Size of the shadow seen from Earth",
 "{n} microssegundos de arco": "{n} microarcseconds",
 "Nada que cruza o horizonte de eventos volta, nem a luz. A sombra que se vê é maior que o horizonte, uns 2,6 vezes o raio dele: ali a luz que passa perto cai no buraco.": "Nothing that crosses the event horizon comes back, not even light. The shadow you see is larger than the horizon, about 2.6 times its radius: there, light passing close by falls into the hole.",
-"Mais perto não dá: o horizonte de eventos {de:c} fica a {d}. Lá dentro, nem a luz consegue sair.": "You can't get any closer: the event horizon of {o:c} is {d} away. Inside it, not even light can escape."
+"Mais perto não dá: o horizonte de eventos {de:c} fica a {d}. Lá dentro, nem a luz consegue sair.": "You can't get any closer: the event horizon of {o:c} is {d} away. Inside it, not even light can escape.",
+"constelação {povo}": "{povo} constellation",
+"Constelação {povo}": "{povo} constellation",
+"Céu {povo}: clique no nome de uma constelação para saber mais.": "{povo} sky: click a constellation name to learn more.",
+"tupi-guarani": "Tupi-Guarani",
+"tukano": "Tukano",
+"A figura": "The figure",
+"No céu": "In the sky",
+"Nome na língua do povo": "Name in the people's language",
+"Usa estrelas de": "Uses stars from",
+"O céu {povo}": "The {povo} sky",
+"Céu ocidental (UAI)": "Western sky (IAU)",
+"Céu tupi-guarani": "Tupi-Guarani sky",
+"Céu tukano": "Tukano sky",
+"Constelações de qual povo": "Whose constellations",
+"Céu tupi-guarani do Stellarium (Paulo Marcelo Pontes, GNU GPL v2.0)": "Stellarium Tupi-Guarani sky (Paulo Marcelo Pontes, GNU GPL v2.0)",
+"Céu tukano do Stellarium (Walmir Thomazi Cardoso, CC BY-SA)": "Stellarium Tukano sky (Walmir Thomazi Cardoso, CC BY-SA)",
+"Walmir Thomazi Cardoso, tese de doutorado (PUC-SP, 2007)": "Walmir Thomazi Cardoso, PhD thesis (PUC-SP, 2007)"
 }

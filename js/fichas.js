@@ -87,7 +87,8 @@ export function montarFicha(c, h) {
   const abrir = (titulo) => { secao = [t(titulo), []]; f.secoes.push(secao); };
   const add = (rotulo, valor) => { if (valor !== undefined && valor !== null && valor !== '') secao[1].push([rotulo === null ? null : t(rotulo), valor]); };
   const fonte = (chave) => { const x = tecnicos.fontes[chave]; if (x && !f.fontes.some((y) => y[1] === x[1])) f.fontes.push([t(x[0]), x[1]]); };
-  if (c.bn) fichaBuracoNegro(c, f, abrir, add, h);
+  if (c.tipo === 'constelacaoIndigena') fichaIndigena(c, f, abrir, add);
+  else if (c.bn) fichaBuracoNegro(c, f, abrir, add, h);
   else if (c.tipo === 'constelacao') fichaConstelacao(c, f, abrir, add, h);
   else if (c.tipo === 'relevo') fichaRelevo(c, f, abrir, add);
   else if (c.exo) fichaExoplaneta(c, f, abrir, add, h);
@@ -142,6 +143,19 @@ function fichaConstelacao(c, f, abrir, add, h) {
   f.fontes.push([t('Estrelas: HYG v4.1 (CC BY-SA 4.0)'), 'https://github.com/astronexus/HYG-Database']);
   if (d.messier.length) f.fontes.push([t('Objetos de Messier: OpenNGC (CC BY-SA 4.0)'), 'https://github.com/mattiaverga/OpenNGC']);
   if (tx?.povos) f.fontes.push([constTextos.fonte_povos, '']);
+}
+
+// Constelação de um céu indígena (tupi-guarani, tukano): o texto, o nome na língua do povo, por onde passa no céu
+// ocidental e o que o céu daquele povo representa
+function fichaIndigena(c, f, abrir, add) {
+  f.tipo = t('Constelação {povo}', { povo: c.povo });
+  if (c.texto) { abrir('A figura'); add(null, c.texto); }
+  abrir('No céu');
+  if (c.nativo && c.nativo !== c.nome) add('Nome na língua do povo', c.nativo);
+  if (c.cons?.length) add('Usa estrelas de', c.cons.map((n) => t(n)).join(', '));
+  abrir(t('O céu {povo}', { povo: c.povo })); add(null, c.sobre);
+  for (const [nome, url] of c.fontes ?? []) f.fontes.push([t(nome), url]);
+  f.consultado = null;
 }
 
 // Buraco negro: massa, horizonte de eventos (raio de Schwarzschild, rs = 2GM/c²), distância e o tamanho da sombra vista

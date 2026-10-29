@@ -1,0 +1,272 @@
+{
+ "culturas": {
+  "tupi": {
+   "nome": [
+    "tupi-guarani",
+    "Tupi-Guarani",
+    "tupí-guaraní"
+   ],
+   "sobre": [
+    "Os povos tupi-guarani usavam as constelações para marcar as estações, saber a hora de plantar e de colher, e organizar a vida. Em 1614, o missionário francês Claude d'Abbeville contou que os tupinambás do Maranhão conheciam umas trinta constelações. As quatro principais marcam o começo de cada estação: a Ema, o Homem Velho, a Anta do Norte e o Veado.",
+    "The Tupi-Guarani peoples used the constellations to mark the seasons, to know when to plant and when to harvest, and to organize life. In 1614, the French missionary Claude d'Abbeville reported that the Tupinambá of Maranhão knew about thirty constellations. The four main ones mark the start of each season: the Rhea, the Old Man, the Northern Tapir and the Deer.",
+    "Los pueblos tupí-guaraní usaban las constelaciones para marcar las estaciones, saber cuándo sembrar y cuándo cosechar, y organizar la vida. En 1614, el misionero francés Claude d'Abbeville contó que los tupinambás de Maranhão conocían unas treinta constelaciones. Las cuatro principales marcan el comienzo de cada estación: el Ñandú, el Hombre Viejo, el Tapir del Norte y el Venado."
+   ],
+   "fontes": [
+    [
+     "Céu tupi-guarani do Stellarium (Paulo Marcelo Pontes, GNU GPL v2.0)",
+     "https://github.com/Stellarium/stellarium-skycultures/tree/master/tupi"
+    ],
+    [
+     "Germano Bruno Afonso, \"Mitos e estações no céu tupi-guarani\", Scientific American Brasil (2006)",
+     ""
+    ],
+    [
+     "Claude d'Abbeville, Histoire de la Mission des Pères Capucins en l'Isle de Maragnan (Paris, 1614)",
+     ""
+    ]
+   ]
+  },
+  "tukano": {
+   "nome": [
+    "tukano",
+    "Tukano",
+    "tukano"
+   ],
+   "sobre": [
+    "Os tukanos vivem no noroeste do Amazonas, perto da Colômbia e da Venezuela. Estas constelações foram registradas entre 2005 e 2007 com os tukanos do rio Tiquié, na bacia do rio Negro, conversando com alunos, mais velhos e contadores de histórias. Para eles, o que mais importa é quando uma constelação se põe junto com o Sol: isso marca as chuvas, as secas, a subida do rio, a chegada dos peixes, o plantio e a colheita.",
+    "The Tukano live in the northwest of Amazonas, near Colombia and Venezuela. These constellations were recorded between 2005 and 2007 with the Tukano of the Tiquié River, in the Negro River basin, by talking with students, elders and storytellers. For them, what matters most is when a constellation sets together with the Sun: this marks the rains, the dry seasons, the rising of the river, the arrival of the fish, planting and harvest.",
+    "Los tukano viven en el noroeste de Amazonas, cerca de Colombia y Venezuela. Estas constelaciones fueron registradas entre 2005 y 2007 con los tukano del río Tiquié, en la cuenca del río Negro, conversando con alumnos, mayores y narradores de historias. Para ellos, lo que más importa es cuándo una constelación se pone junto con el Sol: eso marca las lluvias, las sequías, la subida del río, la llegada de los peces, la siembra y la cosecha."
+   ],
+   "fontes": [
+    [
+     "Céu tukano do Stellarium (Walmir Thomazi Cardoso, CC BY-SA)",
+     "https://github.com/Stellarium/stellarium-skycultures/tree/master/tukano"
+    ],
+    [
+     "Walmir Thomazi Cardoso, tese de doutorado (PUC-SP, 2007)",
+     "https://www.sapientia.pucsp.br/handle/handle/11272"
+    ]
+   ]
+  }
+ },
+ "tupi": {
+  "001": {
+   "nome": [
+    "Ema",
+    "Rhea",
+    "Ñandú"
+   ],
+   "texto": [
+    "Uma grande ema (Guirá Nhandu, em guarani; Iandutim, em tupi), desenhada ao longo da Via Láctea, do Cruzeiro do Sul até o Escorpião. A cabeça fica perto do Saco de Carvão, a mancha escura ao lado do Cruzeiro. Num dos relatos, o Cruzeiro do Sul segura a cabeça da ema para que ela não beba toda a água da Terra. Quando ela aparece inteira a leste ao anoitecer, na primeira quinzena de junho, começa o inverno no sul do Brasil e a seca no norte.",
+    "A great rhea (Guirá Nhandu in Guarani; Iandutim in Tupi), drawn along the Milky Way, from the Southern Cross to Scorpius. The head is near the Coalsack, the dark patch next to the Cross. In one account, the Southern Cross holds the rhea's head so that it does not drink all the water on Earth. When it appears whole in the east at nightfall, in the first half of June, winter begins in southern Brazil and the dry season in the north.",
+    "Un gran ñandú (Guirá Nhandu en guaraní; Iandutim en tupí), dibujado a lo largo de la Vía Láctea, desde la Cruz del Sur hasta Escorpio. La cabeza está cerca del Saco de Carbón, la mancha oscura junto a la Cruz. En uno de los relatos, la Cruz del Sur sujeta la cabeza del ñandú para que no se beba toda el agua de la Tierra. Cuando aparece entero al este al anochecer, en la primera quincena de junio, comienza el invierno en el sur de Brasil y la sequía en el norte."
+   ]
+  },
+  "002": {
+   "nome": [
+    "Homem Velho",
+    "Old Man",
+    "Hombre Viejo"
+   ],
+   "texto": [
+    "Um velho apoiado num bastão (Tuivae), formado por estrelas de Órion e do Touro, com as Híades e Aldebarã. Quando ele aparece inteiro a leste ao anoitecer, na segunda quinzena de dezembro, começa o verão no sul do Brasil e a época das chuvas no norte.",
+    "An old man leaning on a staff (Tuivae), made of stars of Orion and Taurus, with the Hyades and Aldebaran. When he appears whole in the east at nightfall, in the second half of December, summer begins in southern Brazil and the rainy season in the north.",
+    "Un viejo apoyado en un bastón (Tuivae), formado por estrellas de Orión y de Tauro, con las Híades y Aldebarán. Cuando aparece entero al este al anochecer, en la segunda quincena de diciembre, comienza el verano en el sur de Brasil y la época de lluvias en el norte."
+   ]
+  },
+  "003": {
+   "nome": [
+    "Anta do Norte",
+    "Northern Tapir",
+    "Tapir del Norte"
+   ],
+   "texto": [
+    "Uma anta (Tapi'i) desenhada na Via Láctea do céu do norte, com estrelas do Cisne, de Cassiopeia e de Cefeu. Ela aparece ao anoitecer na segunda quinzena de setembro, marcando a passagem do frio para o calor no sul do Brasil e da seca para as chuvas no norte.",
+    "A tapir (Tapi'i) drawn in the Milky Way of the northern sky, with stars of Cygnus, Cassiopeia and Cepheus. It appears at nightfall in the second half of September, marking the change from cold to warm in southern Brazil and from dry season to rains in the north.",
+    "Un tapir (Tapi'i) dibujado en la Vía Láctea del cielo del norte, con estrellas de Cisne, de Casiopea y de Cefeo. Aparece al anochecer en la segunda quincena de septiembre, marcando el paso del frío al calor en el sur de Brasil y de la sequía a las lluvias en el norte."
+   ]
+  },
+  "004": {
+   "nome": [
+    "Veado",
+    "Deer",
+    "Venado"
+   ],
+   "texto": [
+    "Um veado (Guaxu) formado por estrelas da Vela, da Quilha, do Cruzeiro do Sul e da Mosca. Ele aparece ao anoitecer na segunda quinzena de março, quando começa o outono no sul do Brasil e as chuvas dão lugar à seca no norte.",
+    "A deer (Guaxu) made of stars of Vela, Carina, the Southern Cross and Musca. It appears at nightfall in the second half of March, when autumn begins in southern Brazil and the rains give way to the dry season in the north.",
+    "Un venado (Guaxu) formado por estrellas de Vela, de Quilla, de la Cruz del Sur y de Mosca. Aparece al anochecer en la segunda quincena de marzo, cuando comienza el otoño en el sur de Brasil y las lluvias dan paso a la sequía en el norte."
+   ]
+  },
+  "005": {
+   "nome": [
+    "Joykexo",
+    "Joykexo",
+    "Joykexo"
+   ],
+   "texto": [
+    "As três estrelas das Três Marias, no cinturão de Órion, formam também uma constelação própria para os povos tupi-guarani, chamada Joykexo.",
+    "The three stars of Orion's Belt also form a constellation of their own for the Tupi-Guarani peoples, called Joykexo.",
+    "Las tres estrellas de las Tres Marías, en el Cinturón de Orión, forman también una constelación propia para los pueblos tupí-guaraní, llamada Joykexo."
+   ]
+  },
+  "006": {
+   "nome": [
+    "Enxame (Eixu)",
+    "Swarm (Eixu)",
+    "Enjambre (Eixu)"
+   ],
+   "texto": [
+    "As Plêiades, um enxame de abelhas ou de vespas para os povos tupi-guarani. Claude d'Abbeville registrou em 1614 que os tupinambás do Maranhão esperavam essas estrelas surgirem antes do amanhecer para saber que as chuvas iam chegar.",
+    "The Pleiades, a swarm of bees or wasps for the Tupi-Guarani peoples. Claude d'Abbeville recorded in 1614 that the Tupinambá of Maranhão waited for these stars to appear before dawn to know that the rains were coming.",
+    "Las Pléyades, un enjambre de abejas o de avispas para los pueblos tupí-guaraní. Claude d'Abbeville registró en 1614 que los tupinambás de Maranhão esperaban que estas estrellas aparecieran antes del amanecer para saber que las lluvias iban a llegar."
+   ]
+  },
+  "007": {
+   "nome": [
+    "Queixada da Anta",
+    "Tapir's Jaw",
+    "Mandíbula del Tapir"
+   ],
+   "texto": [
+    "O V de estrelas das Híades, com a alaranjada Aldebarã, lembra a mandíbula de uma anta (Tapi'i rainhyka).",
+    "The V of stars of the Hyades, with orange Aldebaran, looks like the jaw of a tapir (Tapi'i rainhyka).",
+    "La V de estrellas de las Híades, con la anaranjada Aldebarán, recuerda la mandíbula de un tapir (Tapi'i rainhyka)."
+   ]
+  }
+ },
+ "tukano": {
+  "001": {
+   "nome": [
+    "Jararaca",
+    "Jararaca",
+    "Yarará"
+   ],
+   "texto": [
+    "Uma grande cobra jararaca (Aña), formada por estrelas do Escorpião, de Sagitário e da Coroa Austral. Quando a cabeça dela se põe junto com o Sol, em novembro, começa o ano para os tukanos do rio Tiquié. É também quando o rio sobe e desce, novos peixes aparecem e frutas caem na água.",
+    "A great jararaca snake (Aña), made of stars of Scorpius, Sagittarius and Corona Australis. When its head sets together with the Sun, in November, the year begins for the Tukano of the Tiquié River. This is also when the river rises and falls, new fish appear and fruits fall into the water.",
+    "Una gran serpiente yarará (Aña), formada por estrellas de Escorpio, de Sagitario y de Corona Austral. Cuando su cabeza se pone junto con el Sol, en noviembre, comienza el año para los tukano del río Tiquié. Es también cuando el río sube y baja, aparecen peces nuevos y caen frutas al agua."
+   ]
+  },
+  "002": {
+   "nome": [
+    "Tatu",
+    "Armadillo",
+    "Armadillo"
+   ],
+   "texto": [
+    "Um tatu (Pamõ) formado pelas estrelas fracas do Delfim e por parte da Águia, perto da brilhante Altair.",
+    "An armadillo (Pamõ) made of the faint stars of Delphinus and part of Aquila, near bright Altair.",
+    "Un armadillo (Pamõ) formado por las estrellas débiles de Delfín y por parte de Águila, cerca de la brillante Altair."
+   ]
+  },
+  "003": {
+   "nome": [
+    "Camarão",
+    "Shrimp",
+    "Camarón"
+   ],
+   "texto": [
+    "Um camarão (Dahsiaw) de estrelas fracas na região de Aquário e da Baleia, junto com o peixe Mhua. As duas são difíceis de ver: um bom desafio para uma noite bem escura.",
+    "A shrimp (Dahsiaw) of faint stars in the region of Aquarius and Cetus, together with the fish Mhua. Both are hard to see: a good challenge for a very dark night.",
+    "Un camarón (Dahsiaw) de estrellas débiles en la región de Acuario y de Ballena, junto con el pez Mhua. Ambos son difíciles de ver: un buen desafío para una noche bien oscura."
+   ]
+  },
+  "004": {
+   "nome": [
+    "Jacundá",
+    "Pike cichlid (jacundá)",
+    "Jacundá"
+   ],
+   "texto": [
+    "Um peixe, o jacundá (Mhua), de estrelas fracas de Aquário, ao lado do camarão Dahsiaw.",
+    "A fish, the pike cichlid or jacundá (Mhua), made of faint stars of Aquarius, next to the shrimp Dahsiaw.",
+    "Un pez, el jacundá (Mhua), de estrellas débiles de Acuario, al lado del camarón Dahsiaw."
+   ]
+  },
+  "005": {
+   "nome": [
+    "Onça",
+    "Jaguar",
+    "Jaguar"
+   ],
+   "texto": [
+    "Uma das maiores constelações tukano: uma onça (Yai) formada por estrelas de Cassiopeia e de Perseu. Vista do Amazonas, ela passa a noite toda perto do horizonte norte.",
+    "One of the largest Tukano constellations: a jaguar (Yai) made of stars of Cassiopeia and Perseus. Seen from the Amazon, it spends the whole night near the northern horizon.",
+    "Una de las constelaciones tukano más grandes: un jaguar (Yai) formado por estrellas de Casiopea y Perseo. Vista desde el Amazonas, pasa toda la noche cerca del horizonte norte."
+   ]
+  },
+  "006": {
+   "nome": [
+    "Grupo de Estrelas",
+    "Group of Stars",
+    "Grupo de Estrellas"
+   ],
+   "texto": [
+    "Nhorkoatero quer dizer grupo de estrelas: são as Plêiades. Elas marcam o tempo no calendário tukano e anunciam a época das chuvas.",
+    "Nhorkoatero means group of stars: it is the Pleiades. They mark time in the Tukano calendar and announce the rainy season.",
+    "Nhorkoatero significa grupo de estrellas: son las Pléyades. Marcan el tiempo en el calendario tukano y anuncian la época de lluvias."
+   ]
+  },
+  "007": {
+   "nome": [
+    "Moquém",
+    "Moquém (smoking grill)",
+    "Moquém (parrilla de ahumar)"
+   ],
+   "texto": [
+    "O moquém (Waikhasa), a grelha de varas usada para assar e defumar peixe, formado pelas Híades e pela alaranjada Aldebarã, que vêm logo depois das Plêiades.",
+    "The moquém (Waikhasa), a grill of sticks used to roast and smoke fish, made of the Hyades and orange Aldebaran, which come right after the Pleiades.",
+    "El moquém (Waikhasa), la parrilla de varas usada para asar y ahumar pescado, formado por las Híades y por la anaranjada Aldebarán, que vienen justo después de las Pléyades."
+   ]
+  },
+  "008": {
+   "nome": [
+    "Cabo de Enxó",
+    "Adze Handle",
+    "Mango de Azuela"
+   ],
+   "texto": [
+    "O cabo de uma enxó (Sioyahpu), ferramenta de entalhar madeira, formado por estrelas das Três Marias e por Betelgeuse e Bellatrix, em Órion.",
+    "The handle of an adze (Sioyahpu), a tool for carving wood, made of stars of Orion's Belt and by Betelgeuse and Bellatrix, in Orion.",
+    "El mango de una azuela (Sioyahpu), herramienta para tallar madera, formado por estrellas de las Tres Marías y por Betelgeuse y Bellatrix, en Orión."
+   ]
+  },
+  "009": {
+   "nome": [
+    "Garça",
+    "Egret",
+    "Garza"
+   ],
+   "texto": [
+    "Uma garça (Yhé) na região da Cabeleira de Berenice. A posição exata ainda é discutida, porque alguns a põem no Corvo; aqui segue a dos tukanos da aldeia São José II.",
+    "An egret (Yhé) in the region of Coma Berenices. Its exact position is still debated, because some place it in Corvus; here we follow that of the Tukano of the village of São José II.",
+    "Una garza (Yhé) en la región de la Cabellera de Berenice. Su posición exacta aún se discute, porque algunos la ponen en el Cuervo; aquí se sigue la de los tukano de la aldea São José II."
+   ]
+  },
+  "010": {
+   "nome": [
+    "Tartaruga",
+    "Tortoise",
+    "Tortuga"
+   ],
+   "texto": [
+    "O Cruzeiro do Sul, que para os tukanos é uma tartaruga (Yurara), às vezes uma lontra.",
+    "The Southern Cross, which for the Tukano is a tortoise (Yurara), sometimes an otter.",
+    "La Cruz del Sur, que para los tukano es una tortuga (Yurara), a veces una nutria."
+   ]
+  },
+  "011": {
+   "nome": [
+    "Cobra",
+    "Snake",
+    "Serpiente"
+   ],
+   "texto": [
+    "Uma cobra (Sipé Phairó) formada pelas estrelas mais brilhantes do Grande Carro, na Ursa Maior. Conta a lenda que, quando ela toca o horizonte depois do pôr do Sol, engole quase todos os peixes do rio.",
+    "A snake (Sipé Phairó) made of the brightest stars of the Big Dipper, in Ursa Major. The legend says that when it touches the horizon after sunset, it swallows almost all the fish in the river.",
+    "Una serpiente (Sipé Phairó) formada por las estrellas más brillantes del Carro, en la Osa Mayor. Cuenta la leyenda que, cuando toca el horizonte después de la puesta del Sol, se traga casi todos los peces del río."
+   ]
+  }
+ }
+}

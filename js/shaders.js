@@ -694,13 +694,13 @@ export const FIGURA_CEU_F = LOGF + /* glsl */ `
     gl_FragColor = vec4(vec3(0.62, 0.76, 1.0) * a * opac, 1.0);
   }`;
 export const LINHA_CEU_F = LOGF + /* glsl */ `
-  uniform float opac, meia;
+  uniform float opac, meia; uniform vec3 cor;
   varying float vLado;
   void main() {
     #include <logdepthbuf_fragment>
     float px = abs(vLado) * (meia + 1.0);       // distância ao eixo, em pixels físicos
     float a = clamp(meia + 0.5 - px, 0.0, 1.0); // borda suave de um pixel
-    gl_FragColor = vec4(0.55, 0.72, 1.0, opac * a);
+    gl_FragColor = vec4(cor, opac * a);
   }`;
 
 export const CEU_VIA_F = LOGF + REL + /* glsl */ `

@@ -172,6 +172,18 @@ else falha(`nomes do relevo: ${JSON.stringify(rv)}`);
 await captura(p, 'pt-tycho');
 await p.evaluate(() => document.getElementById('fichaFechar')?.click());
 
+// céus indígenas: a busca da Ema troca para o céu tupi-guarani e abre a ficha
+const ind = await p.evaluate(async () => {
+  const s = window.__sim;
+  for (let k = 0; k < 40 && !s.buscar('ema')?.texto?.includes('Guir'); k++) await new Promise((r) => setTimeout(r, 100));
+  s.buscar('ema').acao(); s.quadros(3);
+  const r = { cultura: s.estado.ceuCultura, ficha: document.getElementById('fichaNome').textContent, nomes: [...document.querySelectorAll('.constelacao.indigena')].filter((e) => e.style.display !== 'none').length };
+  document.getElementById('selCultura2').value = 'ocidental'; document.getElementById('selCultura2').onchange({ target: document.getElementById('selCultura2') });
+  return r;
+});
+if (ind.cultura === 'tupi' && ind.ficha === 'Ema' && ind.nomes >= 1) ok('céu tupi-guarani: Ema na busca, no céu e na ficha'); else falha(`céus indígenas: ${JSON.stringify(ind)}`);
+await p.evaluate(() => document.getElementById('fichaFechar')?.click());
+
 // buraco negro: a lente liga perto dele e a ficha abre
 const bn = await p.evaluate(async () => {
   const s = window.__sim;
